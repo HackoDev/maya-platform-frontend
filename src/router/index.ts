@@ -1,0 +1,91 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+// Lazy-loaded pages
+const HomePage = () => import('@/pages/HomePage.vue')
+const AboutPage = () => import('@/pages/AboutPage.vue')
+const DashboardPage = () => import('@/pages/DashboardPage.vue')
+const LoginPage = () => import('@/pages/LoginPage.vue')
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    name: 'Home',
+    component: HomePage,
+    meta: {
+      title: 'Home',
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: AboutPage,
+    meta: {
+      title: 'About',
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginPage,
+    meta: {
+      title: 'Login',
+      requiresAuth: false,
+      hideForAuth: true,
+    },
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardPage,
+    meta: {
+      title: 'Dashboard',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/pages/NotFoundPage.vue'),
+    meta: {
+      title: 'Page Not Found',
+    },
+  },
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+})
+
+// Navigation guards
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    next({ name: 'Login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  // Redirect authenticated users away from login
+  if (to.meta.hideForAuth && userStore.isAuthenticated) {
+    next({ name: 'Dashboard' })
+    return
+  }
+
+  next()
+})
+
+// Update document title
+router.afterEach(to => {
+  const title = to.meta.title as string
+  if (title) {
+    document.title = `${title} | ${import.meta.env.VITE_APP_TITLE || 'Maya Platform'}`
+  }
+})
+
+export default router
