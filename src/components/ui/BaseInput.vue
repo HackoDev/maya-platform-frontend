@@ -17,7 +17,7 @@
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="$emit('blur', $event)"
       @focus="$emit('focus', $event)"
-    />
+    >
 
     <p v-if="error" class="text-sm text-red-600">
       {{ error }}

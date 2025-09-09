@@ -7,6 +7,9 @@ const HomePage = () => import('@/pages/HomePage.vue')
 const AboutPage = () => import('@/pages/AboutPage.vue')
 const DashboardPage = () => import('@/pages/DashboardPage.vue')
 const LoginPage = () => import('@/pages/LoginPage.vue')
+const ProfilePage = () => import('@/pages/ProfilePage.vue')
+const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
+const SupportPage = () => import('@/pages/SupportPage.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -44,6 +47,33 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Dashboard',
       requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfilePage,
+    meta: {
+      title: 'Мой профиль',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/search/specialists',
+    name: 'SearchSpecialists',
+    component: SearchSpecialistsPage,
+    meta: {
+      title: 'Поиск специалиста',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/support',
+    name: 'Support',
+    component: SupportPage,
+    meta: {
+      title: 'Поддержка',
+      requiresAuth: false,
     },
   },
   {

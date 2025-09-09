@@ -62,7 +62,9 @@
                 >
                   <span class="text-white text-2xl">🛡️</span>
                 </div>
-                <h3 class="mt-8 text-lg font-medium text-gray-900 tracking-tight">Type Safe</h3>
+                <h3 class="mt-8 text-lg font-medium text-gray-900 tracking-tight">
+Type Safe
+</h3>
                 <p class="mt-5 text-base text-gray-500">
                   Full TypeScript support with strict type checking for reliable code.
                 </p>
@@ -78,7 +80,9 @@
                 >
                   <span class="text-white text-2xl">🎨</span>
                 </div>
-                <h3 class="mt-8 text-lg font-medium text-gray-900 tracking-tight">Beautiful UI</h3>
+                <h3 class="mt-8 text-lg font-medium text-gray-900 tracking-tight">
+Beautiful UI
+</h3>
                 <p class="mt-5 text-base text-gray-500">
                   Styled with Tailwind CSS for rapid and consistent design development.
                 </p>

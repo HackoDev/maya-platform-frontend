@@ -4,7 +4,9 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+            <h1 class="text-xl font-semibold text-gray-900">
+Dashboard
+</h1>
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-700">Welcome, {{ userStore.currentUser?.name }}</span>
@@ -33,7 +35,9 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Counter</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+Counter
+</dt>
                     <dd class="text-lg font-medium text-gray-900">
                       Count: {{ counterStore.count }} ({{ counterStore.isEven ? 'Even' : 'Odd' }})
                     </dd>
@@ -76,7 +80,9 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">User Profile</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+User Profile
+</dt>
                     <dd class="text-lg font-medium text-gray-900">
                       {{ userStore.currentUser?.email }}
                     </dd>
@@ -97,7 +103,9 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Statistics</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+Statistics
+</dt>
                     <dd class="text-lg font-medium text-gray-900">
                       Double Count: {{ counterStore.doubleCount }}
                     </dd>

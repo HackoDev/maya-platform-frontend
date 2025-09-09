@@ -10,8 +10,20 @@ export const useUserStore = defineStore('user', () => {
 
   const isAuthenticated = computed(() => currentUser.value !== null)
   const userCount = computed(() => users.value.length)
+  const userDisplayName = computed(() => {
+    if (!currentUser.value) return ''
+    return `${currentUser.value.firstName} ${currentUser.value.lastName}`
+  })
+  const userInitials = computed(() => {
+    if (!currentUser.value) return ''
+    return `${currentUser.value.firstName.charAt(0)}${currentUser.value.lastName.charAt(0)}`
+  })
+  const userTypeLabel = computed(() => {
+    if (!currentUser.value) return ''
+    return currentUser.value.userType === 'specialist' ? 'Специалист' : 'Клиент'
+  })
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, _password: string) => {
     loading.value = true
     error.value = null
 
@@ -22,8 +34,14 @@ export const useUserStore = defineStore('user', () => {
       currentUser.value = {
         id: '1',
         name: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         email,
         role: 'user',
+        userType: 'specialist',
+        isActive: true,
+        avatar: undefined,
+        lastLoginAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -46,6 +64,9 @@ export const useUserStore = defineStore('user', () => {
     error,
     isAuthenticated,
     userCount,
+    userDisplayName,
+    userInitials,
+    userTypeLabel,
     login,
     logout,
   }
