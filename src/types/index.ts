@@ -81,3 +81,129 @@ export interface NavigationStoreActions {
   setActiveRoute(route: string): void
   getVisibleNavigationItems(): NavigationItem[]
 }
+
+// Support module interfaces
+export interface FAQ {
+  id: string
+  question: string
+  answer: string
+  category: 'general' | 'technical' | 'billing' | 'account'
+  priority: number
+  isPopular: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SupportMessage {
+  id: string
+  ticketId: string
+  message: string
+  isFromSupport: boolean
+  createdAt: string
+  author: {
+    name: string
+    role: 'user' | 'support' | 'admin'
+  }
+}
+
+export interface SupportTicket {
+  id: string
+  message: string
+  status: 'open' | 'in-progress' | 'resolved' | 'closed'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  createdAt: string
+  updatedAt: string
+  resolvedAt?: string
+  assignedTo?: string
+  messages: SupportMessage[]
+}
+
+export interface SupportFormData {
+  message: string
+}
+
+// Support store interfaces
+export interface SupportStoreState {
+  faqs: FAQ[]
+  supportTickets: SupportTicket[]
+  currentTicket: SupportTicket | null
+  expandedFAQs: Set<string>
+  loading: {
+    faqs: boolean
+    tickets: boolean
+    submission: boolean
+  }
+  error: string | null
+}
+
+export interface SupportStoreActions {
+  fetchFAQs(): Promise<void>
+  fetchSupportTickets(): Promise<void>
+  submitSupportRequest(message: string): Promise<void>
+  toggleFAQ(faqId: string): void
+  clearErrors(): void
+  setCurrentTicket(ticket: SupportTicket | null): void
+}
+
+// Support module interfaces
+export interface FAQ {
+  id: string
+  question: string
+  answer: string
+  category: 'general' | 'technical' | 'billing' | 'account'
+  priority: number
+  isPopular: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SupportMessage {
+  id: string
+  ticketId: string
+  message: string
+  isFromSupport: boolean
+  createdAt: string
+  author: {
+    name: string
+    role: 'user' | 'support' | 'admin'
+  }
+}
+
+export interface SupportTicket {
+  id: string
+  message: string
+  status: 'open' | 'in-progress' | 'resolved' | 'closed'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  createdAt: string
+  updatedAt: string
+  resolvedAt?: string
+  assignedTo?: string
+  messages: SupportMessage[]
+}
+
+export interface SupportFormData {
+  message: string
+}
+
+// Support store interfaces
+export interface SupportStoreState {
+  faqs: FAQ[]
+  supportTickets: SupportTicket[]
+  currentTicket: SupportTicket | null
+  expandedFAQs: Set<string>
+  loading: {
+    faqs: boolean
+    tickets: boolean
+    submission: boolean
+  }
+  error: string | null
+}
+
+export interface SupportStoreActions {
+  fetchFAQs(): Promise<void>
+  fetchSupportTickets(): Promise<void>
+  submitSupportRequest(message: string): Promise<void>
+  toggleFAQ(faqId: string): void
+  clearErrors(): void
+  setCurrentTicket(ticket: SupportTicket | null): void
+}
