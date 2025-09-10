@@ -111,22 +111,6 @@ export const useSupportStore = defineStore('support', () => {
     currentTicket.value = ticket
   }
 
-  const searchFAQs = (query: string): FAQ[] => {
-    if (!query.trim()) return faqs.value
-    
-    const searchTerm = query.toLowerCase()
-    return faqs.value.filter(
-      faq =>
-        faq.question.toLowerCase().includes(searchTerm) ||
-        faq.answer.toLowerCase().includes(searchTerm)
-    )
-  }
-
-  const getFAQsByCategory = (category: string): FAQ[] => {
-    if (!category) return faqs.value
-    return faqs.value.filter(faq => faq.category === category)
-  }
-
   const getTicketsByStatus = (status: SupportTicket['status']): SupportTicket[] => {
     return supportTickets.value.filter(ticket => ticket.status === status)
   }
@@ -162,8 +146,6 @@ export const useSupportStore = defineStore('support', () => {
     isFAQExpanded,
     clearErrors,
     setCurrentTicket,
-    searchFAQs,
-    getFAQsByCategory,
     getTicketsByStatus,
     initialize,
   }

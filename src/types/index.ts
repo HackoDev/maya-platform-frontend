@@ -94,6 +94,15 @@ export interface FAQ {
   updatedAt: string
 }
 
+// Simplified FAQ interface for redesigned components
+export interface SimplifiedFAQ {
+  id: string
+  question: string
+  answer: string
+  priority: number
+  isPopular?: boolean  // Optional, for internal sorting only
+}
+
 export interface SupportMessage {
   id: string
   ticketId: string
@@ -101,7 +110,6 @@ export interface SupportMessage {
   isFromSupport: boolean
   createdAt: string
   author: {
-    name: string
     role: 'user' | 'support' | 'admin'
   }
 }
@@ -110,11 +118,11 @@ export interface SupportTicket {
   id: string
   message: string
   status: 'open' | 'in-progress' | 'resolved' | 'closed'
-  priority: 'low' | 'medium' | 'high' | 'urgent'
   createdAt: string
   updatedAt: string
   resolvedAt?: string
   assignedTo?: string
+  hasUnreadMessages: boolean
   messages: SupportMessage[]
 }
 
@@ -143,46 +151,6 @@ export interface SupportStoreActions {
   toggleFAQ(faqId: string): void
   clearErrors(): void
   setCurrentTicket(ticket: SupportTicket | null): void
-}
-
-// Support module interfaces
-export interface FAQ {
-  id: string
-  question: string
-  answer: string
-  category: 'general' | 'technical' | 'billing' | 'account'
-  priority: number
-  isPopular: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface SupportMessage {
-  id: string
-  ticketId: string
-  message: string
-  isFromSupport: boolean
-  createdAt: string
-  author: {
-    name: string
-    role: 'user' | 'support' | 'admin'
-  }
-}
-
-export interface SupportTicket {
-  id: string
-  message: string
-  status: 'open' | 'in-progress' | 'resolved' | 'closed'
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  createdAt: string
-  updatedAt: string
-  resolvedAt?: string
-  assignedTo?: string
-  messages: SupportMessage[]
-}
-
-export interface SupportFormData {
-  message: string
 }
 
 // Support store interfaces

@@ -12,8 +12,14 @@
     <!-- Header -->
     <div class="flex items-start justify-between mb-3">
       <div class="flex items-center space-x-3">
-        <div class="flex-shrink-0">
+        <div class="flex-shrink-0 relative">
           <TicketIcon class="h-5 w-5 text-gray-400" />
+          <!-- Unread indicator -->
+          <div 
+            v-if="ticket.hasUnreadMessages"
+            class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"
+            :title="'Новые сообщения'"
+          ></div>
         </div>
         <div>
           <h3 class="text-sm font-medium text-gray-900 dark:text-white">
@@ -25,19 +31,13 @@
         </div>
       </div>
       
-      <!-- Status and Priority -->
+      <!-- Status -->
       <div class="flex items-center space-x-2">
         <span 
           class="px-2 py-1 text-xs font-medium rounded-full"
           :class="statusClasses[ticket.status]"
         >
           {{ statusLabels[ticket.status] }}
-        </span>
-        <span 
-          class="px-2 py-1 text-xs font-medium rounded-full"
-          :class="priorityClasses[ticket.priority]"
-        >
-          {{ priorityLabels[ticket.priority] }}
         </span>
       </div>
     </div>
@@ -52,16 +52,16 @@
     <!-- Footer -->
     <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
       <div class="flex items-center space-x-4">
-        <!-- Message count -->
+        <!-- Message count with unread indicator -->
         <div class="flex items-center space-x-1">
           <ChatBubbleLeftRightIcon class="h-4 w-4" />
           <span>{{ ticket.messages.length }} сообщени{{ getMessageEnding(ticket.messages.length) }}</span>
-        </div>
-        
-        <!-- Assigned to -->
-        <div v-if="ticket.assignedTo" class="flex items-center space-x-1">
-          <UserIcon class="h-4 w-4" />
-          <span>{{ ticket.assignedTo }}</span>
+          <div 
+            v-if="ticket.hasUnreadMessages"
+            class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full"
+          >
+            новые
+          </div>
         </div>
       </div>
       
@@ -90,7 +90,6 @@ import { computed } from 'vue'
 import {
   TicketIcon,
   ChatBubbleLeftRightIcon,
-  UserIcon,
   ClockIcon,
   CheckCircleIcon,
 } from '@heroicons/vue/24/outline'
@@ -120,21 +119,6 @@ const statusLabels = {
   'in-progress': 'В работе',
   resolved: 'Решен',
   closed: 'Закрыт',
-}
-
-// Priority styling
-const priorityClasses = {
-  low: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-  medium: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  high: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-  urgent: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-}
-
-const priorityLabels = {
-  low: 'Низкий',
-  medium: 'Средний',
-  high: 'Высокий',
-  urgent: 'Срочный',
 }
 
 // Computed properties

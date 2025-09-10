@@ -90,11 +90,11 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-1',
     message: 'Не могу войти в свой аккаунт, постоянно выдает ошибку "Неверный пароль"',
     status: 'resolved',
-    priority: 'medium',
     createdAt: '2024-01-20T14:30:00Z',
     updatedAt: '2024-01-21T09:15:00Z',
     resolvedAt: '2024-01-21T09:15:00Z',
     assignedTo: 'Анна Смирнова',
+    hasUnreadMessages: false,
     messages: [
       {
         id: 'msg-1',
@@ -103,7 +103,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-20T14:30:00Z',
         author: {
-          name: 'Иван Петров',
           role: 'user',
         },
       },
@@ -114,7 +113,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: true,
         createdAt: '2024-01-20T15:45:00Z',
         author: {
-          name: 'Анна Смирнова',
           role: 'support',
         },
       },
@@ -125,7 +123,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-21T09:15:00Z',
         author: {
-          name: 'Иван Петров',
           role: 'user',
         },
       },
@@ -135,10 +132,10 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-2',
     message: 'На странице профиля не сохраняются изменения. Нажимаю "Сохранить", но данные остаются старыми.',
     status: 'in-progress',
-    priority: 'high',
     createdAt: '2024-01-22T11:20:00Z',
     updatedAt: '2024-01-22T16:30:00Z',
     assignedTo: 'Михаил Козлов',
+    hasUnreadMessages: true,
     messages: [
       {
         id: 'msg-4',
@@ -147,7 +144,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-22T11:20:00Z',
         author: {
-          name: 'Мария Васильева',
           role: 'user',
         },
       },
@@ -158,7 +154,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: true,
         createdAt: '2024-01-22T16:30:00Z',
         author: {
-          name: 'Михаил Козлов',
           role: 'support',
         },
       },
@@ -168,9 +163,9 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-3',
     message: 'Хотел бы предложить добавить функцию экспорта данных в Excel формате',
     status: 'open',
-    priority: 'low',
     createdAt: '2024-01-23T09:45:00Z',
     updatedAt: '2024-01-23T09:45:00Z',
+    hasUnreadMessages: false,
     messages: [
       {
         id: 'msg-6',
@@ -179,7 +174,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-23T09:45:00Z',
         author: {
-          name: 'Алексей Николаев',
           role: 'user',
         },
       },
@@ -189,11 +183,11 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-4',
     message: 'Получаю ошибку 500 при попытке загрузить файл размером больше 10МБ',
     status: 'resolved',
-    priority: 'high',
     createdAt: '2024-01-19T13:15:00Z',
     updatedAt: '2024-01-20T10:20:00Z',
     resolvedAt: '2024-01-20T10:20:00Z',
     assignedTo: 'Елена Сидорова',
+    hasUnreadMessages: false,
     messages: [
       {
         id: 'msg-7',
@@ -202,7 +196,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-19T13:15:00Z',
         author: {
-          name: 'Дмитрий Федоров',
           role: 'user',
         },
       },
@@ -213,7 +206,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: true,
         createdAt: '2024-01-20T10:20:00Z',
         author: {
-          name: 'Елена Сидорова',
           role: 'support',
         },
       },
@@ -223,11 +215,11 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-5',
     message: 'Не приходят email уведомления, хотя в настройках они включены',
     status: 'closed',
-    priority: 'medium',
     createdAt: '2024-01-18T16:00:00Z',
     updatedAt: '2024-01-19T11:30:00Z',
     resolvedAt: '2024-01-19T11:30:00Z',
     assignedTo: 'Анна Смирнова',
+    hasUnreadMessages: false,
     messages: [
       {
         id: 'msg-9',
@@ -236,7 +228,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-18T16:00:00Z',
         author: {
-          name: 'Ольга Кузнецова',
           role: 'user',
         },
       },
@@ -247,7 +238,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: true,
         createdAt: '2024-01-19T11:30:00Z',
         author: {
-          name: 'Анна Смирнова',
           role: 'support',
         },
       },
@@ -257,9 +247,9 @@ export const mockSupportTicketsData: SupportTicket[] = [
     id: 'ticket-6',
     message: 'Предлагаю добавить темную тему оформления',
     status: 'open',
-    priority: 'low',
     createdAt: '2024-01-24T12:00:00Z',
     updatedAt: '2024-01-24T12:00:00Z',
+    hasUnreadMessages: false,
     messages: [
       {
         id: 'msg-11',
@@ -268,7 +258,6 @@ export const mockSupportTicketsData: SupportTicket[] = [
         isFromSupport: false,
         createdAt: '2024-01-24T12:00:00Z',
         author: {
-          name: 'Сергей Морозов',
           role: 'user',
         },
       },
@@ -294,9 +283,9 @@ export const mockApiSubmitTicket = async (message: string): Promise<SupportTicke
     id: `ticket-${Date.now()}`,
     message,
     status: 'open',
-    priority: 'medium',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    hasUnreadMessages: false,
     messages: [
       {
         id: `msg-${Date.now()}`,
@@ -305,7 +294,6 @@ export const mockApiSubmitTicket = async (message: string): Promise<SupportTicke
         isFromSupport: false,
         createdAt: new Date().toISOString(),
         author: {
-          name: 'Текущий пользователь',
           role: 'user',
         },
       },

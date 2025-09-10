@@ -19,13 +19,12 @@
 
         <!-- FAQ Section -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <FAQSection
-            :faqs="faqs"
+          <SimpleFAQSection
+            :faqs="simplifiedFAQs"
             :loading="loading.faqs"
             :error="error"
             @toggle-faq="handleToggleFAQ"
             @refresh="handleRefreshFAQs"
-            @feedback="handleFAQFeedback"
           />
         </div>
 
@@ -54,80 +53,21 @@
             @cancel="handleCancelSupportForm"
           />
         </div>
-
-        <!-- Quick Links Section -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            Дополнительные ресурсы
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a
-              href="#"
-              class="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 
-                     rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200"
-            >
-              <DocumentTextIcon class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              <div>
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  Документация
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Руководства и API
-                </p>
-              </div>
-            </a>
-            
-            <a
-              href="#"
-              class="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 
-                     rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200"
-            >
-              <VideoCameraIcon class="h-6 w-6 text-green-600 dark:text-green-400" />
-              <div>
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  Видео-туториалы
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Обучающие материалы
-                </p>
-              </div>
-            </a>
-            
-            <a
-              href="#"
-              class="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 
-                     rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200"
-            >
-              <ChatBubbleLeftRightIcon class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              <div>
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  Сообщество
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Форум пользователей
-                </p>
-              </div>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import {
   QuestionMarkCircleIcon,
-  DocumentTextIcon,
-  VideoCameraIcon,
-  ChatBubbleLeftRightIcon,
 } from '@heroicons/vue/24/outline'
 import { useSupportData } from '@/composables/useSupportData'
-import FAQSection from '@/components/support/FAQSection.vue'
+import SimpleFAQSection from '@/components/support/SimpleFAQSection.vue'
 import SupportHistorySection from '@/components/support/SupportHistorySection.vue'
 import SupportForm from '@/components/support/SupportForm.vue'
-import type { SupportTicket } from '@/types'
+import type { SupportTicket, SimplifiedFAQ } from '@/types'
 
 // Composables
 const {
@@ -147,6 +87,17 @@ const {
 // Local state
 const showSupportForm = ref(false)
 
+// Computed properties
+const simplifiedFAQs = computed((): SimplifiedFAQ[] => {
+  return faqs.value.map(faq => ({
+    id: faq.id,
+    question: faq.question,
+    answer: faq.answer,
+    priority: faq.priority,
+    isPopular: faq.isPopular
+  }))
+})
+
 // Event handlers
 const handleToggleFAQ = (faqId: string): void => {
   toggleFAQ(faqId)
@@ -158,19 +109,6 @@ const handleRefreshFAQs = async (): Promise<void> => {
   } catch (err) {
     console.error('Failed to refresh FAQs:', err)
   }
-}
-
-const handleFAQFeedback = (data: { faqId: string; isHelpful: boolean }): void => {
-  // Log feedback for analytics (could be sent to backend)
-  console.log('FAQ feedback:', data)
-  
-  // Show user acknowledgment
-  const message = data.isHelpful 
-    ? 'Спасибо за отзыв!' 
-    : 'Мы работаем над улучшением ответов'
-  
-  // Could be replaced with proper toast notification
-  console.log(message)
 }
 
 const handleTicketClick = (ticket: SupportTicket): void => {
