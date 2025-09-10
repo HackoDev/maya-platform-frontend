@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-1">
-    <label v-if="label" :for="inputId" class="block text-sm font-medium text-gray-700">
+    <label v-if="label" :for="inputId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="text-red-500 dark:text-red-400">*</span>
     </label>
 
     <input
@@ -19,11 +19,11 @@
       @focus="$emit('focus', $event)"
     >
 
-    <p v-if="error" class="text-sm text-red-600">
+    <p v-if="error" class="text-sm text-red-600 dark:text-red-400">
       {{ error }}
     </p>
 
-    <p v-if="hint && !error" class="text-sm text-gray-500">
+    <p v-if="hint && !error" class="text-sm text-gray-500 dark:text-gray-400">
       {{ hint }}
     </p>
   </div>
@@ -69,12 +69,12 @@ const inputClasses = computed(() => {
   }
 
   const stateClasses = props.error
-    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-    : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
+    ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500'
+    : 'border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-primary-500 dark:focus:border-blue-500 dark:focus:ring-blue-500'
 
   const disabledClasses = props.disabled
-    ? 'bg-gray-50 text-gray-500 cursor-not-allowed'
-    : 'bg-white'
+    ? 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
 
   return [baseClasses, sizeClasses[props.size], stateClasses, disabledClasses].join(' ')
 })

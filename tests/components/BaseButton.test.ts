@@ -12,7 +12,7 @@ describe('BaseButton', () => {
 
     expect(wrapper.text()).toBe('Click me')
     expect(wrapper.find('button').exists()).toBe(true)
-    expect(wrapper.classes()).toContain('bg-primary-600')
+    expect(wrapper.classes()).toContain('bg-blue-600')
   })
 
   it('applies variant classes correctly', () => {

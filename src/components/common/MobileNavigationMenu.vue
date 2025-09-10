@@ -64,43 +64,19 @@
         </router-link>
       </div>
 
-      <!-- User Info Section -->
+      <!-- Logout Section (Simplified) -->
       <div
-        class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700"
+        class="absolute bottom-0 left-0 right-0 p-4 border-t 
+               border-gray-200 dark:border-gray-700"
       >
-        <div class="flex items-center space-x-3 mb-4">
-          <img
-            v-if="user?.avatar"
-            :src="user.avatar"
-            :alt="userDisplayName"
-            class="h-10 w-10 rounded-full object-cover"
-          >
-          <div
-            v-else
-            class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 
-                   flex items-center justify-center"
-          >
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {{ userInitials }}
-            </span>
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {{ userDisplayName }}
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {{ userTypeLabel }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Logout Button -->
         <button
-          class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium 
-                 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 
-                 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors"
           @click="handleLogout"
+          class="w-full flex items-center justify-center px-4 py-3 
+                 text-sm font-medium text-red-600 dark:text-red-400 
+                 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 
+                 dark:hover:bg-red-900/30 rounded-md transition-colors 
+                 duration-150 focus:outline-none focus:ring-2 
+                 focus:ring-red-500 focus:ring-offset-2"
         >
           <ArrowRightOnRectangleIcon class="h-4 w-4 mr-2" />
           Выйти
@@ -133,21 +109,6 @@ const emit = defineEmits<Emits>()
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-
-const userDisplayName = computed(() => {
-  if (!props.user) return ''
-  return `${props.user.firstName} ${props.user.lastName}`
-})
-
-const userInitials = computed(() => {
-  if (!props.user) return ''
-  return `${props.user.firstName.charAt(0)}${props.user.lastName.charAt(0)}`
-})
-
-const userTypeLabel = computed(() => {
-  if (!props.user) return ''
-  return props.user.userType === 'specialist' ? 'Специалист' : 'Клиент'
-})
 
 const isActiveRoute = (path: string) => {
   return route.path === path
