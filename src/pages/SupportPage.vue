@@ -31,12 +31,11 @@
         <!-- Support History Section -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <SupportHistorySection
+            ref="supportHistoryRef"
             :tickets="recentTickets"
             :loading="loading.tickets"
             :error="error"
             @ticket-click="handleTicketClick"
-            @view-all="handleViewAllTickets"
-            @filter="handleFilterTickets"
             @refresh="handleRefreshTickets"
             @retry="handleRefreshTickets"
           />
@@ -86,6 +85,9 @@ const {
   setCurrentTicket,
 } = useSupportData()
 
+// Template refs
+const supportHistoryRef = ref<InstanceType<typeof SupportHistorySection> | null>(null)
+
 // Local state
 const showSupportForm = ref(false)
 
@@ -119,21 +121,19 @@ const handleTicketClick = (ticket: SupportTicket): void => {
   router.push({ name: 'SupportTicketDialog', params: { id: ticket.id } })
 }
 
-const handleViewAllTickets = (): void => {
-  // Navigate to tickets list page
-  console.log('Navigate to all tickets')
-}
-
-const handleFilterTickets = (status: SupportTicket['status']): void => {
-  // Filter tickets by status
-  console.log('Filter tickets by status:', status)
-}
-
 const handleRefreshTickets = async (): Promise<void> => {
   try {
     await refreshTickets()
+    // Reset refresh loading state in child component
+    if (supportHistoryRef.value) {
+      supportHistoryRef.value.handleRefreshComplete()
+    }
   } catch (err) {
     console.error('Failed to refresh tickets:', err)
+    // Reset refresh loading state even on error
+    if (supportHistoryRef.value) {
+      supportHistoryRef.value.handleRefreshComplete()
+    }
   }
 }
 

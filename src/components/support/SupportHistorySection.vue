@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <!-- Section Header -->
+    <!-- Section Header with Refresh Button -->
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <ClockIcon class="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -14,61 +14,23 @@
         </div>
       </div>
       
-      <!-- Summary Stats -->
-      <div class="hidden md:flex items-center space-x-6">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {{ openTicketsCount }}
-          </div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            Открытых
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-            {{ inProgressTicketsCount }}
-          </div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            В работе
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400">
-            {{ resolvedTicketsCount }}
-          </div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            Решенных
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile Stats -->
-    <div class="md:hidden grid grid-cols-3 gap-4">
-      <div class="text-center bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-        <div class="text-xl font-bold text-blue-600 dark:text-blue-400">
-          {{ openTicketsCount }}
-        </div>
-        <div class="text-xs text-gray-600 dark:text-gray-400">
-          Открытых
-        </div>
-      </div>
-      <div class="text-center bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3">
-        <div class="text-xl font-bold text-yellow-600 dark:text-yellow-400">
-          {{ inProgressTicketsCount }}
-        </div>
-        <div class="text-xs text-gray-600 dark:text-gray-400">
-          В работе
-        </div>
-      </div>
-      <div class="text-center bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
-        <div class="text-xl font-bold text-green-600 dark:text-green-400">
-          {{ resolvedTicketsCount }}
-        </div>
-        <div class="text-xs text-gray-600 dark:text-gray-400">
-          Решенных
-        </div>
-      </div>
+      <!-- Refresh Button with Spinner -->
+      <button
+        type="button"
+        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        @click="handleRefresh"
+        title="Обновить"
+        :disabled="refreshLoading"
+      >
+        <ArrowPathIcon 
+          v-if="!refreshLoading"
+          class="h-5 w-5 text-gray-600 dark:text-gray-400" 
+        />
+        <div 
+          v-else
+          class="h-5 w-5 animate-spin rounded-full border-b-2 border-gray-600 dark:border-gray-400"
+        ></div>
+      </button>
     </div>
 
     <!-- Loading State -->
@@ -125,69 +87,12 @@
         :ticket="ticket"
         @click="handleTicketClick"
       />
-      
-      <!-- View All Link -->
-      <div v-if="tickets.length >= 5" class="text-center pt-4">
-        <button
-          type="button"
-          class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 
-                 font-medium text-sm focus:outline-none focus:underline"
-          @click="handleViewAll"
-        >
-          Посмотреть все обращения →
-        </button>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-      <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
-        Быстрые действия
-      </h3>
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 
-                 border border-gray-300 dark:border-gray-600 rounded-lg 
-                 hover:bg-gray-50 dark:hover:bg-gray-600 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                 transition-colors duration-200"
-          @click="() => handleFilter('open')"
-        >
-          <span class="inline-block w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
-          Открытые тикеты
-        </button>
-        <button
-          type="button"
-          class="px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 
-                 border border-gray-300 dark:border-gray-600 rounded-lg 
-                 hover:bg-gray-50 dark:hover:bg-gray-600 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                 transition-colors duration-200"
-          @click="() => handleFilter('in-progress')"
-        >
-          <span class="inline-block w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-          В работе
-        </button>
-        <button
-          type="button"
-          class="px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 
-                 border border-gray-300 dark:border-gray-600 rounded-lg 
-                 hover:bg-gray-50 dark:hover:bg-gray-600 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                 transition-colors duration-200"
-          @click="handleRefresh"
-        >
-          <ArrowPathIcon class="inline-block h-4 w-4 mr-2" />
-          Обновить
-        </button>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref } from 'vue'
 import {
   ClockIcon,
   TicketIcon,
@@ -205,8 +110,6 @@ interface Props {
 
 interface Emits {
   (e: 'ticket-click', ticket: SupportTicket): void
-  (e: 'view-all'): void
-  (e: 'filter', status: SupportTicket['status']): void
   (e: 'refresh'): void
   (e: 'retry'): void
 }
@@ -217,20 +120,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// Computed properties
-const openTicketsCount = computed(() => 
-  props.tickets.filter(ticket => ticket.status === 'open').length
-)
-
-const inProgressTicketsCount = computed(() => 
-  props.tickets.filter(ticket => ticket.status === 'in-progress').length
-)
-
-const resolvedTicketsCount = computed(() => 
-  props.tickets.filter(ticket => 
-    ticket.status === 'resolved' || ticket.status === 'closed'
-  ).length
-)
+// Local state for refresh button loading
+const refreshLoading = ref(false)
 
 // Utility methods
 const getTicketsEnding = (count: number): string => {
@@ -244,19 +135,21 @@ const handleTicketClick = (ticket: SupportTicket): void => {
   emit('ticket-click', ticket)
 }
 
-const handleViewAll = (): void => {
-  emit('view-all')
-}
-
-const handleFilter = (status: SupportTicket['status']): void => {
-  emit('filter', status)
-}
-
 const handleRefresh = (): void => {
+  refreshLoading.value = true
   emit('refresh')
+}
+
+const handleRefreshComplete = (): void => {
+  refreshLoading.value = false
 }
 
 const handleRetry = (): void => {
   emit('retry')
 }
+
+// Expose method to parent component to reset loading state
+defineExpose({
+  handleRefreshComplete
+})
 </script>

@@ -2,7 +2,7 @@
   <div class="neural-network-questionnaire-form">
     <!-- Progress Header -->
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-      <div class="max-w-4xl mx-auto px-4 py-4">
+      <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Анкета нейросетевого специалиста
@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <!-- Block Content -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div class="p-6">
