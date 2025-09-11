@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div class="space-y-6">
         <!-- Back Button -->
         <div class="flex items-center">
@@ -49,25 +49,22 @@
         <!-- Ticket Content -->
         <div v-else-if="ticket" class="space-y-6">
           <!-- Ticket Header -->
-          <TicketHeader :ticket="ticket" />
-
-          <!-- Messages List -->
-          <MessageList :messages="ticket.messages" />
-
-          <!-- Message Input (only for open tickets) -->
-          <MessageInput
-            v-if="ticket.status === 'open' || ticket.status === 'in-progress'"
-            :loading="loading.messageSubmission"
-            :error="messageError"
-            @submit="handleAddMessage"
-            @clear-error="clearMessageError"
+          <TicketHeader 
+            :ticket="ticket" 
+            @resolve="handleShowResolutionConfirm"
           />
 
-          <!-- Ticket Actions -->
-          <TicketActions
+          <!-- Ticket Conversation (Messages + Input + Actions) -->
+          <TicketConversation
             :ticket="ticket"
-            :loading="loading.resolution"
-            @resolve="handleResolveTicket"
+            :messages="ticket.messages"
+            :loading="{
+              messageSubmission: loading.messageSubmission,
+              resolution: loading.resolution
+            }"
+            :message-error="messageError"
+            @add-message="handleAddMessage"
+            @clear-message-error="clearMessageError"
           />
         </div>
 
@@ -92,6 +89,15 @@
       </div>
     </div>
   </div>
+  
+  <!-- Resolution Confirmation Modal -->
+  <ResolutionConfirmModal
+    v-if="showResolutionConfirm"
+    :ticket="ticket"
+    :loading="loading.resolution"
+    @confirm="handleConfirmResolution"
+    @cancel="handleCancelResolution"
+  />
 </template>
 
 <script setup lang="ts">
@@ -104,10 +110,10 @@ import {
 } from '@heroicons/vue/24/outline'
 import { useSupportData } from '@/composables/useSupportData'
 import TicketHeader from '@/components/support/TicketHeader.vue'
-import MessageList from '@/components/support/MessageList.vue'
-import MessageInput from '@/components/support/MessageInput.vue'
-import TicketActions from '@/components/support/TicketActions.vue'
-import type { SupportTicket, SupportMessage } from '@/types'
+import TicketConversation from '@/components/support/TicketConversation.vue'
+import ResolutionConfirmModal from '@/components/support/ResolutionConfirmModal.vue'
+
+import type { SupportTicket } from '@/types'
 
 // Composables
 const route = useRoute()
@@ -127,6 +133,7 @@ const {
 const ticket = ref<SupportTicket | null>(null)
 const messageError = ref<string | null>(null)
 const initialLoading = ref(true)
+const showResolutionConfirm = ref(false)
 
 // Computed properties
 const isLoading = computed(() => loading.value.ticket)
@@ -192,7 +199,11 @@ const handleAddMessage = async (message: string): Promise<void> => {
   }
 }
 
-const handleResolveTicket = async (): Promise<void> => {
+const handleShowResolutionConfirm = (): void => {
+  showResolutionConfirm.value = true
+}
+
+const handleConfirmResolution = async (): Promise<void> => {
   try {
     if (!ticket.value) {
       throw new Error('No ticket selected')
@@ -206,10 +217,17 @@ const handleResolveTicket = async (): Promise<void> => {
       ticket.value.resolvedAt = updatedTicket.resolvedAt
       ticket.value.updatedAt = updatedTicket.updatedAt
     }
+    
+    // Close modal
+    showResolutionConfirm.value = false
   } catch (err) {
     console.error('Failed to resolve ticket:', err)
     // Error handling would be implemented here
   }
+}
+
+const handleCancelResolution = (): void => {
+  showResolutionConfirm.value = false
 }
 
 const clearMessageError = (): void => {

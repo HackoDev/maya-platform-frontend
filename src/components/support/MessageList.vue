@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+  <div>
     <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
       История сообщений
     </h2>
     
-    <div class="space-y-6">
+    <div class="space-y-4">
       <div 
         v-for="message in messages" 
         :key="message.id"
