@@ -153,6 +153,9 @@ export interface SupportStoreActions {
   setCurrentTicket(ticket: SupportTicket | null): void
 }
 
+// Export neural network profile types
+export * from './neural-network-profile'
+
 // Support store interfaces
 export interface SupportStoreState {
   faqs: FAQ[]
@@ -175,3 +178,6 @@ export interface SupportStoreActions {
   clearErrors(): void
   setCurrentTicket(ticket: SupportTicket | null): void
 }
+
+// Export neural network profile types
+export * from './neural-network-profile'

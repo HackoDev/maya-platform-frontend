@@ -55,6 +55,9 @@ export const useUserStore = defineStore('user', () => {
   const logout = () => {
     currentUser.value = null
     error.value = null
+    
+    // Clear any cached data
+    users.value = []
   }
 
   return {

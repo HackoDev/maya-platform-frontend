@@ -11,6 +11,7 @@ const ProfilePage = () => import('@/pages/ProfilePage.vue')
 const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
+const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -65,6 +66,15 @@ const routes: RouteRecordRaw[] = [
     component: ChangePasswordPage,
     meta: {
       title: 'Смена пароля',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile/neural-network',
+    name: 'NeuralNetworkProfile',
+    component: NeuralNetworkProfilePage,
+    meta: {
+      title: 'Анкета нейросетевого специалиста',
       requiresAuth: true,
     },
   },
