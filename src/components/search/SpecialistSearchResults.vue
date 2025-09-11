@@ -65,6 +65,7 @@
           :key="specialist.id"
           :specialist="specialist"
           @view-profile="handleViewProfile"
+          @view-profile-modal="handleViewProfileModal"
         />
       </div>
 
@@ -159,6 +160,7 @@ interface Emits {
   (e: 'clear-search'): void
   (e: 'retry'): void
   (e: 'view-profile', specialist: SpecialistProfile): void
+  (e: 'view-profile-modal', specialist: SpecialistProfile): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -190,6 +192,10 @@ const infiniteScroll = useInfiniteScroll(
 // Methods
 const handleViewProfile = (specialist: SpecialistProfile): void => {
   emit('view-profile', specialist)
+}
+
+const handleViewProfileModal = (specialist: SpecialistProfile): void => {
+  emit('view-profile-modal', specialist)
 }
 
 // Watch for changes that affect infinite scroll

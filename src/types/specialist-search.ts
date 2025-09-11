@@ -24,10 +24,6 @@ export interface SpecialistProfile {
   }
 
   // Metadata
-  rating?: number
-  reviewCount?: number
-  completedProjects?: number
-  responseTime?: string
   status: 'available' | 'busy' | 'unavailable'
   lastActive: string
 }

@@ -12,6 +12,7 @@ const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
 const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
+const SpecialistProfileViewPage = () => import('@/pages/SpecialistProfileViewPage.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -85,6 +86,16 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Поиск специалиста',
       requiresAuth: true,
+    },
+  },
+  {
+    path: '/specialist/:id',
+    name: 'SpecialistProfile',
+    component: SpecialistProfileViewPage,
+    props: true,
+    meta: {
+      title: 'Профиль специалиста',
+      requiresAuth: false,
     },
   },
   {

@@ -1,6 +1,7 @@
 <template>
   <div class="specialist-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-              rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6">
+              rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6 cursor-pointer"
+       @click="viewProfile">
     <!-- Header with Avatar and Basic Info -->
     <div class="specialist-header flex items-start space-x-4 mb-4">
       <!-- Avatar -->
@@ -98,12 +99,50 @@
     <!-- Metadata Row -->
     <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
       <div class="flex items-center space-x-4">
-        <span v-if="specialist.completedProjects">
-          <strong class="text-gray-900 dark:text-white">{{ specialist.completedProjects }}</strong> проектов
-        </span>
       </div>
       <div class="text-xs">
         {{ lastActiveText }}
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
+      <div class="flex items-center space-x-2">
+        <button
+          @click.stop="viewProfile"
+          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 
+                 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 
+                 rounded-md transition-colors focus:outline-none focus:ring-2 
+                 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          Профиль
+        </button>
+        
+        <button
+          @click.stop="viewProfileModal"
+          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 
+                 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 
+                 rounded-md transition-colors focus:outline-none focus:ring-2 
+                 focus:ring-gray-500 focus:ring-offset-2"
+        >
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          Быстрый просмотр
+        </button>
+      </div>
+      
+      <div class="flex items-center space-x-1">
+        <ContactButtons
+          :contacts="specialist.contacts"
+          :specialist-name="specialist.displayName"
+          size="xs"
+          :show-save="false"
+        />
       </div>
     </div>
 
@@ -112,7 +151,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import type { SpecialistCardProps, SpecialistProfile } from '@/types/specialist-search'
+import ContactButtons from './ContactButtons.vue'
 
 interface Props {
   specialist: SpecialistProfile
@@ -120,10 +161,12 @@ interface Props {
 
 interface Emits {
   (e: 'view-profile', specialist: SpecialistProfile): void
+  (e: 'view-profile-modal', specialist: SpecialistProfile): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const router = useRouter()
 
 // Computed properties
 const initials = computed(() => {
@@ -205,6 +248,23 @@ const formatPrice = (service: SpecialistProfile['services'][0]): string => {
     default:
       return `${formattedPrice} ₽`
   }
+}
+
+const viewProfile = (): void => {
+  // Navigate to profile view page
+  router.push({
+    name: 'SpecialistProfile',
+    params: { id: props.specialist.id },
+    query: { from: 'search' }
+  })
+  
+  // Also emit event for parent components
+  emit('view-profile', props.specialist)
+}
+
+const viewProfileModal = (): void => {
+  // Emit event to open modal
+  emit('view-profile-modal', props.specialist)
 }
 </script>
 

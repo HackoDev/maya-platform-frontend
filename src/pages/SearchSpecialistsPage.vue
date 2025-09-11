@@ -34,18 +34,32 @@
         @clear-search="handleClearSearch"
         @retry="handleRetrySearch"
         @view-profile="handleViewProfile"
+        @view-profile-modal="handleViewProfileModal"
       />
     </div>
+    
+    <!-- Profile Modal -->
+    <SpecialistProfileModal
+      :specialist-id="modalSpecialistId"
+      :is-open="isModalOpen"
+      @close="handleCloseModal"
+      @share="handleShareProfile"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import SpecialistSearchFilters from '@/components/search/SpecialistSearchFilters.vue'
 import SpecialistSearchResults from '@/components/search/SpecialistSearchResults.vue'
+import SpecialistProfileModal from '@/components/profile/SpecialistProfileModal.vue'
 import { useSpecialistSearchStore } from '@/stores/specialist-search'
 import type { SearchFilters, SpecialistProfile } from '@/types/specialist-search'
+
+// Modal state
+const isModalOpen = ref(false)
+const modalSpecialistId = ref<string | undefined>()
 
 // Store
 const searchStore = useSpecialistSearchStore()
@@ -107,8 +121,26 @@ const handleViewProfile = (specialist: SpecialistProfile): void => {
   // Handle viewing full specialist profile
   console.log('View profile:', specialist.displayName)
   
-  // TODO: Navigate to specialist profile page
-  // router.push(`/specialists/${specialist.id}`)
+  // Navigation is handled by the SpecialistCard component
+}
+
+const handleViewProfileModal = (specialist: SpecialistProfile): void => {
+  // Handle viewing specialist profile in modal
+  console.log('View profile modal:', specialist.displayName)
+  
+  // Set the modal state
+  modalSpecialistId.value = specialist.id
+  isModalOpen.value = true
+}
+
+const handleCloseModal = (): void => {
+  isModalOpen.value = false
+  modalSpecialistId.value = undefined
+}
+
+const handleShareProfile = (): void => {
+  // Handle profile sharing from modal
+  console.log('Share profile from modal')
 }
 
 // Initialize
