@@ -5,11 +5,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
       <div class="flex justify-between items-center h-full">
         <!-- Logo/Brand -->
-        <div class="flex items-center">
-          <router-link to="/" class="flex items-center space-x-2">
-            <span class="text-xl font-bold text-blue-600 dark:text-blue-400"> 
-              Maya Platform
-            </span>
+        <div class="flex items-center space-x-2">
+          <router-link to="/" class="flex items-center">
+            <MayaLogoIcon class="h-8 w-8" />
+            <div class="flex flex-col ml-2">
+              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight">База</span>
+              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight">Специалистов</span>
+            </div>
           </router-link>
         </div>
 
@@ -78,6 +80,7 @@ import { useUserStore } from '@/stores/user'
 import { useNavigationStore } from '@/stores/navigation'
 import UserProfileSection from './UserProfileSection.vue'
 import MobileNavigationMenu from './MobileNavigationMenu.vue'
+import MayaLogoIcon from '@/components/icons/MayaLogoIcon.vue'
 import type { TopNavbarProps } from '@/types'
 
 interface Props extends TopNavbarProps {
