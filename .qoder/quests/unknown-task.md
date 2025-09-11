@@ -1,0 +1,100 @@
+# Design Document: Replace Header Text with SVG Icon
+
+## 1. Overview
+
+This document outlines the design for replacing the "Maya Platform" text in the site header with a custom SVG icon. The change will be implemented in the TopNavbar component.
+
+## 2. Current Implementation
+
+The current header implementation uses a simple text element for the brand name within a router link component.
+
+## 3. Proposed Solution
+
+Replace the text span with an inline SVG component to display the custom logo. The solution will:
+
+1. Create a new Vue component for the SVG icon
+2. Replace the text element with the SVG component in the header
+3. Maintain the same styling and accessibility features
+
+## 4. Component Architecture
+
+### 4.1 New Component: MayaLogoIcon.vue
+
+Create a new component in the icons directory that encapsulates the complete SVG logo with all paths and styling. The SVG icon has the following characteristics:
+
+- Dimensions: 100x100 pixels
+- Primary color: Pink (#FF3EB3) for the background
+- Secondary color: Black for the logo paths
+- Rounded corners (10px radius)
+
+The SVG code to be implemented:
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+  <g clip-path="url(#clip0_142_1676)">
+    <rect width="100" height="100" rx="10" fill="#FF3EB3"></rect>
+    <rect width="100" height="100" fill="#FF3EB3"></rect>
+    <path d="M47.8947 12V37.6667H41.0834V14.5324L42.6047 14.7036L32.5778 37.6667H25.3169L15.2555 14.772L16.8114 14.6009V37.6667H10V12H21.0642L30.365 34.0391H27.5989L36.8306 12H47.8947Z" fill="black"></path>
+    <path d="M57.3739 32.7387V27.0236H80.1681V32.7387H57.3739ZM74.9656 12L90 37.6667H80.2563L67.6467 15.0116H70.2921L57.6385 37.6667H47.8947L62.9292 12H74.9656Z" fill="black"></path>
+    <path d="M10 76.1667V49.9226H21.2081V72.3525L18.0764 71.8976L41.4266 49.9226H56.3158V76.1667H45.0528V53.3169L48.2394 53.7718L24.4496 76.1667H10ZM18.9005 41.9444H27.856C28.2956 42.6909 28.9365 43.2625 29.779 43.6591C30.6581 44.0323 31.7386 44.2189 33.0205 44.2189C34.3025 44.2189 35.3647 44.0323 36.2072 43.6591C37.0862 43.2625 37.7455 42.6909 38.1851 41.9444H47.1405C46.3347 44.1606 44.6682 45.7702 42.1409 46.7733C39.6502 47.7531 36.6101 48.243 33.0205 48.243C29.4676 48.243 26.4275 47.7531 23.9002 46.7733C21.3729 45.7702 19.7064 44.1606 18.9005 41.9444Z" fill="black"></path>
+    <path d="M83.6511 57.1391V63.8467H69.8512L69.8071 63.6641C67.2793 63.6641 65.0602 63.2231 63.1496 62.3409C61.2685 61.4587 59.7988 60.2115 58.7407 58.5993C57.712 56.987 57.1976 55.101 57.1976 52.9412C57.1976 50.7205 57.712 48.8041 58.7407 47.1918C59.7988 45.5492 61.2685 44.2716 63.1496 43.359C65.0602 42.416 67.2793 41.9444 69.8071 41.9444H90V76.1667H80.8294V44.4541L84.9297 48.6976H71.1298C69.6308 48.6976 68.455 49.0779 67.6026 49.8384C66.7796 50.5684 66.3681 51.6027 66.3681 52.9412C66.3681 54.2492 66.7796 55.2835 67.6026 56.044C68.455 56.7741 69.6308 57.1391 71.1298 57.1391H83.6511ZM78.1841 60.1507L66.8972 76.1667H56.3158L67.9554 60.1507H78.1841Z" fill="black"></path>
+    <path d="M15.4033 80.4444V82.2011H11.0807L11.9622 81.3085V87.5662H10V80.4444H15.4033Z" fill="black"></path>
+    <path d="M18.3714 86.1988V84.613H23.2722V86.1988H18.3714ZM22.1537 80.4444L25.3861 87.5662H23.2912L20.5801 81.2801H21.1488L18.4282 87.5662H16.3333L19.5658 80.4444H22.1537Z" fill="black"></path>
+    <path d="M29.1403 80.4444H36.1171V87.5662H34.1454V81.299L35.0365 82.1916H30.2399L31.0646 81.5364C31.1152 81.9542 31.1499 82.3562 31.1689 82.7424C31.1878 83.1222 31.1973 83.483 31.1973 83.8249C31.1973 84.7365 31.1152 85.4803 30.9509 86.0564C30.7865 86.6261 30.5274 87.0439 30.1735 87.3098C29.8196 87.5757 29.3615 87.7086 28.799 87.7086C28.5526 87.7086 28.3093 87.6833 28.0691 87.6326C27.8353 87.582 27.6204 87.506 27.4245 87.4047V85.7715C27.7026 85.8791 27.9585 85.9329 28.1923 85.9329C28.6031 85.9329 28.897 85.7462 29.0739 85.3727C29.2572 84.9992 29.3488 84.3883 29.3488 83.54C29.3488 83.1285 29.3299 82.6664 29.292 82.1536C29.2604 81.6409 29.2098 81.0712 29.1403 80.4444Z" fill="black"></path>
+    <path d="M39.3307 87.5662V80.4444H41.2645V86.5311L40.7241 86.4077L44.7529 80.4444H47.3218V87.5662H45.3785V81.3655L45.9283 81.489L41.8237 87.5662H39.3307Z" fill="black"></path>
+    <path d="M57.9994 80.4444V86.4647L57.2979 85.819H59.2317V89H57.3833V87.1958L57.9236 87.5662H50.5486V80.4444H52.5108V86.4647L51.8757 85.819H56.7292L56.0372 86.4647V80.4444H57.9994Z" fill="black"></path>
+    <path d="M62.0627 87.5662V80.4444H64.0155V85.9994L63.4941 85.5911L67.5229 80.4444H69.5989L63.8354 87.5662H62.0627ZM65.4564 84.1667L66.8973 82.9703L69.6937 87.5662H67.466L65.4564 84.1667Z" fill="black"></path>
+    <path d="M73.5908 86.1988V84.613H78.4917V86.1988H73.5908ZM77.3731 80.4444L80.6056 87.5662H78.5107L75.7995 81.2801H76.3683L73.6477 87.5662H71.5528L74.7852 80.4444H77.3731Z" fill="black"></path>
+    <path d="M88.635 83.6065V85.0023H85.6679L85.6584 84.9644C85.1149 84.9644 84.6378 84.8726 84.227 84.689C83.8226 84.5054 83.5066 84.2459 83.2791 83.9103C83.0579 83.5748 82.9473 83.1823 82.9473 82.7329C82.9473 82.2708 83.0579 81.872 83.2791 81.5364C83.5066 81.1946 83.8226 80.9287 84.227 80.7388C84.6378 80.5426 85.1149 80.4444 85.6584 80.4444H90V87.5662H88.0283V80.9667L88.9099 81.8498H85.9428C85.6205 81.8498 85.3677 81.9289 85.1845 82.0872C85.0075 82.2391 84.919 82.4543 84.919 82.7329C84.919 83.0051 85.0075 83.2203 85.1845 83.3786C85.3677 83.5305 85.6205 83.6065 85.9428 83.6065H88.635ZM87.4595 84.2332L85.0328 87.5662H82.7577L85.2603 84.2332H87.4595Z" fill="black"></path>
+  </g>
+  <defs>
+    <clipPath id="clip0_142_1676">
+      <rect width="100" height="100" rx="10" fill="white"></rect>
+    </clipPath>
+  </defs>
+</svg>
+```
+
+### 4.2 Modified TopNavbar.vue
+
+Update the TopNavbar component to:
+
+1. Import the new MayaLogoIcon component
+2. Replace the text element with the SVG component
+3. Maintain all existing functionality and styling
+
+## 5. Implementation Steps
+
+## 5. Implementation Steps
+
+1. Create the MayaLogoIcon.vue component in the src/components/icons/ directory
+2. Modify the TopNavbar.vue component to import and use the new SVG component
+3. Replace the text span with the SVG component
+4. Adjust styling as needed to maintain proper spacing and alignment
+5. Test the implementation across different screen sizes and themes (light/dark)
+
+## 6. Styling Considerations
+
+- The SVG will maintain its original colors as defined in the SVG code
+- The size will be controlled via CSS classes
+- The icon will be properly aligned with other header elements
+- Support for both light and dark themes will be implemented using Tailwind CSS dark: classes
+- No additional styling is required as the SVG includes all necessary visual properties
+
+## 7. Accessibility
+
+- The SVG includes appropriate accessibility attributes since it's decorative and the link itself provides the necessary context
+- The router-link maintains all existing accessibility features
+- The visual representation doesn't change the functional accessibility of the header
+
+## 8. Testing
+
+- Verify the icon displays correctly in both light and dark themes
+- Check responsive behavior on mobile, tablet, and desktop views
+- Ensure the link functionality remains intact
+- Confirm the icon scales appropriately when the browser zooms
+
+## 9. Files to be Modified
+
+1. Create: MayaLogoIcon.vue component
+2. Modify: TopNavbar.vue component
