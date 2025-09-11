@@ -1,6 +1,6 @@
 import { computed, onMounted } from 'vue'
 import { useSupportStore } from '@/stores/support'
-import type { FAQ, SupportTicket } from '@/types'
+import type { FAQ, SupportTicket, SupportMessage } from '@/types'
 
 export interface UseSupportDataReturn {
   // Data
@@ -14,6 +14,9 @@ export interface UseSupportDataReturn {
     faqs: boolean
     tickets: boolean
     submission: boolean
+    ticket: boolean
+    messageSubmission: boolean
+    resolution: boolean
   }>>
   
   // Counts
@@ -35,6 +38,11 @@ export interface UseSupportDataReturn {
   clearErrors: () => void
   setCurrentTicket: (ticket: SupportTicket | null) => void
   initialize: () => Promise<void>
+  
+  // New actions for ticket dialog
+  fetchTicket: (ticketId: string) => Promise<void>
+  addMessage: (ticketId: string, message: string) => Promise<SupportMessage>
+  resolveTicket: (ticketId: string) => Promise<SupportTicket>
 }
 
 /**
@@ -131,6 +139,47 @@ export function useSupportData(): UseSupportDataReturn {
     }
   }
 
+  const fetchTicket = async (ticketId: string): Promise<void> => {
+    try {
+      await supportStore.fetchTicket(ticketId)
+    } catch (err) {
+      console.error('Failed to fetch ticket:', err)
+      throw err
+    }
+  }
+
+  const addMessage = async (ticketId: string, message: string): Promise<SupportMessage> => {
+    if (!message?.trim()) {
+      throw new Error('Message is required')
+    }
+
+    if (message.trim().length < 5) {
+      throw new Error('Message must be at least 5 characters long')
+    }
+
+    if (message.trim().length > 1000) {
+      throw new Error('Message must be less than 1000 characters')
+    }
+
+    try {
+      const result = await supportStore.addMessage(ticketId, message.trim())
+      return result
+    } catch (err) {
+      console.error('Failed to add message:', err)
+      throw err
+    }
+  }
+
+  const resolveTicket = async (ticketId: string): Promise<SupportTicket> => {
+    try {
+      const result = await supportStore.resolveTicket(ticketId)
+      return result
+    } catch (err) {
+      console.error('Failed to resolve ticket:', err)
+      throw err
+    }
+  }
+
   // Auto-initialize when composable is used
   if (typeof window !== 'undefined') {
     onMounted(() => {
@@ -171,5 +220,10 @@ export function useSupportData(): UseSupportDataReturn {
     clearErrors,
     setCurrentTicket,
     initialize,
+    
+    // New actions for ticket dialog
+    fetchTicket,
+    addMessage,
+    resolveTicket,
   }
 }

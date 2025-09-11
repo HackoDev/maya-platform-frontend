@@ -140,6 +140,9 @@ export interface SupportStoreState {
     faqs: boolean
     tickets: boolean
     submission: boolean
+    ticket: boolean
+    messageSubmission: boolean
+    resolution: boolean
   }
   error: string | null
 }
@@ -151,6 +154,11 @@ export interface SupportStoreActions {
   toggleFAQ(faqId: string): void
   clearErrors(): void
   setCurrentTicket(ticket: SupportTicket | null): void
+  
+  // New actions
+  fetchTicket(ticketId: string): Promise<void>
+  addMessage(ticketId: string, message: string): Promise<SupportMessage>
+  resolveTicket(ticketId: string): Promise<SupportTicket>
 }
 
 // Export neural network profile types
@@ -158,27 +166,3 @@ export * from './neural-network-profile'
 
 // Export specialist search types
 export * from './specialist-search'
-export interface SupportStoreState {
-  faqs: FAQ[]
-  supportTickets: SupportTicket[]
-  currentTicket: SupportTicket | null
-  expandedFAQs: Set<string>
-  loading: {
-    faqs: boolean
-    tickets: boolean
-    submission: boolean
-  }
-  error: string | null
-}
-
-export interface SupportStoreActions {
-  fetchFAQs(): Promise<void>
-  fetchSupportTickets(): Promise<void>
-  submitSupportRequest(message: string): Promise<void>
-  toggleFAQ(faqId: string): void
-  clearErrors(): void
-  setCurrentTicket(ticket: SupportTicket | null): void
-}
-
-// Export neural network profile types
-export * from './neural-network-profile'

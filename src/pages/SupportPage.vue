@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   QuestionMarkCircleIcon,
 } from '@heroicons/vue/24/outline'
@@ -70,6 +71,7 @@ import SupportForm from '@/components/support/SupportForm.vue'
 import type { SupportTicket, SimplifiedFAQ } from '@/types'
 
 // Composables
+const router = useRouter()
 const {
   faqs,
   recentTickets,
@@ -113,8 +115,8 @@ const handleRefreshFAQs = async (): Promise<void> => {
 
 const handleTicketClick = (ticket: SupportTicket): void => {
   setCurrentTicket(ticket)
-  // Navigate to ticket detail page or show modal
-  console.log('Navigate to ticket:', ticket.id)
+  // Navigate to ticket detail page
+  router.push({ name: 'SupportTicketDialog', params: { id: ticket.id } })
 }
 
 const handleViewAllTickets = (): void => {

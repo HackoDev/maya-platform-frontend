@@ -11,6 +11,7 @@ const ProfilePage = () => import('@/pages/ProfilePage.vue')
 const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
+const SupportTicketDialogPage = () => import('@/pages/SupportTicketDialogPage.vue')
 const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
 const SpecialistProfileViewPage = () => import('@/pages/SpecialistProfileViewPage.vue')
 
@@ -104,6 +105,16 @@ const routes: RouteRecordRaw[] = [
     component: SupportPage,
     meta: {
       title: 'Поддержка',
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/support/tickets/:id',
+    name: 'SupportTicketDialog',
+    component: SupportTicketDialogPage,
+    props: true,
+    meta: {
+      title: 'Support Ticket',
       requiresAuth: false,
     },
   },

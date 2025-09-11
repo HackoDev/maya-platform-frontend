@@ -265,6 +265,40 @@ export const mockSupportTicketsData: SupportTicket[] = [
   },
 ]
 
+// Add sample ticket data for the dialog page
+const mockTicketData: SupportTicket = {
+  id: 'ticket-12345',
+  message: 'Issue with profile updates',
+  status: 'open',
+  createdAt: '2024-01-15T10:30:00Z',
+  updatedAt: '2024-01-15T14:22:00Z',
+  resolvedAt: null,
+  assignedTo: 'Support Agent',
+  hasUnreadMessages: false,
+  messages: [
+    {
+      id: 'msg-1',
+      ticketId: 'ticket-12345',
+      message: 'I\'m having trouble updating my profile information.',
+      isFromSupport: false,
+      createdAt: '2024-01-15T10:30:00Z',
+      author: {
+        role: 'user'
+      }
+    },
+    {
+      id: 'msg-2',
+      ticketId: 'ticket-12345',
+      message: 'Thanks for reaching out. Can you provide more details about the issue?',
+      isFromSupport: true,
+      createdAt: '2024-01-15T11:15:00Z',
+      author: {
+        role: 'support'
+      }
+    }
+  ]
+}
+
 // Mock API functions
 export const mockApiFAQs = async (): Promise<FAQ[]> => {
   await new Promise(resolve => setTimeout(resolve, 800)) // Simulate network delay
@@ -304,6 +338,65 @@ export const mockApiSubmitTicket = async (message: string): Promise<SupportTicke
   mockSupportTicketsData.unshift(newTicket)
   
   return newTicket
+}
+
+export const mockApiGetTicket = async (ticketId: string): Promise<SupportTicket> => {
+  await new Promise(resolve => setTimeout(resolve, 800))
+
+  // Find ticket in mock data or return a default one
+  const ticket = mockSupportTicketsData.find(t => t.id === ticketId)
+  if (ticket) {
+    return ticket
+  }
+
+  // Return default ticket if not found
+  return mockTicketData
+}
+
+export const mockApiAddMessage = async (
+  ticketId: string,
+  message: string
+): Promise<SupportMessage> => {
+  await new Promise(resolve => setTimeout(resolve, 600))
+
+  const newMessage: SupportMessage = {
+    id: `msg-${Date.now()}`,
+    ticketId,
+    message,
+    isFromSupport: false,
+    createdAt: new Date().toISOString(),
+    author: {
+      role: 'user'
+    }
+  }
+
+  // Update the ticket in mock data
+  const ticketIndex = mockSupportTicketsData.findIndex(t => t.id === ticketId)
+  if (ticketIndex !== -1) {
+    mockSupportTicketsData[ticketIndex].messages.push(newMessage)
+    mockSupportTicketsData[ticketIndex].updatedAt = new Date().toISOString()
+  }
+
+  return newMessage
+}
+
+export const mockApiResolveTicket = async (ticketId: string): Promise<SupportTicket> => {
+  await new Promise(resolve => setTimeout(resolve, 600))
+
+  const ticketIndex = mockSupportTicketsData.findIndex(t => t.id === ticketId)
+  if (ticketIndex !== -1) {
+    mockSupportTicketsData[ticketIndex].status = 'resolved'
+    mockSupportTicketsData[ticketIndex].resolvedAt = new Date().toISOString()
+    mockSupportTicketsData[ticketIndex].updatedAt = new Date().toISOString()
+    return mockSupportTicketsData[ticketIndex]
+  }
+
+  // Return updated mock ticket if not found
+  const updatedTicket = { ...mockTicketData }
+  updatedTicket.status = 'resolved'
+  updatedTicket.resolvedAt = new Date().toISOString()
+  updatedTicket.updatedAt = new Date().toISOString()
+  return updatedTicket
 }
 
 // Filter FAQs by category
