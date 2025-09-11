@@ -156,7 +156,8 @@ export interface SupportStoreActions {
 // Export neural network profile types
 export * from './neural-network-profile'
 
-// Support store interfaces
+// Export specialist search types
+export * from './specialist-search'
 export interface SupportStoreState {
   faqs: FAQ[]
   supportTickets: SupportTicket[]
