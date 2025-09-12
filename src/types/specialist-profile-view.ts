@@ -13,6 +13,7 @@ export interface ProfileViewData {
     superpower: string
     avatarUrl?: string
     status: 'available' | 'busy' | 'unavailable'
+    isOpenToOffers?: boolean  // New field for "Open to Offers" flag
     lastActive: string
   }
 

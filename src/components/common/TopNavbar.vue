@@ -9,8 +9,12 @@
           <router-link to="/" class="flex items-center">
             <MayaLogoIcon class="h-8 w-8" />
             <div class="flex flex-col ml-2">
-              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight">База</span>
-              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight">Специалистов</span>
+              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight"
+                >База</span
+              >
+              <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight"
+                >Вакансий</span
+              >
             </div>
           </router-link>
         </div>
@@ -21,11 +25,11 @@
             v-for="item in visibleNavigationItems"
             :key="item.id"
             :to="item.route"
-            class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
-                   hover:text-gray-900 dark:hover:text-white rounded-md 
-                   hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            :class="{ 
-              'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20': isActiveRoute(item.route) 
+            class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            :class="{
+              'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20': isActiveRoute(
+                item.route
+              ),
             }"
           >
             {{ item.label }}
@@ -34,10 +38,7 @@
 
         <!-- User Section -->
         <div class="flex items-center space-x-4">
-          <UserProfileSection 
-            v-if="userStore.isAuthenticated" 
-            :user="userStore.currentUser" 
-          />
+          <UserProfileSection v-if="userStore.isAuthenticated" :user="userStore.currentUser" />
           <template v-else>
             <router-link
               to="/login"
@@ -50,9 +51,7 @@
 
         <!-- Mobile Menu Button -->
         <button
-          class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 
-                 dark:text-gray-300 dark:hover:text-gray-200 hover:bg-gray-100 
-                 dark:hover:bg-gray-700 transition-colors"
+          class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           :aria-expanded="navigationStore.isMobileMenuOpen"
           @click="navigationStore.toggleMobileMenu"
         >
@@ -113,7 +112,7 @@ const isActiveRoute = (path: string) => {
 // Watch route changes to update active route in store
 watch(
   () => route.path,
-  (newPath) => {
+  newPath => {
     navigationStore.setActiveRoute(newPath)
   },
   { immediate: true }

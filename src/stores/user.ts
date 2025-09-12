@@ -1,12 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { User } from '@/types'
+import { UserService } from '@/services/user'
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null)
   const users = ref<User[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  
+  // Initialize the user service
+  const userService = new UserService()
 
   const isAuthenticated = computed(() => currentUser.value !== null)
   const userCount = computed(() => users.value.length)
@@ -40,6 +44,7 @@ export const useUserStore = defineStore('user', () => {
         role: 'user',
         userType: 'specialist',
         isActive: true,
+        isOpenToOffers: false, // Default value for new field
         avatar: undefined,
         lastLoginAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -60,6 +65,22 @@ export const useUserStore = defineStore('user', () => {
     users.value = []
   }
 
+  // New action to update the isOpenToOffers flag
+  const updateOpenToOffers = async (isOpenToOffers: boolean) => {
+    if (!currentUser.value) return
+
+    try {
+      // Call the user service to update the status
+      const updatedUser = await userService.updateUserOpenToOffers(currentUser.value.id, isOpenToOffers)
+      
+      // Update the local state with the response
+      currentUser.value = updatedUser
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update open to offers status'
+      throw err
+    }
+  }
+
   return {
     currentUser,
     users,
@@ -72,5 +93,6 @@ export const useUserStore = defineStore('user', () => {
     userTypeLabel,
     login,
     logout,
+    updateOpenToOffers, // Export the new action
   }
 })

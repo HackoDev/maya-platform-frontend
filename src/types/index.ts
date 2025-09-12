@@ -10,6 +10,7 @@ export interface User {
   role: 'admin' | 'user' | 'moderator'
   userType: 'specialist' | 'client'
   isActive: boolean
+  isOpenToOffers?: boolean  // New field for "Open to Offers" flag
   lastLoginAt?: string
   createdAt: string
   updatedAt: string
@@ -56,6 +57,7 @@ export interface UserProfile {
   userType: 'specialist' | 'client'
   role: 'admin' | 'user' | 'moderator'
   isActive: boolean
+  isOpenToOffers?: boolean  // New field for "Open to Offers" flag
   lastLoginAt?: string
   createdAt: string
   updatedAt: string

@@ -46,6 +46,13 @@
                 >
                   {{ userStore.currentUser?.isActive ? 'Активен' : 'Неактивен' }}
                 </span>
+                <!-- Open to Offers Badge -->
+                <span
+                  v-if="userStore.currentUser?.userType === 'specialist' && userStore.currentUser?.isOpenToOffers"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                >
+                  Открыт к предложениям
+                </span>
               </div>
             </div>
             
@@ -91,6 +98,51 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Open to Offers Toggle (Only for specialists) -->
+          <div 
+            v-if="userStore.currentUser?.userType === 'specialist'"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white">Открыт к предложениям</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  Показывать вашу доступность для новых проектов
+                </p>
+              </div>
+              <Switch
+                v-model="isOpenToOffers"
+                :class="isOpenToOffers ? 'bg-green-500' : 'bg-gray-300'"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                <span class="sr-only">Изменить статус доступности</span>
+                <span
+                  :class="isOpenToOffers ? 'translate-x-5' : 'translate-x-0'"
+                  class="pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                >
+                  <span
+                    :class="isOpenToOffers ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in'"
+                    class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                    aria-hidden="true"
+                  >
+                    <svg class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 12 12">
+                      <path d="M4 8l2-2m0 0l2-2M6 6L4 4m2 2l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                  <span
+                    :class="isOpenToOffers ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out'"
+                    class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                    aria-hidden="true"
+                  >
+                    <svg class="h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 12 12">
+                      <path d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-5.707a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z" />
+                    </svg>
+                  </span>
+                </span>
+              </Switch>
+            </div>
+          </div>
+          
           <!-- Questionnaire Access Card -->
           <div 
             v-if="userStore.currentUser?.userType === 'specialist'"
@@ -183,20 +235,45 @@
 
 <script setup lang="ts">
 import { UserCircleIcon, Cog6ToothIcon, CpuChipIcon, KeyIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { Switch } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const neuralNetworkStore = useNeuralNetworkProfileStore()
+
+// Reactive state for the toggle switch
+const isOpenToOffers = ref(userStore.currentUser?.isOpenToOffers || false)
+
+// Watch for changes to the toggle and update the store
+watch(isOpenToOffers, async (newValue) => {
+  try {
+    await userStore.updateOpenToOffers(newValue)
+  } catch (error) {
+    console.error('Failed to update open to offers status:', error)
+    // Revert the toggle if the update failed
+    isOpenToOffers.value = !newValue
+  }
+})
+
+// Watch for changes to the user store and update the local state
+watch(() => userStore.currentUser?.isOpenToOffers, (newValue) => {
+  if (newValue !== undefined) {
+    isOpenToOffers.value = newValue
+  }
+})
 
 // Initialize the neural network profile store when component mounts
 onMounted(() => {
   if (userStore.currentUser?.userType === 'specialist') {
     // Try to load existing profile or initialize a new one
     neuralNetworkStore.initializeForm()
+    
+    // Initialize the toggle state
+    isOpenToOffers.value = userStore.currentUser.isOpenToOffers || false
   }
 })
 
