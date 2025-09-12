@@ -38,6 +38,16 @@
 
         <!-- User Section -->
         <div class="flex items-center space-x-4">
+          <!-- Create Vacancy Button (only visible for clients) -->
+          <button
+            v-if="userStore.isAuthenticated && userStore.currentUser?.userType === 'client'"
+            @click="$emit('create-vacancy')"
+            class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+          >
+            <PlusIcon class="h-4 w-4 mr-1" />
+            Создать вакансию
+          </button>
+          
           <UserProfileSection v-if="userStore.isAuthenticated" :user="userStore.currentUser" />
           <template v-else>
             <router-link
@@ -74,7 +84,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import { useUserStore } from '@/stores/user'
 import { useNavigationStore } from '@/stores/navigation'
 import UserProfileSection from './UserProfileSection.vue'
@@ -92,6 +102,10 @@ withDefaults(defineProps<Props>(), {
   serviceName: 'Maya Platform',
   theme: 'light',
 })
+
+const emit = defineEmits<{
+  (e: 'create-vacancy'): void
+}>()
 
 const route = useRoute()
 const userStore = useUserStore()

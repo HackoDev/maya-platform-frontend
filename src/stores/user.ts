@@ -35,16 +35,22 @@ export const useUserStore = defineStore('user', () => {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000))
 
+      // Determine user type based on email for testing purposes
+      let userType: 'specialist' | 'client' = 'specialist'
+      if (email === 'client@example.com') {
+        userType = 'client'
+      }
+
       currentUser.value = {
         id: '1',
-        name: 'John Doe',
-        firstName: 'John',
-        lastName: 'Doe',
+        name: userType === 'specialist' ? 'Анна Смирнова' : 'Иван Петров',
+        firstName: userType === 'specialist' ? 'Анна' : 'Иван',
+        lastName: userType === 'specialist' ? 'Смирнова' : 'Петров',
         email,
         role: 'user',
-        userType: 'specialist',
+        userType,
         isActive: true,
-        isOpenToOffers: false, // Default value for new field
+        isOpenToOffers: userType === 'specialist' ? false : undefined, // Only specialists have this field
         avatar: undefined,
         lastLoginAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),

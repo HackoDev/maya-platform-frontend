@@ -14,6 +14,8 @@ const SupportPage = () => import('@/pages/SupportPage.vue')
 const SupportTicketDialogPage = () => import('@/pages/SupportTicketDialogPage.vue')
 const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
 const SpecialistProfileViewPage = () => import('@/pages/SpecialistProfileViewPage.vue')
+const MyVacanciesPage = () => import('@/pages/MyVacanciesPage.vue')
+const VacancyDetailPage = () => import('@/pages/VacancyDetailPage.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -77,6 +79,25 @@ const routes: RouteRecordRaw[] = [
     component: NeuralNetworkProfilePage,
     meta: {
       title: 'Анкета нейросетевого специалиста',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile/vacancies',
+    name: 'MyVacancies',
+    component: MyVacanciesPage,
+    meta: {
+      title: 'Мои вакансии',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile/vacancies/:id',
+    name: 'VacancyDetail',
+    component: VacancyDetailPage,
+    props: true,
+    meta: {
+      title: 'Детали вакансии',
       requiresAuth: true,
     },
   },
@@ -146,6 +167,12 @@ router.beforeEach((to, from, next) => {
   // Redirect authenticated users away from login
   if (to.meta.hideForAuth && userStore.isAuthenticated) {
     next({ name: 'Dashboard' })
+    return
+  }
+
+  // Check if user is trying to access vacancies page but is not a client
+  if (to.name === 'MyVacancies' && userStore.currentUser?.userType !== 'client') {
+    next({ name: 'Profile' })
     return
   }
 

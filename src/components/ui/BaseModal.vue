@@ -3,28 +3,28 @@
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
       <!-- Background overlay -->
       <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75"
         @click="$emit('close')"
       />
 
       <!-- Modal panel -->
       <div
-        class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+        class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800"
         :class="sizeClasses"
       >
         <!-- Header -->
-        <div v-if="title || $slots.header" class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div v-if="title || $slots.header" class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <slot name="header">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                   {{ title }}
                 </h3>
               </slot>
             </div>
             <button
               v-if="closable"
-              class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150"
+              class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150 dark:text-gray-300 dark:hover:text-gray-100"
               @click="$emit('close')"
             >
               <span class="sr-only">Close</span>
@@ -41,12 +41,12 @@
         </div>
 
         <!-- Content -->
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 dark:bg-gray-800">
           <slot />
         </div>
 
         <!-- Footer -->
-        <div v-if="$slots.footer" class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <div v-if="$slots.footer" class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700/50">
           <slot name="footer" />
         </div>
       </div>

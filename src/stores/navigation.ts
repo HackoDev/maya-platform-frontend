@@ -20,6 +20,14 @@ export const useNavigationStore = defineStore(
         visible: true,
       },
       {
+        id: 'my-vacancies',
+        label: 'Мои вакансии',
+        route: '/profile/vacancies',
+        icon: 'briefcase',
+        requiresAuth: true,
+        visible: true,
+      },
+      {
         id: 'search-specialists',
         label: 'Поиск специалиста',
         route: '/search/specialists',

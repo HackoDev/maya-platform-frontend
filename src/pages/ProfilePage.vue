@@ -143,7 +143,7 @@
             </div>
           </div>
           
-          <!-- Questionnaire Access Card -->
+          <!-- Questionnaire Access Card (Only for specialists) -->
           <div 
             v-if="userStore.currentUser?.userType === 'specialist'"
             class="border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group"
@@ -182,6 +182,28 @@
             <div class="mt-4">
               <span class="text-sm text-purple-600 dark:text-purple-400 font-medium group-hover:text-purple-700 dark:group-hover:text-purple-300">
                 {{ questionnaireActionText }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- My Vacancies Card (Only for clients) -->
+          <div 
+            v-if="userStore.currentUser?.userType === 'client'"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group"
+            @click="router.push('/profile/vacancies')"
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">Мои вакансии</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  Управляйте своими вакансиями и отслеживайте отклики
+                </p>
+              </div>
+              <BriefcaseIcon class="h-6 w-6 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+            </div>
+            <div class="mt-6">
+              <span class="text-sm text-purple-600 dark:text-purple-400 font-medium group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                Перейти к вакансиям
               </span>
             </div>
           </div>
@@ -234,7 +256,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserCircleIcon, Cog6ToothIcon, CpuChipIcon, KeyIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { UserCircleIcon, Cog6ToothIcon, CpuChipIcon, KeyIcon, ArrowRightOnRectangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
 import { Switch } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
