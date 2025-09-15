@@ -66,7 +66,6 @@
           :vacancy="vacancy"
           :is-owner="isVacancyOwner(vacancy)"
           @view="handleViewVacancy"
-          @contact="(vacancy) => handleContactVacancy(vacancy)"
           @edit="handleEditVacancy"
           @delete="handleDeleteVacancy"
         />
@@ -164,7 +163,6 @@ interface Emits {
   (e: 'clear-search'): void
   (e: 'retry'): void
   (e: 'view-vacancy', vacancy: Vacancy): void
-  (e: 'contact-vacancy', vacancy: Vacancy): void
   (e: 'edit-vacancy', vacancy: Vacancy): void
   (e: 'delete-vacancy', id: string): void
 }
@@ -201,10 +199,6 @@ const infiniteScroll = useInfiniteScroll(
 // Methods
 const handleViewVacancy = (vacancy: Vacancy): void => {
   emit('view-vacancy', vacancy)
-}
-
-const handleContactVacancy = (vacancy: Vacancy): void => {
-  emit('contact-vacancy', vacancy)
 }
 
 const handleEditVacancy = (vacancy: Vacancy): void => {

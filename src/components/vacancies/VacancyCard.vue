@@ -46,11 +46,12 @@
           Удалить
         </button>
         <button
-          v-else-if="userStore.currentUser?.userType === 'specialist'"
-          @click.stop="$emit('contact', vacancy)"
+          v-if="!isOwner"
+          @click.stop="$emit('view', vacancy)"
           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-800/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
         >
-          Связаться
+          Посмотреть
+          <ArrowRightIcon class="ml-1 h-4 w-4" />
         </button>
       </div>
     </div>
@@ -61,7 +62,7 @@
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import type { Vacancy } from '@/types/vacancy'
-import { PencilIcon } from '@heroicons/vue/24/outline'
+import { PencilIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
   vacancy: Vacancy
@@ -76,7 +77,6 @@ const emit = defineEmits<{
   (e: 'view', vacancy: Vacancy): void
   (e: 'edit'): void
   (e: 'delete'): void
-  (e: 'contact', vacancy: Vacancy): void
 }>()
 
 // Stores

@@ -136,7 +136,8 @@ export const useVacancyStore = defineStore('vacancy', () => {
           updatedAt: vacancy.updatedAt,
           clientId: vacancy.clientId,
           clientName: vacancy.clientName,
-          clientPhone: vacancy.clientPhone
+          clientPhone: vacancy.clientPhone,
+          _fakeData: (vacancy as any)._fakeData // Preserve _fakeData property
         })),
         page: page,
         pageSize: pageSize,
@@ -221,7 +222,8 @@ export const useVacancyStore = defineStore('vacancy', () => {
           updatedAt: vacancy.updatedAt,
           clientId: vacancy.clientId,
           clientName: vacancy.clientName,
-          clientPhone: vacancy.clientPhone
+          clientPhone: vacancy.clientPhone,
+          _fakeData: (vacancy as any)._fakeData // Preserve _fakeData property
         })),
         page: currentPage.value,
         pageSize: searchFilters.value.limit || 7,
@@ -365,17 +367,17 @@ export const useVacancyStore = defineStore('vacancy', () => {
   }
 
   const openContactModal = (vacancy: Vacancy) => {
-    // Find the fake vacancy to get the full contact info
+    // Always ensure we have the full fake data for contact info
     const fakeVacancy = getVacancyById(vacancy.id)
     if (fakeVacancy) {
       // Update the vacancy with full contact info
       selectedVacancy.value = {
         ...vacancy,
-        clientPhone: fakeVacancy.contactInfo.phone
+        clientPhone: fakeVacancy.contactInfo.phone,
+        _fakeData: fakeVacancy,
       } as Vacancy
-      // Store the fake vacancy data for use in modals
-      ;(selectedVacancy.value as any)._fakeData = fakeVacancy
     } else {
+      // Fallback to the provided vacancy if we can't find the fake data
       selectedVacancy.value = vacancy
     }
     showContactModal.value = true

@@ -34,76 +34,10 @@
         @clear-search="handleClearSearch"
         @retry="handleRetrySearch"
         @view-vacancy="handleViewVacancy"
-        @contact-vacancy="handleContactVacancy"
         @edit-vacancy="handleEditVacancy"
         @delete-vacancy="handleDeleteVacancy"
       />
     </div>
-
-    <!-- Contact Modal -->
-    <BaseModal 
-      :show="vacancyStore.showContactModal"
-      @close="vacancyStore.closeContactModal"
-    >
-      <template #header>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-          Контактная информация
-        </h3>
-      </template>
-      <template #body>
-        <div v-if="vacancyStore.selectedVacancy" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Компания
-            </label>
-            <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ vacancyStore.selectedVacancy.clientName }}
-            </p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Телефон для связи
-            </label>
-            <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancyStore.selectedVacancy as any)._fakeData?.contactInfo?.phone || vacancyStore.selectedVacancy.clientPhone }}
-            </p>
-          </div>
-          <div v-if="(vacancyStore.selectedVacancy as any)._fakeData?.contactInfo?.telegram">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Telegram
-            </label>
-            <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancyStore.selectedVacancy as any)._fakeData.contactInfo.telegram }}
-            </p>
-          </div>
-          <div v-if="(vacancyStore.selectedVacancy as any)._fakeData?.contactInfo?.whatsapp">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              WhatsApp
-            </label>
-            <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancyStore.selectedVacancy as any)._fakeData.contactInfo.whatsapp }}
-            </p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Информация
-            </label>
-            <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              Свяжитесь с представителем компании по указанным контактам для получения дополнительной информации о вакансии.
-            </p>
-          </div>
-        </div>
-      </template>
-      <template #footer>
-        <button
-          type="button"
-          @click="vacancyStore.closeContactModal"
-          class="ml-3 inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
-        >
-          Закрыть
-        </button>
-      </template>
-    </BaseModal>
   </div>
 </template>
 
@@ -121,7 +55,6 @@ import {
 } from '@heroicons/vue/24/outline'
 import VacancySearchFilters from '@/components/vacancies/VacancySearchFilters.vue'
 import VacancySearchResults from '@/components/vacancies/VacancySearchResults.vue'
-import BaseModal from '@/components/ui/BaseModal.vue'
 import type { Vacancy, VacancySearchFilters as VacancySearchFiltersType } from '@/types/vacancy'
 
 // Stores
@@ -162,10 +95,6 @@ const handleRetrySearch = async (): Promise<void> => {
 
 const handleViewVacancy = (vacancy: Vacancy) => {
   router.push(`/vacancies/${vacancy.id}`)
-}
-
-const handleContactVacancy = (vacancy: Vacancy) => {
-  vacancyStore.openContactModal(vacancy)
 }
 
 const handleEditVacancy = (vacancy: Vacancy) => {

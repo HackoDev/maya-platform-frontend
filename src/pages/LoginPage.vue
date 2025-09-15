@@ -132,7 +132,7 @@ const loginAsClient = async () => {
     // Update user type to client
     if (userStore.currentUser) {
       userStore.currentUser.avatar =
-        'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
+        'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
       userStore.currentUser.userType = 'client'
       userStore.currentUser.firstName = 'Иван'
       userStore.currentUser.lastName = 'Петров'
