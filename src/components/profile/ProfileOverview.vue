@@ -4,45 +4,6 @@
       Обзор профиля
     </h2>
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- Specializations Count -->
-      <div class="text-center">
-        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-            {{ specializations.length }}
-          </div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
-            Специализаций
-          </div>
-        </div>
-      </div>
-
-      <!-- Abilities Count -->
-      <div class="text-center">
-        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
-            {{ abilities.length }}
-          </div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
-            Навыков
-          </div>
-        </div>
-      </div>
-
-      <!-- Services Count -->
-      <div class="text-center">
-        <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-            {{ services.length }}
-          </div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
-            Услуг
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Skills Overview -->
     <div class="mb-8">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">

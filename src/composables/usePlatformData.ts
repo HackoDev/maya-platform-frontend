@@ -33,8 +33,8 @@ export function usePlatformData() {
       const [portfolioCount, vacancyCount, randomPortfolios, randomVacancies] = await Promise.all([
         portfolioService.getPortfolioStatistics(),
         vacancyService.getVacancyStatistics(),
-        portfolioService.getRandomPortfolios(5),
-        vacancyService.getRandomPublishedVacancies(5)
+        portfolioService.getRandomPortfolios(10),
+        vacancyService.getRandomPublishedVacancies(10)
       ])
 
       statistics.value = {

@@ -7,43 +7,23 @@
           Добро пожаловать, {{ userStore.currentUser?.firstName }}!
         </h1>
         <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500 dark:text-gray-300">
-          Здесь вы можете отслеживать ключевые показатели платформы и находить специалистов или вакансии.
+          <span v-if="userStore.currentUser?.userType === 'client'">
+            Здесь вы можете находить специалистов для ваших проектов.
+          </span>
+          <span v-else-if="userStore.currentUser?.userType === 'specialist'">
+            Здесь вы можете находить интересные вакансии для работы.
+          </span>
+          <span v-else>
+            Здесь вы можете находить специалистов или вакансии.
+          </span>
         </p>
       </div>
 
-      <!-- Statistics Section -->
-      <div class="mb-12">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Статистика платформы
-          </h2>
-          <p class="text-gray-600 dark:text-gray-400">
-            Ключевые показатели активности на платформе
-          </p>
-          <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto mt-4 rounded-full"></div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatisticsCard 
-            title="Портфолио специалистов" 
-            :value="statistics?.portfolioCount || 0" 
-            icon="💼"
-            icon-bg-class="bg-gradient-to-r from-emerald-500 to-teal-600"
-            :max-value="1000"
-          />
-          <StatisticsCard 
-            title="Активные вакансии" 
-            :value="statistics?.vacancyCount || 0" 
-            icon="📋"
-            icon-bg-class="bg-gradient-to-r from-purple-500 to-pink-600"
-            :max-value="500"
-          />
-        </div>
-      </div>
 
-      <!-- Two-Column Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Portfolios Column -->
-        <div>
+      <!-- Dynamic Content Based on User Type -->
+      <div class="max-w-4xl mx-auto">
+        <!-- For Clients: Show Portfolios -->
+        <div v-if="userStore.currentUser?.userType === 'client'">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Портфолио специалистов</h2>
             <router-link 
@@ -72,15 +52,15 @@
           </div>
         </div>
 
-        <!-- Vacancies Column -->
-        <div>
+        <!-- For Specialists: Show Vacancies -->
+        <div v-else-if="userStore.currentUser?.userType === 'specialist'">
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Активные вакансии</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Последние вакансии</h2>
             <router-link 
               to="/vacancies"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
             >
-              Найти вакансию
+              Посмотреть все вакансии
             </router-link>
           </div>
           
@@ -102,6 +82,11 @@
             />
           </div>
         </div>
+
+        <!-- Fallback for unknown user types -->
+        <div v-else class="text-center py-12">
+          <p class="text-gray-500 dark:text-gray-400">Не удалось определить тип пользователя</p>
+        </div>
       </div>
     </main>
   </div>
@@ -109,21 +94,26 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { usePlatformData } from '@/composables/usePlatformData'
-import StatisticsCard from '@/components/ui/StatisticsCard.vue'
 import PortfolioSpecialistCard from '@/components/ui/PortfolioSpecialistCard.vue'
 import VacancyCard from '@/components/vacancies/VacancyCard.vue'
+import type { Vacancy } from '@/types/vacancy'
 
+// Stores
 const userStore = useUserStore()
-const { statistics, portfolios, vacancies, loading, error, fetchPlatformData } = usePlatformData()
+const { portfolios, vacancies, loading, error, fetchPlatformData } = usePlatformData()
+
+// Router
+const router = useRouter()
 
 // Methods
-const handleViewVacancy = (vacancy: any) => {
-  // Navigate to vacancy detail page
-  window.location.href = `/vacancies/${vacancy.id}`
+const handleViewVacancy = (vacancy: Vacancy): void => {
+  router.push(`/vacancies/${vacancy.id}`)
 }
 
+// Initialize
 onMounted(() => {
   fetchPlatformData()
 })

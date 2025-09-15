@@ -74,15 +74,6 @@
                   {{ userStore.currentUser?.lastName }}
                 </p>
               </div>
-              <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 sm:col-span-2">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  О себе
-                </label>
-                <p class="text-gray-900 dark:text-white">
-                  <span v-if="userStore.currentUser?.bio">{{ userStore.currentUser.bio }}</span>
-                  <span v-else class="text-gray-400 italic">Информация не указана</span>
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -151,37 +142,18 @@
           >
             <div class="flex items-start justify-between">
               <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">Анкета специалиста</h3>
+                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                  Анкета специалиста
+                </h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Заполните анкету нейросетевого специалиста
+                    {{ moderationStatusConfig.text }}. Заполнено {{ questionnaireCompletion }}%. Улучшите свою анкету.
                 </p>
               </div>
               <CpuChipIcon class="h-6 w-6 text-purple-600 dark:text-purple-400 flex-shrink-0" />
             </div>
-            <div v-if="questionnaireStatus" class="mt-4">
-              <span 
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="moderationStatusConfig.classes"
-              >
-                <span class="mr-1">{{ moderationStatusConfig.icon }}</span>
-                {{ moderationStatusConfig.text }}
-              </span>
-            </div>
-            <div v-if="questionnaireCompletion !== undefined" class="mt-4">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs text-gray-600 dark:text-gray-400">Заполнено</span>
-                <span class="text-xs text-gray-600 dark:text-gray-400">{{ questionnaireCompletion }}%</span>
-              </div>
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  class="h-2 rounded-full bg-purple-500 dark:bg-purple-400"
-                  :style="{ width: `${questionnaireCompletion}%` }"
-                ></div>
-              </div>
-            </div>
-            <div class="mt-4">
+            <div class="mt-6">
               <span class="text-sm text-purple-600 dark:text-purple-400 font-medium group-hover:text-purple-700 dark:group-hover:text-purple-300">
-                {{ questionnaireActionText }}
+                Заполнить анкету
               </span>
             </div>
           </div>
