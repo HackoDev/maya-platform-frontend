@@ -10,7 +10,7 @@ const mockRouter = {
 }
 
 const mockRoute = {
-  path: '/dashboard'
+  path: '/'
 }
 
 vi.mock('vue-router', () => ({
@@ -44,7 +44,7 @@ const mockNavigationItems: NavigationItem[] = [
   {
     id: '1',
     label: 'Главная',
-    route: '/dashboard',
+    route: '/',
     requiresAuth: true,
     visible: true
   },

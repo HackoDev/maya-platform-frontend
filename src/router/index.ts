@@ -5,7 +5,7 @@ import { useUserStore } from '@/stores/user'
 // Lazy-loaded pages
 const HomePage = () => import('@/pages/HomePage.vue')
 const AboutPage = () => import('@/pages/AboutPage.vue')
-const DashboardPage = () => import('@/pages/DashboardPage.vue')
+// DashboardPage removed as part of Home page enhancement
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const ProfilePage = () => import('@/pages/ProfilePage.vue')
 const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
@@ -25,7 +25,7 @@ const routes: RouteRecordRaw[] = [
     component: HomePage,
     meta: {
       title: 'Home',
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {
@@ -47,15 +47,7 @@ const routes: RouteRecordRaw[] = [
       hideForAuth: true,
     },
   },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardPage,
-    meta: {
-      title: 'Dashboard',
-      requiresAuth: true,
-    },
-  },
+  // Dashboard route removed as part of Home page enhancement
   {
     path: '/profile',
     name: 'Profile',
@@ -186,7 +178,7 @@ router.beforeEach((to, from, next) => {
 
   // Redirect authenticated users away from login
   if (to.meta.hideForAuth && userStore.isAuthenticated) {
-    next({ name: 'Dashboard' })
+    next({ name: 'Home' })
     return
   }
 

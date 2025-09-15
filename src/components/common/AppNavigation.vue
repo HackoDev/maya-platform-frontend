@@ -59,7 +59,6 @@ const userStore = useUserStore()
 const navigation = [
   { name: 'Home', to: '/' },
   { name: 'About', to: '/about' },
-  { name: 'Dashboard', to: '/dashboard' },
 ]
 
 const isActiveRoute = (path: string) => {
