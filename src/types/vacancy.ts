@@ -1,3 +1,5 @@
+import type { FakeVacancy } from '@/services/fakeVacancyService'
+
 // Vacancy data model and types
 
 export interface Vacancy {
@@ -10,6 +12,22 @@ export interface Vacancy {
   clientId: string
   clientName: string // New field
   clientPhone: string // New field
+  _fakeData?: FakeVacancy // Optional field to store fake data for contact info
+}
+
+export interface VacancyPaginationResponse {
+  vacancies: Vacancy[]
+  page: number
+  pageSize: number
+  total: number
+  hasMore: boolean
+}
+
+export interface VacancySearchFilters {
+  query?: string
+  status?: string[]
+  page?: number
+  limit?: number
 }
 
 export interface VacancyStoreState {

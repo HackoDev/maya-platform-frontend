@@ -4,9 +4,7 @@
       <div class="flex justify-center">
         <MayaLogoIcon class="h-12 w-12 text-purple-600" />
       </div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Вход в систему
-      </h2>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Вход в систему</h2>
       <p class="mt-2 text-center text-sm text-gray-600">
         Используйте предопределенные учетные записи для тестирования
       </p>
@@ -27,7 +25,7 @@
                 name="remember-me"
                 type="checkbox"
                 class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-              >
+              />
               <label for="remember-me" class="ml-2 block text-sm text-gray-900">
                 Запомнить меня
               </label>
@@ -56,9 +54,7 @@
               <div class="w-full border-t border-gray-300"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white text-gray-500">
-                Или войдите как
-              </span>
+              <span class="px-2 bg-white text-gray-500"> Или войдите как </span>
             </div>
           </div>
 
@@ -121,6 +117,8 @@ const loginAsSpecialist = async () => {
     if (userStore.currentUser) {
       userStore.currentUser.userType = 'specialist'
       userStore.currentUser.firstName = 'Анна'
+      userStore.currentUser.avatar =
+        'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
       userStore.currentUser.lastName = 'Смирнова'
       userStore.currentUser.name = 'Анна Смирнова'
     }
@@ -133,6 +131,8 @@ const loginAsClient = async () => {
   if (userStore.isAuthenticated) {
     // Update user type to client
     if (userStore.currentUser) {
+      userStore.currentUser.avatar =
+        'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
       userStore.currentUser.userType = 'client'
       userStore.currentUser.firstName = 'Иван'
       userStore.currentUser.lastName = 'Петров'

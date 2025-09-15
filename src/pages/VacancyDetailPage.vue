@@ -108,22 +108,40 @@
             </div>
           </div>
 
-          <div v-if="showPhoneNumber" class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
-              Номер телефона:
-            </p>
-            <p class="mt-1 text-lg font-semibold text-purple-600 dark:text-purple-400">
-              {{ vacancy?.clientPhone }}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Телефон для связи
+            </label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">
+              {{ (vacancy as any)?._fakeData?.contactInfo?.phone || vacancy?.clientPhone }}
             </p>
           </div>
 
-          <div v-else class="mt-4">
-            <button
-              @click="showPhoneNumber = true"
-              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
-            >
-              Показать номер телефона
-            </button>
+          <div v-if="(vacancy as any)?._fakeData?.contactInfo?.telegram">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Telegram
+            </label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">
+              {{ (vacancy as any)._fakeData.contactInfo.telegram }}
+            </p>
+          </div>
+
+          <div v-if="(vacancy as any)?._fakeData?.contactInfo?.whatsapp">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              WhatsApp
+            </label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">
+              {{ (vacancy as any)._fakeData.contactInfo.whatsapp }}
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Информация
+            </label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">
+              Свяжитесь с представителем компании по указанным контактам для получения дополнительной информации о вакансии.
+            </p>
           </div>
         </div>
       </template>
@@ -150,6 +168,7 @@ import VacancyDetail from '@/components/vacancies/VacancyDetail.vue'
 import VacancyForm from '@/components/vacancies/VacancyForm.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import type { Vacancy } from '@/types/vacancy'
+import { getVacancyById } from '@/services/fakeVacancyService'
 
 // Stores
 const vacancyStore = useVacancyStore()
@@ -175,15 +194,36 @@ const loadVacancy = async () => {
 
   try {
     const vacancyId = route.params.id as string
-    // In a real implementation, we would fetch the specific vacancy
-    // For now, we'll find it in the store
-    await vacancyStore.fetchVacancies()
-    const foundVacancy = vacancyStore.vacancies.find(v => v.id === vacancyId)
-    
-    if (foundVacancy) {
-      vacancy.value = foundVacancy
+    // Use fake data service to get specific vacancy
+    const fakeVacancy = getVacancyById(vacancyId)
+
+    if (fakeVacancy) {
+      // Convert FakeVacancy to Vacancy for compatibility
+      const convertedVacancy: Vacancy = {
+        ...fakeVacancy,
+        clientPhone: fakeVacancy.contactInfo.phone
+      }
+      
+      // Store the fake vacancy data for use in modals
+      ;(convertedVacancy as any)._fakeData = fakeVacancy
+      
+      vacancy.value = convertedVacancy
     } else {
-      error.value = 'Вакансия не найдена'
+      // If not found, create a fake vacancy with the requested ID
+      const fakeVacancy = await import('@/services/fakeVacancyService').then(module => 
+        module.generateFakeVacancyWithId(vacancyId)
+      )
+      
+      // Convert FakeVacancy to Vacancy for compatibility
+      const convertedVacancy: Vacancy = {
+        ...fakeVacancy,
+        clientPhone: fakeVacancy.contactInfo.phone
+      }
+      
+      // Store the fake vacancy data for use in modals
+      ;(convertedVacancy as any)._fakeData = fakeVacancy
+      
+      vacancy.value = convertedVacancy
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Ошибка загрузки вакансии'

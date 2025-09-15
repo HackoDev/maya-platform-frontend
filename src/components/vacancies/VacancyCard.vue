@@ -1,11 +1,11 @@
 <template>
   <div
-    class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
-    @click="$emit('view')"
+    class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+    :class="{ 'cursor-pointer': !isOwner }"
   >
     <div class="p-6">
       <div class="flex justify-between items-start">
-        <div>
+        <div @click="!isOwner ? $emit('view', vacancy) : null">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             {{ vacancy.title }}
           </h3>
@@ -14,6 +14,7 @@
           </p>
         </div>
         <button
+          v-if="isOwner"
           @click.stop="$emit('edit')"
           class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
           aria-label="Редактировать"
@@ -38,10 +39,18 @@
 
       <div class="mt-6 flex justify-end space-x-2">
         <button
-          @click="$emit('delete')"
+          v-if="isOwner"
+          @click.stop="$emit('delete')"
           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-800/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900"
         >
           Удалить
+        </button>
+        <button
+          v-else-if="userStore.currentUser?.userType === 'specialist'"
+          @click.stop="$emit('contact', vacancy)"
+          class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-800/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+        >
+          Связаться
         </button>
       </div>
     </div>
@@ -50,20 +59,28 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useUserStore } from '@/stores/user'
 import type { Vacancy } from '@/types/vacancy'
 import { PencilIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
   vacancy: Vacancy
+  isOwner?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isOwner: false
+})
 
 const emit = defineEmits<{
-  (e: 'view'): void
+  (e: 'view', vacancy: Vacancy): void
   (e: 'edit'): void
   (e: 'delete'): void
+  (e: 'contact', vacancy: Vacancy): void
 }>()
+
+// Stores
+const userStore = useUserStore()
 
 // Computed properties
 const statusConfig = computed(() => {

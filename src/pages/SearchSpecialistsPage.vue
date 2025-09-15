@@ -147,5 +147,7 @@ const handleShareProfile = (): void => {
 onMounted(async () => {
   // Load available skills on page mount
   await searchStore.loadAvailableSkills()
+  // Automatically load first page of specialists
+  await searchStore.searchSpecialists()
 })
 </script>

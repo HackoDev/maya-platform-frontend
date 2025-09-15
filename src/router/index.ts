@@ -15,6 +15,7 @@ const SupportTicketDialogPage = () => import('@/pages/SupportTicketDialogPage.vu
 const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
 const SpecialistProfileViewPage = () => import('@/pages/SpecialistProfileViewPage.vue')
 const MyVacanciesPage = () => import('@/pages/MyVacanciesPage.vue')
+const AllVacanciesPage = () => import('@/pages/AllVacanciesPage.vue')
 const VacancyDetailPage = () => import('@/pages/VacancyDetailPage.vue')
 
 const routes: RouteRecordRaw[] = [
@@ -83,11 +84,30 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/vacancies',
+    name: 'AllVacancies',
+    component: AllVacanciesPage,
+    meta: {
+      title: 'Все вакансии',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/profile/vacancies',
     name: 'MyVacancies',
     component: MyVacanciesPage,
     meta: {
       title: 'Мои вакансии',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/vacancies/:id',
+    name: 'VacancyDetailPublic',
+    component: VacancyDetailPage,
+    props: true,
+    meta: {
+      title: 'Детали вакансии',
       requiresAuth: true,
     },
   },

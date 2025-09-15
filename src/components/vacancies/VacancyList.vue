@@ -25,6 +25,7 @@
         v-for="vacancy in vacancyStore.vacancies"
         :key="vacancy.id"
         :vacancy="vacancy"
+        :is-owner="true"
         @view="$emit('view', vacancy)"
         @edit="$emit('edit', vacancy)"
         @delete="$emit('delete', vacancy.id)"
