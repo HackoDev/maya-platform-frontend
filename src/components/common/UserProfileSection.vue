@@ -8,23 +8,18 @@
         :aria-expanded="isDropdownOpen"
         aria-haspopup="true"
         aria-label="User profile menu"
-        class="group flex items-center space-x-3 hover:bg-gray-50 
-               dark:hover:bg-gray-700 rounded-lg p-2 transition-colors 
-               duration-150 focus:outline-none focus:ring-2 
-               focus:ring-blue-500 focus:ring-offset-2"
+        class="group flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         <!-- User Avatar -->
         <img
           v-if="user?.avatar"
           :src="user.avatar"
           :alt="userDisplayName"
-          class="h-8 w-8 rounded-full object-cover ring-2 ring-gray-200 
-                 dark:ring-gray-600"
+          class="h-8 w-8 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600"
         />
         <div
           v-else
-          class="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 
-                 flex items-center justify-center"
+          class="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center"
         >
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ userInitials }}
@@ -40,8 +35,7 @@
 
         <!-- Dropdown Indicator -->
         <ChevronDownIcon
-          class="w-4 h-4 text-gray-500 dark:text-gray-400 
-                 transition-transform duration-200"
+          class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
           :class="{ 'rotate-180': isDropdownOpen }"
         />
       </button>
@@ -59,28 +53,20 @@
           v-if="isDropdownOpen"
           role="menu"
           aria-label="User profile options"
-          class="absolute top-full right-0 min-w-[200px] bg-white 
-                 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                 rounded-lg shadow-lg z-50 mt-1 py-1"
+          class="absolute top-full right-0 min-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 mt-1 py-1"
         >
           <button
-            @click="handleChangePassword"
+            @click="handleSettings"
             role="menuitem"
-            class="flex items-center w-full px-4 py-3 text-left text-sm 
-                   text-gray-700 dark:text-gray-300 hover:bg-gray-50 
-                   dark:hover:bg-gray-700 transition-colors duration-150 
-                   focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            class="flex items-center w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
           >
-            <KeyIcon class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
-            Сменить пароль
+            <CogIcon class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
+            Настройки
           </button>
           <button
             @click="handleLogout"
             role="menuitem"
-            class="flex items-center w-full px-4 py-3 text-left text-sm 
-                   text-gray-700 dark:text-gray-300 hover:bg-gray-50 
-                   dark:hover:bg-gray-700 transition-colors duration-150 
-                   focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+            class="flex items-center w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
           >
             <ArrowRightOnRectangleIcon class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
             Выход
@@ -111,7 +97,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowRightOnRectangleIcon, UserIcon, ChevronDownIcon, KeyIcon } from '@heroicons/vue/24/outline'
+import {
+  ArrowRightOnRectangleIcon,
+  UserIcon,
+  ChevronDownIcon,
+  CogIcon,
+} from '@heroicons/vue/24/outline'
 import { useUserStore } from '@/stores/user'
 import type { User } from '@/types'
 
@@ -150,9 +141,9 @@ const closeDropdown = () => {
   isDropdownOpen.value = false
 }
 
-const handleChangePassword = () => {
+const handleSettings = () => {
   closeDropdown()
-  router.push('/profile/change-password')
+  router.push('/profile/settings')
 }
 
 const handleLogout = () => {

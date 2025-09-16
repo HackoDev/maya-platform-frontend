@@ -85,11 +85,11 @@ describe('UserProfileSection', () => {
 
     const menuItems = wrapper.findAll('[role="menuitem"]')
     expect(menuItems).toHaveLength(2)
-    expect(menuItems[0].text()).toContain('Сменить пароль')
+    expect(menuItems[0].text()).toContain('Настройки')
     expect(menuItems[1].text()).toContain('Выход')
   })
 
-  it('navigates to change password page when menu item is clicked', async () => {
+  it('navigates to settings page when menu item is clicked', async () => {
     const wrapper = mount(UserProfileSection, {
       props: { user: mockUser }
     })
@@ -98,11 +98,11 @@ describe('UserProfileSection', () => {
     await profileButton.trigger('click')
     await nextTick()
 
-    const changePasswordButton = wrapper.findAll('[role="menuitem"]')[0]
-    await changePasswordButton.trigger('click')
+    const settingsButton = wrapper.findAll('[role="menuitem"]')[0]
+    await settingsButton.trigger('click')
     await nextTick()
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/profile/change-password')
+    expect(mockRouter.push).toHaveBeenCalledWith('/profile/settings')
   })
 
   it('logs out user and redirects when logout menu item is clicked', async () => {

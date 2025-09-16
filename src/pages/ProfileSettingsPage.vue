@@ -460,6 +460,22 @@
               </div>
             </form>
           </div>
+
+          <!-- Theme Settings Section -->
+          <div class="pt-8">
+            <div class="flex items-center space-x-3 mb-6">
+              <SwatchIcon class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Тема интерфейса</h3>
+            </div>
+
+            <div class="space-y-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Выберите внешний вид интерфейса. Изменения применяются мгновенно.
+              </p>
+              
+              <ThemeSelector />
+            </div>
+          </div>
         </BaseCard>
       </div>
 
@@ -485,6 +501,7 @@ import type { PersonalInfoUpdate } from '@/stores/user'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import ThemeSelector from '@/components/ui/ThemeSelector.vue'
 import {
   UserCircleIcon,
   PhoneIcon,
@@ -493,6 +510,7 @@ import {
   ArrowLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
+  SwatchIcon,
 } from '@heroicons/vue/24/outline'
 
 // Types for form data
