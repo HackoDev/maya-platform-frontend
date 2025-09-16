@@ -3,18 +3,16 @@
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div class="space-y-8">
         <!-- Page Header -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <div class="flex items-center space-x-3">
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
             <QuestionMarkCircleIcon class="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                Центр поддержки
-              </h1>
-              <p class="text-gray-600 dark:text-gray-400 mt-1">
-                Найдите ответы на вопросы или свяжитесь с нашей командой поддержки
-              </p>
-            </div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Центр поддержки
+            </h1>
           </div>
+          <p class="text-lg text-gray-600 dark:text-gray-400">
+            Найдите ответы на вопросы или свяжитесь с нашей командой поддержки
+          </p>
         </div>
 
         <!-- FAQ Section -->
