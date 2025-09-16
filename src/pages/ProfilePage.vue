@@ -180,23 +180,23 @@
             </div>
           </div>
           
-          <!-- Password Change Card -->
+          <!-- Settings Card -->
           <div 
             class="border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group"
-            @click="router.push('/profile/change-password')"
+            @click="router.push('/profile/settings')"
           >
             <div class="flex items-start justify-between">
               <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400">Смена пароля</h3>
+                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">Настройки</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Измените пароль для обеспечения безопасности
+                  Управление личными данными, контактами и безопасностью
                 </p>
               </div>
-              <KeyIcon class="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0" />
+              <Cog6ToothIcon class="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
             </div>
             <div class="mt-6">
-              <span class="text-sm text-green-600 dark:text-green-400 font-medium group-hover:text-green-700 dark:group-hover:text-green-300">
-                Изменить пароль
+              <span class="text-sm text-blue-600 dark:text-blue-400 font-medium group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                Открыть настройки
               </span>
             </div>
           </div>

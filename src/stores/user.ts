@@ -3,6 +3,30 @@ import { defineStore } from 'pinia'
 import type { User } from '@/types'
 import { UserService } from '@/services/user'
 
+// Profile update interfaces
+export interface PersonalInfoUpdate {
+  firstName: string
+  lastName: string
+  avatar?: File
+}
+
+export interface ContactInfoUpdate {
+  phone: string
+  whatsapp: string
+  telegram: string
+}
+
+export interface EmailUpdate {
+  newEmail: string
+  confirmEmail: string
+}
+
+export interface PasswordChange {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null)
   const users = ref<User[]>([])
@@ -87,6 +111,54 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // New methods for profile settings
+  const updatePersonalInfo = async (data: PersonalInfoUpdate) => {
+    try {
+      const response = await userService.updatePersonalInfo(data)
+      if (currentUser.value) {
+        currentUser.value.firstName = response.firstName
+        currentUser.value.lastName = response.lastName
+        currentUser.value.avatar = response.avatar
+      }
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update personal info'
+      throw err
+    }
+  }
+
+  const updateContactInfo = async (data: ContactInfoUpdate) => {
+    try {
+      const response = await userService.updateContactInfo(data)
+      // Update local state with new contact information
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update contact info'
+      throw err
+    }
+  }
+
+  const updateEmail = async (data: EmailUpdate) => {
+    try {
+      const response = await userService.updateEmail(data)
+      // Handle email verification flow
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update email'
+      throw err
+    }
+  }
+
+  const changePassword = async (data: PasswordChange) => {
+    try {
+      const response = await userService.changePassword(data)
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to change password'
+      throw err
+    }
+  }
+
   return {
     currentUser,
     users,
@@ -99,6 +171,10 @@ export const useUserStore = defineStore('user', () => {
     userTypeLabel,
     login,
     logout,
-    updateOpenToOffers, // Export the new action
+    updateOpenToOffers,
+    updatePersonalInfo,
+    updateContactInfo,
+    updateEmail,
+    changePassword,
   }
 })

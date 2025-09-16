@@ -9,6 +9,7 @@ const AboutPage = () => import('@/pages/AboutPage.vue')
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const ProfilePage = () => import('@/pages/ProfilePage.vue')
 const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
+const ProfileSettingsPage = () => import('@/pages/ProfileSettingsPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
 const SupportTicketDialogPage = () => import('@/pages/SupportTicketDialogPage.vue')
@@ -58,9 +59,18 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/profile/settings',
+    name: 'ProfileSettings',
+    component: ProfileSettingsPage,
+    meta: {
+      title: 'Настройки профиля',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/profile/change-password',
     name: 'ChangePassword',
-    component: ChangePasswordPage,
+    redirect: '/profile/settings',
     meta: {
       title: 'Смена пароля',
       requiresAuth: true,
