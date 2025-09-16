@@ -1,6 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <!-- Toggle Confirmation Modal -->
+      <ConfirmDialog
+        :is-open="showConfirmModal"
+        :title="modalConfig.title"
+        :message="modalConfig.message"
+        :confirm-text="modalConfig.confirmText"
+        :cancel-text="modalConfig.cancelText"
+        confirm-button-type="primary"
+        @confirm="handleConfirmToggle"
+        @cancel="handleCancelToggle"
+      />
       <!-- Combined Profile Header Section -->
       <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
         <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
@@ -101,36 +112,14 @@
                   Показывать вашу доступность для новых проектов
                 </p>
               </div>
-              <Switch
-                v-model="isOpenToOffers"
-                :class="isOpenToOffers ? 'bg-green-500' : 'bg-gray-300'"
-                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-              >
-                <span class="sr-only">Изменить статус доступности</span>
-                <span
-                  :class="isOpenToOffers ? 'translate-x-5' : 'translate-x-0'"
-                  class="pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                >
-                  <span
-                    :class="isOpenToOffers ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in'"
-                    class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
-                    aria-hidden="true"
-                  >
-                    <svg class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 12 12">
-                      <path d="M4 8l2-2m0 0l2-2M6 6L4 4m2 2l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                  <span
-                    :class="isOpenToOffers ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out'"
-                    class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
-                    aria-hidden="true"
-                  >
-                    <svg class="h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 12 12">
-                      <path d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-5.707a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z" />
-                    </svg>
-                  </span>
-                </span>
-              </Switch>
+              <ControlledToggle
+                ref="toggleRef"
+                :model-value="isOpenToOffers"
+                :disabled="toggleDisabled"
+                :confirmation-required="true"
+                sr-text="Изменить статус доступности"
+                @toggle-requested="handleToggleRequested"
+              />
             </div>
           </div>
           
@@ -229,45 +218,96 @@
 
 <script setup lang="ts">
 import { UserCircleIcon, Cog6ToothIcon, CpuChipIcon, KeyIcon, ArrowRightOnRectangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
-import { Switch } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
 import { computed, onMounted, ref, watch } from 'vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import ControlledToggle from '@/components/ui/ControlledToggle.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const neuralNetworkStore = useNeuralNetworkProfileStore()
 
-// Reactive state for the toggle switch
-const isOpenToOffers = ref(userStore.currentUser?.isOpenToOffers || false)
+// Reactive state for the toggle switch and confirmation modal
+const isOpenToOffers = ref(false)
+const pendingToggleValue = ref<boolean | null>(null)
+const showConfirmModal = ref(false)
+const isUpdating = ref(false)
+const toggleRef = ref<InstanceType<typeof ControlledToggle>>()
 
-// Watch for changes to the toggle and update the store
-watch(isOpenToOffers, async (newValue) => {
-  try {
-    await userStore.updateOpenToOffers(newValue)
-  } catch (error) {
-    console.error('Failed to update open to offers status:', error)
-    // Revert the toggle if the update failed
-    isOpenToOffers.value = !newValue
-  }
-})
+// Computed property for toggle disabled state
+const toggleDisabled = computed(() => isUpdating.value || userStore.loading)
 
 // Watch for changes to the user store and update the local state
-watch(() => userStore.currentUser?.isOpenToOffers, (newValue) => {
+watch(() => userStore.currentUser?.isOpenToOffers, (newValue: boolean | undefined) => {
   if (newValue !== undefined) {
     isOpenToOffers.value = newValue
+    // Also update the ControlledToggle component programmatically
+    if (toggleRef.value) {
+      toggleRef.value.updateValue(newValue)
+    }
+  }
+}, { immediate: true })
+
+// Handle toggle requested event from ControlledToggle
+const handleToggleRequested = (newValue: boolean) => {
+  pendingToggleValue.value = newValue
+  showConfirmModal.value = true
+}
+
+// Dynamic modal content configuration
+const modalConfig = computed(() => {
+  const isBecomingAvailable = pendingToggleValue.value === true
+
+  return {
+    title: isBecomingAvailable ? 'Показать в поиске' : 'Скрыть из поиска',
+    message: isBecomingAvailable
+      ? 'Ваша анкета специалиста снова будет показана в поиске активных специалистов и станет видимой для потенциальных клиентов.'
+      : 'Ваша анкета специалиста не будет показана в поиске активных специалистов, но останется доступной для просмотра по прямой ссылке.',
+    confirmText: isBecomingAvailable ? 'Показать профиль' : 'Скрыть профиль',
+    cancelText: 'Отмена',
   }
 })
+
+// Confirmation modal handlers
+const handleConfirmToggle = async () => {
+  if (pendingToggleValue.value === null) return
+
+  isUpdating.value = true
+
+  try {
+    await userStore.updateOpenToOffers(pendingToggleValue.value)
+    // Update toggle visual state programmatically after successful store update
+    if (toggleRef.value) {
+      toggleRef.value.updateValue(pendingToggleValue.value)
+    }
+    isOpenToOffers.value = pendingToggleValue.value
+  } catch (error) {
+    console.error('Failed to update availability status:', error)
+    // On error, ensure toggle stays in current state
+    if (userStore.currentUser?.isOpenToOffers !== undefined && toggleRef.value) {
+      toggleRef.value.updateValue(userStore.currentUser.isOpenToOffers)
+      isOpenToOffers.value = userStore.currentUser.isOpenToOffers
+    }
+  } finally {
+    isUpdating.value = false
+    showConfirmModal.value = false
+    pendingToggleValue.value = null
+  }
+}
+
+const handleCancelToggle = () => {
+  showConfirmModal.value = false
+  pendingToggleValue.value = null
+  // Toggle already reverted in watch function
+}
 
 // Initialize the neural network profile store when component mounts
 onMounted(() => {
   if (userStore.currentUser?.userType === 'specialist') {
     // Try to load existing profile or initialize a new one
     neuralNetworkStore.initializeForm()
-    
-    // Initialize the toggle state
-    isOpenToOffers.value = userStore.currentUser.isOpenToOffers || false
   }
 })
 

@@ -27,6 +27,7 @@ const mockSpecialistUser: User = {
   role: 'user',
   userType: 'specialist',
   isActive: true,
+  isOpenToOffers: false, // Added this field for toggle tests
   // Mock contact data
   phone: '+7 (916) 123-45-67',
   whatsapp: '+7 (916) 123-45-67',
@@ -417,6 +418,321 @@ describe('ProfilePage Component', () => {
       // Should still render action cards even without user data
       expect(wrapper.text()).toContain('Настройки')
       expect(wrapper.text()).toContain('Выход')
+    })
+  })
+
+  describe('Toggle Confirmation Modal', () => {
+    it('should render toggle for specialist users', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = mockSpecialistUser
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Should have the toggle switch
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      expect(toggleSwitch.exists()).toBe(true)
+      expect(wrapper.text()).toContain('Открыт к предложениям')
+    })
+
+    it('should not render toggle for client users', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = mockClientUser
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Should not have the toggle switch
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      expect(toggleSwitch.exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('Открыт к предложениям')
+    })
+
+    it('should show confirmation modal when toggle is clicked', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Find and click the toggle
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Check that confirmation modal is visible
+      expect(wrapper.text()).toContain('Показать в поиске')
+      expect(wrapper.text()).toContain('Ваша анкета специалиста снова будет показана')
+      expect(wrapper.text()).toContain('Показать профиль')
+      expect(wrapper.text()).toContain('Отмена')
+    })
+
+    it('should show correct modal content when enabling availability', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Click toggle to enable
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Check modal content for enabling
+      expect(wrapper.text()).toContain('Показать в поиске')
+      expect(wrapper.text()).toContain('снова будет показана в поиске активных специалистов')
+      expect(wrapper.text()).toContain('Показать профиль')
+    })
+
+    it('should show correct modal content when disabling availability', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: true }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Wait for component to fully mount and watch to initialize
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100)) // Give more time for initialization
+      
+      // Get the component instance
+      const vm = wrapper.vm as any
+      
+      // Make sure modal is closed and state is clean before test
+      vm.showConfirmModal = false
+      vm.pendingToggleValue = null
+      await wrapper.vm.$nextTick()
+
+      // Verify initial state - the watch should have synchronized it
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      expect(toggleSwitch.exists()).toBe(true)
+      expect(vm.isOpenToOffers).toBe(true) // Should be synced from store
+
+      // Click toggle to disable (true -> false)
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // Now the pendingToggleValue should be false (the desired new state)
+      expect(vm.pendingToggleValue).toBe(false)
+      expect(vm.showConfirmModal).toBe(true)
+      
+      // Check modal content for disabling
+      expect(wrapper.text()).toContain('Скрыть из поиска')
+      expect(wrapper.text()).toContain('не будет показана в поиске активных специалистов')
+      expect(wrapper.text()).toContain('Скрыть профиль')
+    })
+
+    it('should call updateOpenToOffers when confirmed', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const updateOpenToOffersSpy = vi.spyOn(userStore, 'updateOpenToOffers').mockResolvedValue()
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Click toggle
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Find and click confirm button
+      const confirmButtons = wrapper.findAll('button')
+      const confirmButton = confirmButtons.find(button => 
+        button.text().includes('Показать профиль')
+      )
+      expect(confirmButton).toBeTruthy()
+      await confirmButton!.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      expect(updateOpenToOffersSpy).toHaveBeenCalledWith(true)
+      updateOpenToOffersSpy.mockRestore()
+    })
+
+    it('should revert toggle when cancelled', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Click toggle
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Find and click cancel button
+      const cancelButtons = wrapper.findAll('button')
+      const cancelButton = cancelButtons.find(button => 
+        button.text().includes('Отмена')
+      )
+      expect(cancelButton).toBeTruthy()
+      await cancelButton!.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Modal should be hidden and toggle should remain false
+      expect(wrapper.text()).not.toContain('Показать в поиске')
+      // The toggle should be reverted to its original state
+      const toggleComponent = wrapper.findComponent({ name: 'ControlledToggle' })
+      expect(toggleComponent.exists()).toBe(true)
+      // Verify that the component's getCurrentValue returns false
+      const vm = wrapper.vm as any
+      expect(vm.isOpenToOffers).toBe(false)
+    })
+
+    it('should update toggle visual state after successful confirmation', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const updateOpenToOffersSpy = vi.spyOn(userStore, 'updateOpenToOffers').mockResolvedValue()
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Initially should be false
+      const vm = wrapper.vm as any
+      expect(vm.isOpenToOffers).toBe(false)
+      expect(wrapper.find('[aria-checked="false"]').exists()).toBe(true)
+
+      // Click toggle
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Confirm the action
+      const confirmButtons = wrapper.findAll('button')
+      const confirmButton = confirmButtons.find(button => 
+        button.text().includes('Показать профиль')
+      )
+      expect(confirmButton).toBeTruthy()
+      await confirmButton!.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Verify API was called
+      expect(updateOpenToOffersSpy).toHaveBeenCalledWith(true)
+      
+      // Verify toggle state updated
+      expect(vm.isOpenToOffers).toBe(true)
+      expect(wrapper.find('[aria-checked="true"]').exists()).toBe(true)
+      
+      // Verify modal is closed
+      expect(wrapper.text()).not.toContain('Показать в поиске')
+
+      updateOpenToOffersSpy.mockRestore()
+    })
+
+    it('should maintain toggle state on API error', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const updateOpenToOffersSpy = vi.spyOn(userStore, 'updateOpenToOffers')
+        .mockRejectedValue(new Error('API Error'))
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Initially should be false
+      const vm = wrapper.vm as any
+      expect(vm.isOpenToOffers).toBe(false)
+
+      // Click toggle
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      await toggleSwitch.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Confirm the action
+      const confirmButtons = wrapper.findAll('button')
+      const confirmButton = confirmButtons.find(button => 
+        button.text().includes('Показать профиль')
+      )
+      expect(confirmButton).toBeTruthy()
+      await confirmButton!.trigger('click')
+      await wrapper.vm.$nextTick()
+
+      // Should log error and maintain original state
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to update availability status:', expect.any(Error))
+      expect(vm.isOpenToOffers).toBe(false)
+      expect(wrapper.find('[aria-checked="false"]').exists()).toBe(true)
+
+      updateOpenToOffersSpy.mockRestore()
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('should disable toggle during API call', async () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+      userStore.loading = true
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      const toggleSwitch = wrapper.find('[role="switch"]')
+      expect(toggleSwitch.attributes('disabled')).toBeDefined()
+    })
+
+    it('should display "Открыт к предложениям" badge when user is available', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: true }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Should show the "open to offers" badge in the user info section
+      const badges = wrapper.findAll('.bg-green-100')
+      const openToBadge = badges.find(badge => badge.text().includes('Открыт к предложениям'))
+      expect(openToBadge).toBeTruthy()
+    })
+
+    it('should not display "Открыт к предложениям" badge when user is not available', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = { ...mockSpecialistUser, isOpenToOffers: false }
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Should not show the "open to offers" badge
+      const badges = wrapper.findAll('.bg-green-100')
+      const openToBadge = badges.find(badge => badge.text().includes('Открыт к предложениям'))
+      expect(openToBadge).toBeFalsy()
     })
   })
 })

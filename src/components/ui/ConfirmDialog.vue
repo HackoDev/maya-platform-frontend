@@ -25,7 +25,12 @@
         </button>
         <button
           type="button"
-          class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900"
+          :class="[
+            'inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+            confirmButtonType === 'danger' 
+              ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+          ]"
           @click="handleConfirm"
         >
           {{ confirmText }}
@@ -44,6 +49,7 @@ interface Props {
   message?: string
   confirmText?: string
   cancelText?: string
+  confirmButtonType?: 'primary' | 'danger'
 }
 
 interface Emits {
@@ -55,7 +61,8 @@ withDefaults(defineProps<Props>(), {
   title: 'Подтверждение',
   message: 'Вы уверены?',
   confirmText: 'Подтвердить',
-  cancelText: 'Отмена'
+  cancelText: 'Отмена',
+  confirmButtonType: 'danger'
 })
 
 const emit = defineEmits<Emits>()
