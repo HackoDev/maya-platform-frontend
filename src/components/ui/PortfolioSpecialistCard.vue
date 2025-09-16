@@ -96,30 +96,6 @@
       </div>
     </div>
 
-    <!-- Services -->
-    <div class="specialist-services mb-4">
-      <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Услуги:</h4>
-      <div class="flex flex-wrap gap-2">
-        <span
-          v-for="service in limitedServices"
-          :key="service.name"
-          class="inline-flex items-center px-2 py-1 text-xs font-medium 
-                 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-md"
-        >
-          {{ service.name }} — {{ formatPrice(service) }}
-        </span>
-        
-        <!-- Show more services indicator -->
-        <span
-          v-if="hasMoreServices"
-          class="inline-flex items-center px-2 py-1 text-xs font-medium 
-                 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md"
-        >
-          +{{ remainingServicesCount }} услуг
-        </span>
-      </div>
-    </div>
-
     <!-- Action Buttons -->
     <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
       <div class="flex items-center space-x-2">
@@ -174,10 +150,6 @@ const limitedAbilities = computed(() => {
   return props.specialist.abilities.slice(0, 2)
 })
 
-const limitedServices = computed(() => {
-  return props.specialist.services.slice(0, 2)
-})
-
 const hasMoreSkills = computed(() => {
   const totalSkills = props.specialist.specializations.length + props.specialist.abilities.length
   const shownSkills = props.specialist.specializations.length + limitedAbilities.value.length
@@ -190,36 +162,7 @@ const remainingSkillsCount = computed(() => {
   return totalSkills - shownSkills
 })
 
-const hasMoreServices = computed(() => {
-  return props.specialist.services.length > 2
-})
-
-const remainingServicesCount = computed(() => {
-  return props.specialist.services.length - 2
-})
-
 // Methods
-const formatPrice = (service: SpecialistProfile['services'][0]): string => {
-  if (typeof service.price === 'string') {
-    return service.price
-  }
-
-  const formattedPrice = service.price.toLocaleString('ru-RU')
-
-  switch (service.priceType) {
-    case 'hourly':
-      return `${formattedPrice} ₽/час`
-    case 'project':
-      return `${formattedPrice} ₽/проект`
-    case 'fixed':
-      return `${formattedPrice} ₽`
-    case 'negotiable':
-      return 'Договорная'
-    default:
-      return `${formattedPrice} ₽`
-  }
-}
-
 const viewProfile = (): void => {
   // Navigate to profile view page
   router.push({

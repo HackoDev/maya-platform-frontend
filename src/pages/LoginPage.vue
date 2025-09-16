@@ -1,10 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8"
+  >
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="flex justify-center">
         <MayaLogoIcon class="h-12 w-12 text-purple-600" />
       </div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">Вход в систему</h2>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        Вход в систему
+      </h2>
       <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
         Используйте предопределенные учетные записи для тестирования
       </p>
@@ -32,7 +36,10 @@
             </div>
 
             <div class="text-sm">
-              <a href="#" class="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300">
+              <a
+                href="#"
+                class="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300"
+              >
                 Забыли пароль?
               </a>
             </div>
@@ -54,7 +61,9 @@
               <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400"> Или войдите как </span>
+              <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                Или войдите как
+              </span>
             </div>
           </div>
 
@@ -65,7 +74,9 @@
               class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800"
             >
               <span>Специалист</span>
-              <span class="ml-2 text-xs bg-green-800 dark:bg-green-900 px-2 py-1 rounded">Тест</span>
+              <span class="ml-2 text-xs bg-green-800 dark:bg-green-900 px-2 py-1 rounded"
+                >Тест</span
+              >
             </button>
 
             <button
@@ -116,11 +127,11 @@ const loginAsSpecialist = async () => {
     // Update user type to specialist
     if (userStore.currentUser) {
       userStore.currentUser.userType = 'specialist'
-      userStore.currentUser.firstName = 'Анна'
+      userStore.currentUser.firstName = 'Евгений '
       userStore.currentUser.avatar =
         'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
-      userStore.currentUser.lastName = 'Смирнова'
-      userStore.currentUser.name = 'Анна Смирнова'
+      userStore.currentUser.lastName = 'Хацко'
+      userStore.currentUser.name = 'Евгений Хацко'
     }
     router.push('/')
   }
@@ -134,9 +145,10 @@ const loginAsClient = async () => {
       userStore.currentUser.avatar =
         'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
       userStore.currentUser.userType = 'client'
-      userStore.currentUser.firstName = 'Иван'
-      userStore.currentUser.lastName = 'Петров'
-      userStore.currentUser.name = 'Иван Петров'
+      userStore.currentUser.firstName = 'Майя'
+      userStore.currentUser.lastName = 'Галицкая'
+      userStore.currentUser.name =
+        userStore.currentUser.firstName + ' ' + userStore.currentUser.lastName
     }
     router.push('/')
   }

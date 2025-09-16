@@ -19,18 +19,17 @@
         </p>
       </div>
 
-
       <!-- Dynamic Content Based on User Type -->
-      <div class="max-w-4xl mx-auto">
+      <div class="w-full">
         <!-- For Clients: Show Portfolios -->
         <div v-if="userStore.currentUser?.userType === 'client'">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Портфолио специалистов</h2>
             <router-link 
               to="/search/specialists"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
+              class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
             >
-              Найти специалиста
+              Найти специалиста ->
             </router-link>
           </div>
           
@@ -42,13 +41,25 @@
             <p class="text-red-800 dark:text-red-200">Ошибка загрузки данных: {{ error }}</p>
           </div>
           
-          <div v-else class="space-y-6">
-            <PortfolioSpecialistCard 
-              v-for="(item, index) in portfolios" 
-              :key="index" 
-              :portfolio="item.portfolio"
-              :specialist="item.specialist"
-            />
+          <div v-else>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <PortfolioSpecialistCard 
+                v-for="(item, index) in portfolios.slice(0, 9)" 
+                :key="index" 
+                :portfolio="item.portfolio"
+                :specialist="item.specialist"
+              />
+            </div>
+            
+            <!-- Centered link to view all specialists -->
+            <div class="text-center">
+              <router-link 
+                to="/search/specialists"
+                class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-lg font-medium"
+              >
+                Найти специалиста ->
+              </router-link>
+            </div>
           </div>
         </div>
 
@@ -58,9 +69,9 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Последние вакансии</h2>
             <router-link 
               to="/vacancies"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
+              class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
             >
-              Посмотреть все вакансии
+              Найти вакансии ->
             </router-link>
           </div>
           
@@ -72,14 +83,26 @@
             <p class="text-red-800 dark:text-red-200">Ошибка загрузки данных: {{ error }}</p>
           </div>
           
-          <div v-else class="space-y-6">
-            <VacancyCard 
-              v-for="vacancy in vacancies" 
-              :key="vacancy.id" 
-              :vacancy="vacancy"
-              :is-owner="false"
-              @view="handleViewVacancy"
-            />
+          <div v-else>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <VacancyCard 
+                v-for="vacancy in vacancies.slice(0, 9)" 
+                :key="vacancy.id" 
+                :vacancy="vacancy"
+                :is-owner="false"
+                @view="handleViewVacancy"
+              />
+            </div>
+            
+            <!-- Centered link to view all vacancies -->
+            <div class="text-center">
+              <router-link 
+                to="/vacancies"
+                class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-lg font-medium"
+              >
+                Найти вакансии ->
+              </router-link>
+            </div>
           </div>
         </div>
 
