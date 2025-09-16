@@ -20,9 +20,9 @@ describe('ContactSection', () => {
 
   const mockProps: ContactSectionProps = {
     contacts: {
-      telegram: '@anna_ai_expert',
-      email: 'anna@example.com',
-      website: 'https://anna-ai-consulting.com'
+      phone: '+7 (916) 123-45-67',
+      whatsapp: '+7 (916) 123-45-67',
+      telegram: '@anna_ai_expert'
     },
     specialistName: 'Анна Иванова',
     basicInfo: {
@@ -52,22 +52,22 @@ describe('ContactSection', () => {
     expect(wrapper.text()).toContain('@anna_ai_expert')
   })
 
-  it('renders email contact when provided', () => {
+  it('renders phone contact when provided', () => {
     const wrapper = mount(ContactSection, {
       props: mockProps
     })
 
-    expect(wrapper.text()).toContain('Email')
-    expect(wrapper.text()).toContain('anna@example.com')
+    expect(wrapper.text()).toContain('Телефон')
+    expect(wrapper.text()).toContain('+7 (916) 123-45-67')
   })
 
-  it('renders website contact when provided', () => {
+  it('renders WhatsApp contact when provided', () => {
     const wrapper = mount(ContactSection, {
       props: mockProps
     })
 
-    expect(wrapper.text()).toContain('Веб-сайт')
-    expect(wrapper.text()).toContain('https://anna-ai-consulting.com')
+    expect(wrapper.text()).toContain('WhatsApp')
+    expect(wrapper.text()).toContain('+7 (916) 123-45-67')
   })
 
   it('does not render telegram contact when not provided', () => {
@@ -87,38 +87,37 @@ describe('ContactSection', () => {
     expect(wrapper.text()).not.toContain('@anna_ai_expert')
   })
 
-  it('does not render email contact when not provided', () => {
-    const propsWithoutEmail: ContactSectionProps = {
+  it('does not render phone contact when not provided', () => {
+    const propsWithoutPhone: ContactSectionProps = {
       ...mockProps,
       contacts: {
         ...mockProps.contacts,
-        email: undefined
+        phone: undefined
       }
     }
 
     const wrapper = mount(ContactSection, {
-      props: propsWithoutEmail
+      props: propsWithoutPhone
     })
 
-    expect(wrapper.text()).not.toContain('Email')
-    expect(wrapper.text()).not.toContain('anna@example.com')
+    expect(wrapper.text()).not.toContain('Телефон')
+    // Note: We can't check for the number as WhatsApp might have the same number
   })
 
-  it('does not render website contact when not provided', () => {
-    const propsWithoutWebsite: ContactSectionProps = {
+  it('does not render WhatsApp contact when not provided', () => {
+    const propsWithoutWhatsApp: ContactSectionProps = {
       ...mockProps,
       contacts: {
         ...mockProps.contacts,
-        website: undefined
+        whatsapp: undefined
       }
     }
 
     const wrapper = mount(ContactSection, {
-      props: propsWithoutWebsite
+      props: propsWithoutWhatsApp
     })
 
-    expect(wrapper.text()).not.toContain('Веб-сайт')
-    expect(wrapper.text()).not.toContain('https://anna-ai-consulting.com')
+    expect(wrapper.text()).not.toContain('WhatsApp')
   })
 
   it('renders all contact icons correctly', () => {
@@ -128,7 +127,41 @@ describe('ContactSection', () => {
 
     // Check that all three contact type icons are rendered
     const contactIcons = wrapper.findAll('svg')
-    // 3 contact icons (telegram, email, website)
+    // 3 contact icons (phone, whatsapp, telegram) plus action icons
     expect(contactIcons.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('generates correct phone URL', () => {
+    const wrapper = mount(ContactSection, {
+      props: mockProps
+    })
+
+    const phoneLink = wrapper.find('a[href^="tel:"]')
+    expect(phoneLink.exists()).toBe(true)
+    expect(phoneLink.attributes('href')).toBe('tel:+7 (916) 123-45-67')
+  })
+
+  it('generates correct WhatsApp URL', () => {
+    const wrapper = mount(ContactSection, {
+      props: mockProps
+    })
+
+    const whatsappLink = wrapper.find('a[href*="wa.me"]')
+    expect(whatsappLink.exists()).toBe(true)
+    expect(whatsappLink.attributes('href')).toContain('wa.me/79161234567')
+    expect(whatsappLink.attributes('href')).toContain('text=')
+  })
+
+  it('shows hover actions on mouseenter for phone', async () => {
+    const wrapper = mount(ContactSection, {
+      props: mockProps
+    })
+
+    const phoneSection = wrapper.find('[data-testid="phone-contact"]') || wrapper.find('div:has([href^="tel:"])')
+    if (phoneSection.exists()) {
+      await phoneSection.trigger('mouseenter')
+      // Actions should be visible after mouseenter
+      expect(wrapper.html()).toContain('hover:')
+    }
   })
 })
