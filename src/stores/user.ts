@@ -75,6 +75,10 @@ export const useUserStore = defineStore('user', () => {
         userType,
         isActive: true,
         isOpenToOffers: userType === 'specialist' ? false : undefined, // Only specialists have this field
+        // Fake contact data for demo
+        phone: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',
+        whatsapp: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',
+        telegram: userType === 'specialist' ? '@anna_designer' : '@ivan_employer',
         avatar: undefined,
         lastLoginAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -131,6 +135,11 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await userService.updateContactInfo(data)
       // Update local state with new contact information
+      if (currentUser.value) {
+        currentUser.value.phone = data.phone
+        currentUser.value.whatsapp = data.whatsapp
+        currentUser.value.telegram = data.telegram
+      }
       return response
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update contact info'

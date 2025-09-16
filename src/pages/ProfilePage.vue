@@ -6,7 +6,7 @@
         <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
           <!-- Avatar Section -->
           <div class="flex-shrink-0">
-            <div class="bg-gray-200 dark:bg-gray-700 border-4 border-gray-300 dark:border-gray-600 rounded-full shadow-md w-40 h-40 flex items-center justify-center overflow-hidden">
+            <div class="bg-gray-200 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-500 rounded-full shadow-md w-40 h-40 flex items-center justify-center overflow-hidden">
               <span v-if="!userStore.currentUser?.avatar" class="text-5xl font-bold text-gray-500 dark:text-gray-400">
                 {{ userInitials }}
               </span>
@@ -21,30 +21,22 @@
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
                   {{ userDisplayName }}
                 </h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">
-                  {{ userStore.currentUser?.email }}
-                </p>
               </div>
               <div class="flex flex-wrap justify-center md:justify-end gap-2">
+                <!-- Email Badge -->
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                  {{ userStore.currentUser?.email }}
+                </span>
+                <!-- User Type Badge -->
                 <span
                   class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
                   :class="
                     userStore.currentUser?.userType === 'specialist'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                      : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
                   "
                 >
                   {{ userStore.currentUser?.userType === 'specialist' ? 'Специалист' : 'Клиент' }}
-                </span>
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
-                  :class="
-                    userStore.currentUser?.isActive
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                  "
-                >
-                  {{ userStore.currentUser?.isActive ? 'Активен' : 'Неактивен' }}
                 </span>
                 <!-- Open to Offers Badge -->
                 <span
@@ -56,22 +48,30 @@
               </div>
             </div>
             
-            <!-- Personal Information Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  Имя
+            <!-- Contact Information Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="space-y-2" v-if="userStore.currentUser?.phone">
+                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Телефон
                 </label>
-                <p class="text-gray-900 dark:text-white">
-                  {{ userStore.currentUser?.firstName }}
+                <p class="text-lg font-medium text-gray-900 dark:text-white">
+                  {{ userStore.currentUser.phone }}
                 </p>
               </div>
-              <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  Фамилия
+              <div class="space-y-2" v-if="userStore.currentUser?.whatsapp">
+                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  WhatsApp
                 </label>
-                <p class="text-gray-900 dark:text-white">
-                  {{ userStore.currentUser?.lastName }}
+                <p class="text-lg font-medium text-gray-900 dark:text-white">
+                  {{ userStore.currentUser.whatsapp }}
+                </p>
+              </div>
+              <div class="space-y-2" v-if="userStore.currentUser?.telegram">
+                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Telegram
+                </label>
+                <p class="text-lg font-medium text-gray-900 dark:text-white">
+                  {{ userStore.currentUser.telegram }}
                 </p>
               </div>
             </div>

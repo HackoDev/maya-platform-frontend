@@ -58,6 +58,10 @@ export class UserService {
       userType: 'specialist',
       isActive: true,
       isOpenToOffers,
+      // Mock contact data
+      phone: '+7 (916) 123-45-67',
+      whatsapp: '+7 (916) 123-45-67',
+      telegram: '@john_specialist',
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -96,6 +100,10 @@ export class UserService {
       userType: 'specialist',
       isActive: true,
       isOpenToOffers: false,
+      // Mock contact data
+      phone: '+7 (916) 123-45-67',
+      whatsapp: '+7 (916) 123-45-67',
+      telegram: '@john_specialist',
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -136,6 +144,10 @@ export class UserService {
       userType: 'specialist',
       isActive: true,
       isOpenToOffers: false,
+      // Mock contact data
+      phone: '+7 (916) 123-45-67',
+      whatsapp: '+7 (916) 123-45-67',
+      telegram: '@john_specialist',
       avatar: data.avatar ? URL.createObjectURL(data.avatar) : undefined,
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -174,6 +186,10 @@ export class UserService {
       userType: 'specialist',
       isActive: true,
       isOpenToOffers: false,
+      // Update with provided contact data
+      phone: data.phone,
+      whatsapp: data.whatsapp,
+      telegram: data.telegram,
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

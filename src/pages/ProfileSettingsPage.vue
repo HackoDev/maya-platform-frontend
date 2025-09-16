@@ -548,9 +548,9 @@ const personalInfoForm = reactive<PersonalInfoForm>({
 })
 
 const contactInfoForm = reactive<ContactInfoForm>({
-  phone: '',
-  whatsapp: '',
-  telegram: '',
+  phone: userStore.currentUser?.phone || '',
+  whatsapp: userStore.currentUser?.whatsapp || '',
+  telegram: userStore.currentUser?.telegram || '',
 })
 
 const emailForm = reactive<EmailForm>({

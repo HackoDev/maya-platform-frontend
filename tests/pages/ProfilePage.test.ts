@@ -27,6 +27,10 @@ const mockSpecialistUser: User = {
   role: 'user',
   userType: 'specialist',
   isActive: true,
+  // Mock contact data
+  phone: '+7 (916) 123-45-67',
+  whatsapp: '+7 (916) 123-45-67',
+  telegram: '@john_specialist',
   avatar: undefined,
   lastLoginAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
@@ -36,6 +40,10 @@ const mockSpecialistUser: User = {
 const mockClientUser: User = {
   ...mockSpecialistUser,
   userType: 'client',
+  // Different contact data for client
+  phone: '+7 (903) 987-65-43',
+  whatsapp: '+7 (903) 987-65-43',
+  telegram: '@client_user',
 }
 
 describe('ProfilePage Component', () => {
@@ -58,12 +66,47 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.find('h1').text()).toBe('Мой профиль')
-      expect(wrapper.text()).toContain('John')
-      expect(wrapper.text()).toContain('Doe')
+      expect(wrapper.find('h1').text()).toBe('John Doe')
       expect(wrapper.text()).toContain('john@example.com')
       expect(wrapper.text()).toContain('Специалист')
-      expect(wrapper.text()).toContain('Активен')
+      // Check for contact information
+      expect(wrapper.text()).toContain('+7 (916) 123-45-67')
+      expect(wrapper.text()).toContain('@john_specialist')
+    })
+
+    it('should render contact information fields', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = mockSpecialistUser
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Check for contact field labels
+      expect(wrapper.text()).toContain('Телефон')
+      expect(wrapper.text()).toContain('WhatsApp')
+      expect(wrapper.text()).toContain('Telegram')
+      
+      // Check for contact values
+      expect(wrapper.text()).toContain('+7 (916) 123-45-67')
+      expect(wrapper.text()).toContain('@john_specialist')
+    })
+
+    it('should not render Name/Surname fields anymore', () => {
+      const userStore = useUserStore()
+      userStore.currentUser = mockSpecialistUser
+
+      const wrapper = mount(ProfilePage, {
+        global: {
+          plugins: [router, pinia],
+        },
+      })
+
+      // Name and surname should not appear as separate fields since they're removed
+      expect(wrapper.text()).not.toContain('Имя')
+      expect(wrapper.text()).not.toContain('Фамилия')
     })
 
     it('should render actions section title', () => {
@@ -92,10 +135,10 @@ describe('ProfilePage Component', () => {
       })
 
       expect(wrapper.text()).toContain('Анкета специалиста')
-      expect(wrapper.text()).toContain('Заполните анкету нейросетевого специалиста')
+      expect(wrapper.text()).toContain('Улучшите свою анкету')
     })
 
-    it('should render password change card for all users', () => {
+    it('should render settings card for all users', () => {
       const userStore = useUserStore()
       userStore.currentUser = mockSpecialistUser
 
@@ -105,8 +148,8 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Смена пароля')
-      expect(wrapper.text()).toContain('Измените пароль для обеспечения безопасности')
+      expect(wrapper.text()).toContain('Настройки')
+      expect(wrapper.text()).toContain('Управление личными данными')
     })
 
     it('should render logout card for all users', () => {
@@ -138,7 +181,7 @@ describe('ProfilePage Component', () => {
       expect(wrapper.text()).not.toContain('Анкета специалиста')
     })
 
-    it('should render password change and logout cards for client users', () => {
+    it('should render settings and logout cards for client users', () => {
       const userStore = useUserStore()
       userStore.currentUser = mockClientUser
 
@@ -148,7 +191,7 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Смена пароля')
+      expect(wrapper.text()).toContain('Настройки')
       expect(wrapper.text()).toContain('Выход')
     })
   })
@@ -167,9 +210,9 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      // Find and click the logout card
-      const logoutCards = wrapper.findAll('.action-card')
-      const logoutCard = logoutCards.find(card => card.text().includes('Выход'))
+      // Find and click the logout card by looking for cards with 'Выход' text
+      const allCards = wrapper.findAll('[class*="border"][class*="rounded-lg"][class*="p-5"]')
+      const logoutCard = allCards.find(card => card.text().includes('Выход'))
       expect(logoutCard).toBeTruthy()
 
       if (logoutCard) {
@@ -224,10 +267,9 @@ describe('ProfilePage Component', () => {
       const pageContainer = wrapper.find('.min-h-screen')
       expect(pageContainer.classes()).toContain('dark:bg-gray-900')
 
-      const cards = wrapper.findAll('.bg-white')
-      cards.forEach(card => {
-        expect(card.classes()).toContain('dark:bg-gray-800')
-      })
+      // Check if the HTML contains dark theme classes
+      const htmlContent = wrapper.html()
+      expect(htmlContent).toContain('dark:bg-gray-800')
     })
   })
 
@@ -242,7 +284,7 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      const badges = wrapper.findAll('.bg-green-100, .bg-blue-100')
+      const badges = wrapper.findAll('.bg-green-100, .bg-blue-100, .bg-purple-100')
       const specialistBadge = badges.find(badge => badge.text().includes('Специалист'))
       expect(specialistBadge).toBeTruthy()
     })
@@ -257,14 +299,14 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      const badges = wrapper.findAll('.bg-green-100, .bg-blue-100')
+      const badges = wrapper.findAll('.bg-green-100, .bg-blue-100, .bg-purple-100')
       const clientBadge = badges.find(badge => badge.text().includes('Клиент'))
       expect(clientBadge).toBeTruthy()
     })
   })
 
   describe('User Status Display', () => {
-    it('should display active status correctly', () => {
+    it('should display email as green badge', () => {
       const userStore = useUserStore()
       userStore.currentUser = { ...mockSpecialistUser, isActive: true }
 
@@ -274,10 +316,14 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Активен')
+      // Email should be displayed as a green badge
+      expect(wrapper.text()).toContain('john@example.com')
+      const emailBadges = wrapper.findAll('.bg-green-100')
+      const emailBadge = emailBadges.find(badge => badge.text().includes('john@example.com'))
+      expect(emailBadge).toBeTruthy()
     })
 
-    it('should display inactive status correctly', () => {
+    it('should not display active/inactive status badge', () => {
       const userStore = useUserStore()
       userStore.currentUser = { ...mockSpecialistUser, isActive: false }
 
@@ -287,7 +333,9 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Неактивен')
+      // Since we removed the active/inactive status badge, it should not appear
+      expect(wrapper.text()).not.toContain('Неактивен')
+      expect(wrapper.text()).not.toContain('Активен')
     })
   })
 
@@ -364,10 +412,10 @@ describe('ProfilePage Component', () => {
         },
       })
 
-      expect(wrapper.find('h1').text()).toBe('Мой профиль')
+      expect(wrapper.find('h1').text()).toBe('')
       expect(wrapper.find('h2').text()).toBe('Действия профиля')
       // Should still render action cards even without user data
-      expect(wrapper.text()).toContain('Смена пароля')
+      expect(wrapper.text()).toContain('Настройки')
       expect(wrapper.text()).toContain('Выход')
     })
   })

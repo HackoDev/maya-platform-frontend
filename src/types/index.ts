@@ -11,6 +11,10 @@ export interface User {
   userType: 'specialist' | 'client'
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
+  // Contact information
+  phone?: string
+  whatsapp?: string
+  telegram?: string
   lastLoginAt?: string
   createdAt: string
   updatedAt: string
@@ -58,6 +62,10 @@ export interface UserProfile {
   role: 'admin' | 'user' | 'moderator'
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
+  // Contact information
+  phone?: string
+  whatsapp?: string
+  telegram?: string
   lastLoginAt?: string
   createdAt: string
   updatedAt: string
