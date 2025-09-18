@@ -111,13 +111,15 @@ const form = ref({
   remember: false,
 })
 
+const handleRedirect = () => {
+  const redirect = router.currentRoute.value.query.redirect as string
+  router.push(redirect || '/')
+}
+
 const handleSubmit = async () => {
   await userStore.login(form.value.email, form.value.password)
-
-  if (userStore.isAuthenticated) {
-    const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || '/')
-  }
+  
+  userStore.isAuthenticated && handleRedirect();
 }
 
 // Predefined login methods for testing
@@ -128,12 +130,13 @@ const loginAsSpecialist = async () => {
     if (userStore.currentUser) {
       userStore.currentUser.userType = 'specialist'
       userStore.currentUser.firstName = 'Евгений '
+      userStore.currentUser.isOpenToOffers = true
       userStore.currentUser.avatar =
         'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
       userStore.currentUser.lastName = 'Хацко'
       userStore.currentUser.name = 'Евгений Хацко'
     }
-    router.push('/')
+    handleRedirect()
   }
 }
 
@@ -145,12 +148,13 @@ const loginAsClient = async () => {
       userStore.currentUser.avatar =
         'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
       userStore.currentUser.userType = 'client'
+      userStore.currentUser.isOpenToOffers = true
       userStore.currentUser.firstName = 'Майя'
       userStore.currentUser.lastName = 'Галицкая'
       userStore.currentUser.name =
         userStore.currentUser.firstName + ' ' + userStore.currentUser.lastName
     }
-    router.push('/')
+    handleRedirect()
   }
 }
 </script>

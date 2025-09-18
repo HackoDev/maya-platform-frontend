@@ -3,14 +3,7 @@ import { ref, computed, reactive } from 'vue'
 import type {
   NeuralNetworkProfileSchema,
   NeuralNetworkFormState,
-  ValidationError,
-  SpecializationBlock,
-  AbilitiesBlock,
-  PortfolioCase,
-  ServicesBlock,
-  ExperienceEntry,
-  TestimonialsBlock,
-  ContactsBlock
+  ValidationError
 } from '@/types/neural-network-profile'
 
 export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', () => {
@@ -79,18 +72,13 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     },
     experience: [],
     testimonials: {
-      textTestimonials: [],
-      externalLinks: [],
-      files: []
+      photos: []
     },
     contacts: {
-      telegram: '',
-      email: undefined,
-      website: undefined,
-      phone: undefined,
+      phone: '',
+      telegram: undefined,
       whatsapp: undefined,
-      discord: undefined,
-      linkedin: undefined
+      instagram: undefined
     },
 
     // Form state
@@ -265,37 +253,31 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       },
       testimonials: {
         title: 'Отзывы/рекомендации',
-        description: 'Вы можете прикрепить ссылку на диск, сайт или другой ресурс с файлами',
+        description: 'Загрузите скриншоты отзывов клиентов',
         data: {
-          textTestimonials: [],
-          externalLinks: [],
-          files: []
+          photos: []
         },
         validation: {
           required: false,
-          maxTextTestimonials: 10,
-          maxExternalLinks: 5,
-          maxFiles: 20
+          maxPhotos: 20,
+          allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+          maxFileSize: 5242880 // 5MB
         }
       },
       contacts: {
         title: 'Как тебе можно написать?',
         description: 'Укажите удобные способы связи',
         data: {
-          telegram: '',
-          email: undefined,
-          website: undefined,
-          phone: undefined,
+          phone: '',
+          telegram: undefined,
           whatsapp: undefined,
-          discord: undefined,
-          linkedin: undefined
+          instagram: undefined
         },
         validation: {
           required: true,
-          atLeastOne: ['telegram', 'email', 'website'],
-          emailFormat: true,
-          websiteFormat: true,
-          telegramFormat: true
+          atLeastOne: ['phone'],
+          telegramFormat: true,
+          instagramFormat: true
         }
       }
     }
@@ -329,7 +311,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         if (fieldId === 'customSpecializations') {
           formState.specializations.customSpecializations = value
         } else {
-          ;(formState.specializations as any)[fieldId] = value
+          (formState.specializations as any)[fieldId] = value
         }
         break
       case 'superpower':
@@ -349,30 +331,26 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         if (fieldId === 'customServices') {
           formState.services.customServices = value
         } else if (fieldId.startsWith('predefinedServices.')) {
-          const serviceKey = fieldId.replace('predefinedServices.', '')
-          ;(formState.services.predefinedServices as any)[serviceKey] = value
+          const serviceKey: string = fieldId.substring(18) // length of 'predefinedServices.'
+          (formState.services.predefinedServices as any)[serviceKey] = value
         }
         break
       case 'experience':
         formState.experience = value
         break
       case 'testimonials':
-        if (fieldId === 'textTestimonials') {
-          formState.testimonials.textTestimonials = value
-        } else if (fieldId === 'externalLinks') {
-          formState.testimonials.externalLinks = value
-        } else if (fieldId === 'files') {
-          formState.testimonials.files = value
+        if (fieldId === 'photos') {
+          formState.testimonials.photos = value
         }
         break
       case 'contacts':
-        ;(formState.contacts as any)[fieldId] = value
+        (formState.contacts as any)[fieldId] = value
         break
     }
 
     // Clear validation errors for this field
     if (formState.validationErrors[blockId]) {
-      delete formState.validationErrors[blockId][fieldId]
+      delete (formState.validationErrors[blockId] as any)[fieldId]
       if (Object.keys(formState.validationErrors[blockId]).length === 0) {
         delete formState.validationErrors[blockId]
       }
@@ -495,37 +473,18 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     const errors: ValidationError[] = []
     const data = formState.contacts
 
-    // At least one contact method required
-    const hasAtLeastOne = data.telegram || data.email || data.website
+    // Phone is required as primary contact
+    const hasPhone = !!data.phone && data.phone.trim().length > 0
     
-    if (!hasAtLeastOne) {
+    if (!hasPhone) {
       errors.push({
         blockId: '8',
         fieldId: 'contacts',
-        errorMessage: 'Укажите хотя бы один способ связи (Telegram, Email или Сайт)',
+        errorMessage: 'Укажите номер телефона',
         errorType: 'required'
       })
     }
-
-    // Validate email format
-    if (data.email && !isValidEmail(data.email)) {
-      errors.push({
-        blockId: '8',
-        fieldId: 'email',
-        errorMessage: 'Некорректный формат email',
-        errorType: 'format'
-      })
-    }
-
-    // Validate website format
-    if (data.website && !isValidUrl(data.website)) {
-      errors.push({
-        blockId: '8',
-        fieldId: 'website',
-        errorMessage: 'Некорректный формат URL',
-        errorType: 'format'
-      })
-    }
+    // Email and website removed from model
 
     // Validate telegram format
     if (data.telegram && !isValidTelegram(data.telegram)) {
@@ -533,6 +492,16 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         blockId: '8',
         fieldId: 'telegram',
         errorMessage: 'Telegram должен начинаться с @',
+        errorType: 'format'
+      })
+    }
+
+    // Validate instagram format
+    if (data.instagram && !isValidInstagram(data.instagram)) {
+      errors.push({
+        blockId: '8',
+        fieldId: 'instagram',
+        errorMessage: 'Instagram должен быть @username или URL',
         errorType: 'format'
       })
     }
@@ -589,18 +558,13 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     formState.services.customServices = []
     formState.experience = []
     formState.testimonials = {
-      textTestimonials: [],
-      externalLinks: [],
-      files: []
+      photos: []
     }
     formState.contacts = {
-      telegram: '',
-      email: undefined,
-      website: undefined,
-      phone: undefined,
+      phone: '',
+      telegram: undefined,
       whatsapp: undefined,
-      discord: undefined,
-      linkedin: undefined
+      instagram: undefined
     }
     formState.currentBlock = 1
     formState.completedBlocks.clear()
@@ -616,7 +580,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
   }
 
   // Auto-save functionality
-  let autoSaveTimeout: NodeJS.Timeout | null = null
+  let autoSaveTimeout: number | null = null
   
   const debouncedAutoSave = () => {
     if (autoSaveTimeout) {
@@ -674,22 +638,16 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
   }
 
   // Utility functions
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
-
-  const isValidUrl = (url: string): boolean => {
-    try {
-      new URL(url)
-      return true
-    } catch {
-      return false
-    }
-  }
 
   const isValidTelegram = (telegram: string): boolean => {
     return telegram.startsWith('@') && telegram.length > 1
+  }
+
+  const isValidInstagram = (instagram: string): boolean => {
+    // Accept @username format or full Instagram URL
+    const usernameRegex = /^@[a-zA-Z0-9._]{1,30}$/
+    const urlRegex = /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]{1,30}\/?$/
+    return usernameRegex.test(instagram) || urlRegex.test(instagram)
   }
 
   return {

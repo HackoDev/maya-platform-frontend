@@ -160,29 +160,23 @@ export interface ExperienceBlock {
 }
 
 // Block 7: Testimonials
-export interface TestimonialEntry {
+export interface TestimonialPhoto {
   id: string
-  clientName: string
-  clientPosition?: string
-  testimonialText: string
-  rating?: number
-  projectType?: string
-  date?: string
+  url: string
+  title: string
 }
 
 export interface TestimonialsBlock {
   title: 'Отзывы/рекомендации'
-  description: 'Вы можете прикрепить ссылку на диск, сайт или другой ресурс с файлами'
+  description: 'Загрузите скриншоты отзывов клиентов'
   data: {
-    textTestimonials: TestimonialEntry[] // Текстовые отзывы
-    externalLinks: string[] // Ссылки на внешние ресурсы
-    files: FileReference[] // Прикрепленные файлы
+    photos: TestimonialPhoto[] // Фотографии отзывов
   }
   validation: {
     required: false
-    maxTextTestimonials: 10
-    maxExternalLinks: 5
-    maxFiles: 20
+    maxPhotos: 20
+    allowedTypes: ['image/jpeg', 'image/png', 'image/webp']
+    maxFileSize: 5242880 // 5MB
   }
 }
 
@@ -191,20 +185,16 @@ export interface ContactsBlock {
   title: 'Как тебе можно написать?'
   description: 'Укажите удобные способы связи'
   data: {
-    telegram: string // Telegram: @username
-    email?: string // Почта
-    website?: string // Сайт
-    phone?: string // Телефон (опционально)
+    phone: string // Телефон (обязательно)
+    telegram?: string // Telegram: @username (опционально)
     whatsapp?: string // WhatsApp (опционально)
-    discord?: string // Discord (опционально)
-    linkedin?: string // LinkedIn (опционально)
+    instagram?: string // Instagram: @username или URL (опционально)
   }
   validation: {
     required: true
-    atLeastOne: ['telegram', 'email', 'website']
-    emailFormat: true
-    websiteFormat: true
+    atLeastOne: ['phone']
     telegramFormat: true
+    instagramFormat: true
   }
 }
 

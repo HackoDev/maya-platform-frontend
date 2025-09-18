@@ -74,7 +74,7 @@ export const useUserStore = defineStore('user', () => {
         role: 'user',
         userType,
         isActive: true,
-        isOpenToOffers: userType === 'specialist' ? false : undefined, // Only specialists have this field
+        isOpenToOffers: userType === 'specialist' ? true : undefined, // Only specialists have this field
         // Fake contact data for demo
         phone: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',
         whatsapp: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',

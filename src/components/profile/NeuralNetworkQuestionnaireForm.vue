@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Анкета нейросетевого специалиста
+            Анкета специалиста
           </h1>
           <div class="text-sm text-gray-500 dark:text-gray-400">
             {{ store.getCompletionPercentage }}% завершено
@@ -21,13 +21,13 @@
         </div>
 
         <!-- Block Navigation -->
-        <div class="flex flex-wrap gap-2 mt-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 mt-4">
           <button
             v-for="block in blocks"
             :key="block.id"
             @click="currentBlock = block.id"
             :class="[
-              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+              'w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors text-center',
               currentBlock === block.id
                 ? 'bg-blue-600 text-white'
                 : store.getBlockValidationStatus(block.id.toString())
@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <!-- Block Content -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div class="p-6">

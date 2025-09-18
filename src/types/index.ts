@@ -49,6 +49,7 @@ export interface NavigationItem {
   badge?: string
   requiresAuth: boolean
   visible: boolean
+  userType?: string
 }
 
 // User Profile interfaces

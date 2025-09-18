@@ -189,7 +189,7 @@ The `meta.requiresAuth` property is used by the navigation guard to determine wh
   name: 'NeuralNetworkProfile',
   component: () => import('@/pages/NeuralNetworkProfilePage.vue'),
   meta: {
-    title: 'Анкета нейросетевого специалиста',
+    title: 'Анкета специалиста',
     requiresAuth: true,
   },
 }

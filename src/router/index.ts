@@ -4,11 +4,9 @@ import { useUserStore } from '@/stores/user'
 
 // Lazy-loaded pages
 const HomePage = () => import('@/pages/HomePage.vue')
-const AboutPage = () => import('@/pages/AboutPage.vue')
 // DashboardPage removed as part of Home page enhancement
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const ProfilePage = () => import('@/pages/ProfilePage.vue')
-const ChangePasswordPage = () => import('@/pages/ChangePasswordPage.vue')
 const ProfileSettingsPage = () => import('@/pages/ProfileSettingsPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
@@ -27,15 +25,6 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Home',
       requiresAuth: true,
-    },
-  },
-  {
-    path: '/about',
-    name: 'About',
-    component: AboutPage,
-    meta: {
-      title: 'About',
-      requiresAuth: false,
     },
   },
   {
@@ -68,21 +57,13 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/profile/change-password',
-    name: 'ChangePassword',
-    redirect: '/profile/settings',
-    meta: {
-      title: 'Смена пароля',
-      requiresAuth: true,
-    },
-  },
-  {
     path: '/profile/neural-network',
     name: 'NeuralNetworkProfile',
     component: NeuralNetworkProfilePage,
     meta: {
-      title: 'Анкета нейросетевого специалиста',
+      title: 'Анкета специалиста',
       requiresAuth: true,
+      clientDenied: true,
     },
   },
   {
@@ -92,6 +73,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Все вакансии',
       requiresAuth: true,
+      clientDenied: true,
+      fallbackRedirect: 'MyVacancies'
     },
   },
   {
@@ -101,21 +84,25 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Мои вакансии',
       requiresAuth: true,
-    },
-  },
-  {
-    path: '/vacancies/:id',
-    name: 'VacancyDetailPublic',
-    component: VacancyDetailPage,
-    props: true,
-    meta: {
-      title: 'Детали вакансии',
-      requiresAuth: true,
+      specialistDenied: true,
+      fallbackRedirect: 'AllVacancies'
     },
   },
   {
     path: '/profile/vacancies/:id',
     name: 'VacancyDetail',
+    component: VacancyDetailPage,
+    props: true,
+    meta: {
+      title: 'Детали вакансии',
+      requiresAuth: true,
+      specialistDenied: true,
+      fallbackRedirect: 'MyVacancies'
+    },
+  },
+  {
+    path: '/vacancies/:id',
+    name: 'VacancyDetailPublic',
     component: VacancyDetailPage,
     props: true,
     meta: {
@@ -130,6 +117,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Поиск специалиста',
       requiresAuth: true,
+      specialistDenied: true,
+      fallbackRedirect: 'NeuralNetworkProfile'
     },
   },
   {
@@ -139,7 +128,9 @@ const routes: RouteRecordRaw[] = [
     props: true,
     meta: {
       title: 'Профиль специалиста',
-      requiresAuth: false,
+      requiresAuth: true,
+      specialistDenied: true,
+      fallbackRedirect: 'NeuralNetworkProfile'
     },
   },
   {
@@ -148,7 +139,7 @@ const routes: RouteRecordRaw[] = [
     component: SupportPage,
     meta: {
       title: 'Поддержка',
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {
@@ -158,7 +149,7 @@ const routes: RouteRecordRaw[] = [
     props: true,
     meta: {
       title: 'Support Ticket',
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {
@@ -192,9 +183,15 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  // Check if user is trying to access vacancies page but is not a client
-  if (to.name === 'MyVacancies' && userStore.currentUser?.userType !== 'client') {
-    next({ name: 'Profile' })
+  // Redirect specialist to home page if they are trying to access a specialist denied pages
+  if (to.meta.specialistDenied && userStore.currentUser?.userType === 'specialist') {
+    next({ name: (to.meta.fallbackRedirect || 'Home') as string })
+    return
+  }
+
+  // Redirect client to home page if they are trying to access a client denied pages
+  if (to.meta.clientDenied && userStore.currentUser?.userType === 'client') {
+    next({ name: (to.meta.fallbackRedirect || 'Home') as string })
     return
   }
 

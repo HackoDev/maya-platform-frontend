@@ -48,46 +48,7 @@
         </div>
       </div>
       
-      <!-- Email Contact -->
-      <div 
-        v-if="contacts.email" 
-        class="flex items-center space-x-3 group relative"
-        @mouseenter="showEmailActions = true"
-        @mouseleave="showEmailActions = false"
-      >
-        <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-gray-900 dark:text-white">Email</div>
-          <div class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ contacts.email }}</div>
-        </div>
-        <!-- Action Icons (shown on hover) -->
-        <div 
-          v-show="showEmailActions" 
-          class="flex space-x-1 absolute right-0 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-lg shadow-md p-1"
-        >
-          <a 
-            :href="emailUrl" 
-            class="p-1 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded"
-            @click="trackContact('email')"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-          <button 
-            @click="copyToClipboard(contacts.email!)"
-            class="p-1 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      
       
       <!-- Phone Contact -->
       <div 
@@ -217,7 +178,7 @@ const telegramUrl = computed(() => {
 
 
 // Methods
-const trackContact = (type: 'phone' | 'whatsapp' | 'telegram' | 'email'): void => {
+const trackContact = (type: 'phone' | 'whatsapp' | 'telegram'): void => {
   // In a real implementation, you might want to track contact clicks
   console.log(`Contact clicked: ${type}`)
 }

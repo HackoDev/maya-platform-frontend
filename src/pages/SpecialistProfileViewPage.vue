@@ -1,7 +1,7 @@
 <template>
   <div class="specialist-profile-view">
     <!-- Loading State -->
-    <LoadingOverlay v-if="profileStore.isLoading" />
+    <LoadingOverlay v-if="profileStore.isLoading" :loading="profileStore.isLoading" />
 
     <!-- Error State -->
     <div v-else-if="profileStore.error" class="min-h-screen flex items-center justify-center">
@@ -81,15 +81,6 @@
                 />
               </div>
 
-              <!-- Services Section -->
-              <div id="services">
-                <ServicesSection
-                  :services="profileStore.currentProfile.detailedInfo.services"
-                  :specialist-name="profileStore.currentProfile.basicInfo.displayName"
-                  :contacts="profileStore.currentProfile.detailedInfo.contacts"
-                />
-              </div>
-
               <!-- Portfolio Section -->
               <div v-if="profileStore.hasPortfolio" id="portfolio">
                 <PortfolioSection
@@ -124,30 +115,6 @@
                     :specialist-name="profileStore.currentProfile.basicInfo.displayName"
                     :basic-info="profileStore.currentProfile.basicInfo"
                   />
-                </div>
-
-                <!-- Profile Stats -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Статистика профиля
-                  </h3>
-                  <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Завершенность</span>
-                      <span class="text-sm font-medium text-gray-900 dark:text-white">
-                        {{ profileStore.profileCompletionPercentage }}%
-                      </span>
-                    </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        class="bg-green-500 h-2 rounded-full transition-all duration-300"
-                        :style="`width: ${profileStore.profileCompletionPercentage}%`"
-                      ></div>
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                      Последнее обновление: {{ formatDate(profileStore.currentProfile.metadata.lastUpdated) }}
-                    </div>
-                  </div>
                 </div>
 
                 <!-- Share Profile -->
@@ -227,7 +194,7 @@ import TestimonialsSection from '@/components/profile/TestimonialsSection.vue'
 import ContactSection from '@/components/profile/ContactSection.vue'
 
 interface Props {
-  specialistId: string
+  specialistId?: string
   modalMode?: boolean
 }
 

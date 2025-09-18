@@ -8,7 +8,7 @@
         Способы связи
       </h3>
       <p class="text-sm text-gray-600 dark:text-gray-400">
-        Укажите удобные способы связи. Обязательное поле: Telegram, Email или Сайт
+        Укажите удобные способы связи. Обязательное поле: Телефон, Telegram и WhatsApp — опционально
       </p>
     </div>
 
@@ -19,7 +19,34 @@
           Основные способы связи <span class="text-red-500">*</span>
         </h4>
         
-        <!-- Telegram -->
+        <!-- Phone (required) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Телефон <span class="text-red-500">*</span>
+          </label>
+          <input
+            :value="formState.contacts.phone || ''"
+            @input="updateContact('phone', ($event.target as HTMLInputElement).value || '')"
+            type="tel"
+            placeholder="+7 (999) 123-45-67"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            :class="{ 
+              'border-red-300 dark:border-red-600': !formState.contacts.phone && validationError,
+              'border-green-300 dark:border-green-600': formState.contacts.phone
+            }"
+          />
+        </div>
+
+        
+      </div>
+
+      <!-- Optional Contacts -->
+      <div class="space-y-4">
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+          Дополнительные способы связи
+        </h4>
+        
+        <!-- Telegram (optional) -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Telegram
@@ -29,8 +56,8 @@
               <span class="text-gray-500 dark:text-gray-400">@</span>
             </div>
             <input
-              :value="formState.contacts.telegram"
-              @input="updateContact('telegram', ($event.target as HTMLInputElement).value)"
+              :value="formState.contacts.telegram || ''"
+              @input="updateContact('telegram', ($event.target as HTMLInputElement).value || undefined)"
               type="text"
               placeholder="username"
               class="pl-8 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
@@ -43,69 +70,6 @@
           <div v-if="contactErrors.telegram" class="mt-1 text-sm text-red-600 dark:text-red-400">
             {{ contactErrors.telegram }}
           </div>
-        </div>
-
-        <!-- Email -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email
-          </label>
-          <input
-            :value="formState.contacts.email || ''"
-            @input="updateContact('email', ($event.target as HTMLInputElement).value || undefined)"
-            type="email"
-            placeholder="your.email@example.com"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 
-              'border-red-300 dark:border-red-600': contactErrors.email,
-              'border-green-300 dark:border-green-600': formState.contacts.email && !contactErrors.email
-            }"
-          />
-          <div v-if="contactErrors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ contactErrors.email }}
-          </div>
-        </div>
-
-        <!-- Website -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Сайт / Портфолио
-          </label>
-          <input
-            :value="formState.contacts.website || ''"
-            @input="updateContact('website', ($event.target as HTMLInputElement).value || undefined)"
-            type="url"
-            placeholder="https://your-website.com"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 
-              'border-red-300 dark:border-red-600': contactErrors.website,
-              'border-green-300 dark:border-green-600': formState.contacts.website && !contactErrors.website
-            }"
-          />
-          <div v-if="contactErrors.website" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ contactErrors.website }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Optional Contacts -->
-      <div class="space-y-4">
-        <h4 class="text-sm font-medium text-gray-900 dark:text-white">
-          Дополнительные способы связи
-        </h4>
-        
-        <!-- Phone -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Телефон
-          </label>
-          <input
-            :value="formState.contacts.phone || ''"
-            @input="updateContact('phone', ($event.target as HTMLInputElement).value || undefined)"
-            type="tel"
-            placeholder="+7 (999) 123-45-67"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          />
         </div>
 
         <!-- WhatsApp -->
@@ -122,33 +86,33 @@
           />
         </div>
 
-        <!-- Discord -->
+        <!-- Instagram -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Discord
+            Instagram
           </label>
-          <input
-            :value="formState.contacts.discord || ''"
-            @input="updateContact('discord', ($event.target as HTMLInputElement).value || undefined)"
-            type="text"
-            placeholder="username#1234"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          />
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 dark:text-gray-400">@</span>
+            </div>
+            <input
+              :value="formState.contacts.instagram || ''"
+              @input="updateContact('instagram', ($event.target as HTMLInputElement).value || undefined)"
+              type="text"
+              placeholder="username или https://instagram.com/username"
+              class="pl-8 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              :class="{ 
+                'border-red-300 dark:border-red-600': contactErrors.instagram,
+                'border-green-300 dark:border-green-600': formState.contacts.instagram && !contactErrors.instagram
+              }"
+            />
+          </div>
+          <div v-if="contactErrors.instagram" class="mt-1 text-sm text-red-600 dark:text-red-400">
+            {{ contactErrors.instagram }}
+          </div>
         </div>
 
-        <!-- LinkedIn -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            LinkedIn
-          </label>
-          <input
-            :value="formState.contacts.linkedin || ''"
-            @input="updateContact('linkedin', ($event.target as HTMLInputElement).value || undefined)"
-            type="url"
-            placeholder="https://linkedin.com/in/yourprofile"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
+        
       </div>
 
       <!-- Validation Error -->
@@ -165,22 +129,11 @@
           ✓ Есть обязательный способ связи
         </div>
         <div v-else class="text-sm text-amber-600 dark:text-amber-400">
-          ⚠️ Нужен хотя бы один основной способ связи (Telegram, Email или Сайт)
+          ⚠️ Укажите номер телефона
         </div>
       </div>
 
-      <!-- Tips -->
-      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <h4 class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
-          💡 Рекомендации по контактам:
-        </h4>
-        <ul class="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-          <li>• <strong>Telegram</strong> — самый популярный способ связи в IT-сфере</li>
-          <li>• <strong>Email</strong> — подходит для официального общения и документооборота</li>
-          <li>• <strong>Сайт/Портфолио</strong> — показывает профессионализм и доверие</li>
-          <li>• Чем больше способов связи, тем удобнее клиентам с вами связаться</li>
-        </ul>
-      </div>
+      
     </div>
   </div>
 </template>
@@ -211,7 +164,7 @@ const contactsCount = computed(() => {
 
 const hasRequiredContact = computed(() => {
   const contacts = props.formState.contacts
-  return !!(contacts.telegram || contacts.email || contacts.website)
+  return !!(contacts.phone)
 })
 
 const updateContact = (field: string, value: any) => {
@@ -236,9 +189,9 @@ const validateBlock = () => {
   
   const contacts = props.formState.contacts
   
-  // Check if at least one required contact method is provided
-  if (!hasRequiredContact.value) {
-    validationError.value = 'Укажите хотя бы один способ связи (Telegram, Email или Сайт)'
+  // Phone is required
+  if (!props.formState.contacts.phone || props.formState.contacts.phone.trim().length === 0) {
+    validationError.value = 'Укажите номер телефона'
   }
   
   // Validate telegram format
@@ -246,19 +199,9 @@ const validateBlock = () => {
     contactErrors.value.telegram = 'Telegram должен начинаться с @ и содержать только буквы, цифры и подчеркивания'
   }
   
-  // Validate email format
-  if (contacts.email && !isValidEmail(contacts.email)) {
-    contactErrors.value.email = 'Некорректный формат email'
-  }
-  
-  // Validate website format
-  if (contacts.website && !isValidUrl(contacts.website)) {
-    contactErrors.value.website = 'Некорректный формат URL (должен начинаться с http:// или https://)'
-  }
-  
-  // Validate LinkedIn format
-  if (contacts.linkedin && !isValidUrl(contacts.linkedin)) {
-    contactErrors.value.linkedin = 'Некорректный формат URL'
+  // Validate instagram format
+  if (contacts.instagram && !isValidInstagram(contacts.instagram)) {
+    contactErrors.value.instagram = 'Instagram должен быть @username или URL'
   }
   
   emit('validate', '8')
@@ -270,18 +213,11 @@ const isValidTelegram = (telegram: string): boolean => {
   return telegramRegex.test(telegram)
 }
 
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
-const isValidUrl = (url: string): boolean => {
-  try {
-    new URL(url)
-    return true
-  } catch {
-    return false
-  }
+const isValidInstagram = (instagram: string): boolean => {
+  // Accept @username format or full Instagram URL
+  const usernameRegex = /^@[a-zA-Z0-9._]{1,30}$/
+  const urlRegex = /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]{1,30}\/?$/
+  return usernameRegex.test(instagram) || urlRegex.test(instagram)
 }
 
 // Watch for changes and validate

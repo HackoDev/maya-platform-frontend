@@ -5,235 +5,135 @@
         Блок 7. Отзывы/рекомендации
       </h2>
       <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Что говорят клиенты
+        Скриншоты отзывов клиентов
       </h3>
       <p class="text-sm text-gray-600 dark:text-gray-400">
-        Вы можете прикрепить ссылку на диск, сайт или другой ресурс с файлами (необязательно)
+        Загрузите фотографии отзывов, рекомендаций и благодарностей от ваших клиентов
       </p>
     </div>
 
-    <div class="space-y-8">
-      <!-- Text Testimonials -->
-      <div>
-        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">
-          Текстовые отзывы
-        </h4>
+    <div class="space-y-6">
+      <!-- Photo Gallery -->
+      <div v-if="testimonials.photos.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div
+          v-for="(photo, index) in testimonials.photos"
+          :key="photo.id"
+          class="relative group border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden"
+        >
+          <!-- Photo Preview -->
+          <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <img
+              v-if="photo.url"
+              :src="photo.url"
+              :alt="photo.title || `Отзыв ${index + 1}`"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="text-gray-400">
+              <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
 
-        <div v-if="testimonials.textTestimonials.length > 0" class="space-y-4 mb-4">
-          <div
-            v-for="(testimonial, index) in testimonials.textTestimonials"
-            :key="testimonial.id"
-            class="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
-          >
-            <div class="flex justify-between items-start mb-3">
-              <h5 class="text-sm font-medium text-gray-900 dark:text-white">
+          <!-- Photo Info -->
+          <div class="p-3">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">
                 Отзыв #{{ index + 1 }}
-              </h5>
+              </span>
               <button
-                @click="removeTestimonial(index)"
-                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                @click="removePhoto(index)"
+                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <!-- Client Name -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Имя клиента
-                </label>
-                <input
-                  v-model="testimonial.clientName"
-                  type="text"
-                  placeholder="Иван Петров"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  @input="updateTestimonials"
-                />
-              </div>
-
-              <!-- Client Position -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Должность/Компания
-                </label>
-                <input
-                  v-model="testimonial.clientPosition"
-                  type="text"
-                  placeholder="CEO, TechStartup"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  @input="updateTestimonials"
-                />
-              </div>
-            </div>
-
-            <!-- Testimonial Text -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Текст отзыва
-              </label>
-              <textarea
-                v-model="testimonial.testimonialText"
-                rows="4"
-                placeholder="Отличный специалист! Помог автоматизировать наши продажи..."
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm resize-none"
-                @input="updateTestimonials"
-              ></textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Rating -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Оценка (1-5)
-                </label>
-                <select
-                  v-model="testimonial.rating"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  @change="updateTestimonials"
-                >
-                  <option :value="undefined">Не указана</option>
-                  <option :value="5">⭐⭐⭐⭐⭐ (5)</option>
-                  <option :value="4">⭐⭐⭐⭐ (4)</option>
-                  <option :value="3">⭐⭐⭐ (3)</option>
-                  <option :value="2">⭐⭐ (2)</option>
-                  <option :value="1">⭐ (1)</option>
-                </select>
-              </div>
-
-              <!-- Project Type -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Тип проекта
-                </label>
-                <input
-                  v-model="testimonial.projectType"
-                  type="text"
-                  placeholder="Нейроассистент"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  @input="updateTestimonials"
-                />
-              </div>
-
-              <!-- Date -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Дата
-                </label>
-                <input
-                  v-model="testimonial.date"
-                  type="text"
-                  placeholder="2023"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                  @input="updateTestimonials"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <button
-          @click="addTestimonial"
-          :disabled="testimonials.textTestimonials.length >= 10"
-          class="inline-flex items-center px-4 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Добавить отзыв ({{ testimonials.textTestimonials.length }}/10)
-        </button>
-      </div>
-
-      <!-- External Links -->
-      <div>
-        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">
-          Ссылки на внешние ресурсы с отзывами
-        </h4>
-
-        <div v-if="testimonials.externalLinks.length > 0" class="space-y-2 mb-4">
-          <div
-            v-for="(link, index) in testimonials.externalLinks"
-            :key="index"
-            class="flex items-center space-x-2"
-          >
+            
+            <!-- Title Input -->
             <input
-              v-model="testimonials.externalLinks[index]"
-              type="url"
-              placeholder="https://drive.google.com/folder/reviews или https://example.com/testimonials"
-              class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+              v-model="photo.title"
+              type="text"
+              placeholder="Название отзыва"
+              class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               @input="updateTestimonials"
             />
-            <button
-              @click="removeExternalLink(index)"
-              class="px-3 py-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
         </div>
+      </div>
 
+      <!-- Upload Area -->
+      <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+        <input
+          ref="fileInput"
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+          @change="handleFileUpload"
+          class="hidden"
+        />
+        
+        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          Загрузить скриншоты отзывов
+        </h3>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Перетащите файлы сюда или нажмите для выбора
+        </p>
+        
         <button
-          @click="addExternalLink"
-          :disabled="testimonials.externalLinks.length >= 5"
-          class="inline-flex items-center px-4 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          @click="fileInput?.click()"
+          :disabled="testimonials.photos.length >= 20"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Добавить ссылку ({{ testimonials.externalLinks.length }}/5)
+          Выбрать файлы ({{ testimonials.photos.length }}/20)
         </button>
+        
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+          Поддерживаются: JPG, PNG, WebP. Максимум 5MB на файл
+        </p>
       </div>
 
-      <!-- File Upload Placeholder -->
-      <div>
-        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">
-          Файлы с отзывами
-        </h4>
-        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-          <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
-          <p class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Загрузка файлов
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            Функция загрузки файлов будет добавлена позже
-          </p>
-        </div>
+      <!-- Drag and Drop Zone -->
+      <div
+        @drop="handleDrop"
+        @dragover.prevent
+        @dragenter.prevent
+        class="hidden md:block"
+      >
+        <!-- This will be handled by the upload area above -->
       </div>
 
-      <!-- Testimonials Summary -->
-      <div v-if="totalTestimonials > 0" class="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+      <!-- Summary -->
+      <div v-if="testimonials.photos.length > 0" class="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
         <h4 class="text-sm font-medium text-purple-900 dark:text-purple-200 mb-2">
-          💬 Всего отзывов: {{ totalTestimonials }}
+          📸 Загружено отзывов: {{ testimonials.photos.length }}
         </h4>
         <div class="text-sm text-purple-800 dark:text-purple-300">
-          <span v-if="testimonials.textTestimonials.length > 0">
-            Текстовых: {{ testimonials.textTestimonials.length }}
-          </span>
-          <span v-if="testimonials.externalLinks.length > 0" class="ml-4">
-            Ссылок: {{ testimonials.externalLinks.length }}
-          </span>
-          <span v-if="testimonials.files.length > 0" class="ml-4">
-            Файлов: {{ testimonials.files.length }}
+          <span v-if="testimonials.photos.length > 0">
+            Фотографий: {{ testimonials.photos.length }}
           </span>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-if="totalTestimonials === 0" class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div v-if="testimonials.photos.length === 0" class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
           Пока нет отзывов
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-4">
-          Добавьте отзывы клиентов для повышения доверия
+          Загрузите скриншоты отзывов клиентов для повышения доверия
         </p>
       </div>
 
@@ -243,10 +143,11 @@
           💡 Советы по работе с отзывами:
         </h4>
         <ul class="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-          <li>• Всегда спрашивайте отзыв после успешного завершения проекта</li>
-          <li>• Лучше один подробный отзыв, чем пять коротких "всё хорошо"</li>
-          <li>• Используйте Google Drive или Яндекс.Диск для хранения скриншотов отзывов</li>
+          <li>• Делайте скриншоты отзывов из мессенджеров, соцсетей, email</li>
+          <li>• Обрезайте лишнее, оставляйте только текст отзыва</li>
+          <li>• Лучше 3-5 качественных отзывов, чем 20 размытых</li>
           <li>• Отзывы с конкретными результатами работают лучше общих похвал</li>
+          <li>• Можно добавить краткое описание к каждому отзыву</li>
         </ul>
       </div>
     </div>
@@ -254,8 +155,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import type { NeuralNetworkFormState, TestimonialEntry } from '@/types/neural-network-profile'
+import { computed, ref, watch } from 'vue'
+import type { NeuralNetworkFormState, TestimonialPhoto } from '@/types/neural-network-profile'
 
 interface Props {
   formState: NeuralNetworkFormState
@@ -269,48 +170,71 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const fileInput = ref<HTMLInputElement>()
+
 const testimonials = computed(() => props.formState.testimonials)
 
-const totalTestimonials = computed(() => {
-  return testimonials.value.textTestimonials.length + 
-         testimonials.value.externalLinks.length + 
-         testimonials.value.files.length
-})
-
-const addTestimonial = () => {
-  const newTestimonial: TestimonialEntry = {
-    id: Date.now().toString(),
-    clientName: '',
-    clientPosition: '',
-    testimonialText: '',
-    rating: undefined,
-    projectType: '',
-    date: ''
+const addPhoto = (file: File) => {
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    alert('Неподдерживаемый формат файла. Используйте JPG, PNG или WebP.')
+    return
   }
-  
-  const updated = [...testimonials.value.textTestimonials, newTestimonial]
-  emit('update', 'testimonials', 'textTestimonials', updated)
+
+  // Validate file size (5MB)
+  const maxSize = 5 * 1024 * 1024
+  if (file.size > maxSize) {
+    alert('Файл слишком большой. Максимальный размер: 5MB.')
+    return
+  }
+
+  // Check if we've reached the limit
+  if (testimonials.value.photos.length >= 20) {
+    alert('Максимальное количество фотографий: 20.')
+    return
+  }
+
+  // Create testimonial photo
+  const newPhoto: TestimonialPhoto = {
+    id: Date.now().toString(),
+    url: URL.createObjectURL(file),
+    title: file.name.replace(/\.[^/.]+$/, '') // Remove file extension
+  }
+
+  const updated = [...testimonials.value.photos, newPhoto]
+  emit('update', 'testimonials', 'photos', updated)
 }
 
-const removeTestimonial = (index: number) => {
-  const updated = testimonials.value.textTestimonials.filter((_, i) => i !== index)
-  emit('update', 'testimonials', 'textTestimonials', updated)
+const removePhoto = (index: number) => {
+  const updated = testimonials.value.photos.filter((_, i) => i !== index)
+  emit('update', 'testimonials', 'photos', updated)
 }
 
-const addExternalLink = () => {
-  const updated = [...testimonials.value.externalLinks, '']
-  emit('update', 'testimonials', 'externalLinks', updated)
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files) {
+    Array.from(target.files).forEach(file => {
+      addPhoto(file)
+    })
+    // Reset input
+    target.value = ''
+  }
 }
 
-const removeExternalLink = (index: number) => {
-  const updated = testimonials.value.externalLinks.filter((_, i) => i !== index)
-  emit('update', 'testimonials', 'externalLinks', updated)
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault()
+  if (event.dataTransfer?.files) {
+    Array.from(event.dataTransfer.files).forEach(file => {
+      addPhoto(file)
+    })
+  }
 }
+
 
 const updateTestimonials = () => {
   // Trigger reactivity update by emitting the current data
-  emit('update', 'testimonials', 'textTestimonials', [...testimonials.value.textTestimonials])
-  emit('update', 'testimonials', 'externalLinks', [...testimonials.value.externalLinks])
+  emit('update', 'testimonials', 'photos', [...testimonials.value.photos])
 }
 
 // Watch for changes and validate

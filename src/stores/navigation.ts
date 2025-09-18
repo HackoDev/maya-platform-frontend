@@ -20,12 +20,22 @@ export const useNavigationStore = defineStore(
         visible: true,
       },
       {
+        id: 'myVacancies',
+        label: 'Мои вакансии',
+        route: '/profile/vacancies',
+        icon: 'briefcase',
+        requiresAuth: true,
+        visible: true,
+        userType: 'client'
+      },
+      {
         id: 'vacancies',
         label: 'Вакансии',
         route: '/vacancies',
         icon: 'briefcase',
         requiresAuth: true,
         visible: true,
+        userType: 'specialist',
       },
       {
         id: 'specialists',
@@ -34,6 +44,7 @@ export const useNavigationStore = defineStore(
         icon: 'magnifying-glass',
         requiresAuth: true,
         visible: true,
+        userType: 'client'
       },
       {
         id: 'support',

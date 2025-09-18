@@ -1,14 +1,12 @@
 import type {
   ProfileViewData,
   ServiceDetails,
-  PortfolioCase,
-  ExperienceEntry,
   TestimonialData,
   ContactInfo,
   SpecialistProfileViewAPI
 } from '@/types/specialist-profile-view'
 import type { SpecialistProfile } from '@/types/specialist-search'
-import type { NeuralNetworkProfileSchema, FileReference } from '@/types/neural-network-profile'
+import type { NeuralNetworkProfileSchema } from '@/types/neural-network-profile'
 
 export class SpecialistProfileViewService implements SpecialistProfileViewAPI {
   // Mock detailed profile data for demonstration
@@ -214,47 +212,41 @@ export class SpecialistProfileViewService implements SpecialistProfileViewAPI {
       },
       testimonials: {
         title: 'Отзывы/рекомендации',
-        description: 'Вы можете прикрепить ссылку на диск, сайт или другой ресурс с файлами',
+        description: 'Загрузите скриншоты отзывов клиентов',
         data: {
-          textTestimonials: [
+          photos: [
             {
-              id: 'test-1',
-              clientName: 'Иван Петров',
-              clientPosition: 'Основатель компании "Digital Future"',
-              testimonialText: 'Анна создала для нас AI-ассистента, который полностью изменил наш подход к работе с клиентами. Увеличили конверсию на 45% и сэкономили 20 часов в неделю команды.',
-              projectType: 'Нейроассистент для поддержки клиентов',
-              date: '2024-01-10'
+              id: 'photo-1',
+              url: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop',
+              title: 'Отзыв от Ивана Петрова о нейроассистенте'
             },
             {
-              id: 'test-2',
-              clientName: 'Алексей Сидоров',
-              clientPosition: 'Директор по маркетингу "TechFlow"',
-              testimonialText: 'Благодаря внедрению нейроворонки, автоматизированной Анной, наши продажи выросли на 60% за 3 месяца. Профессионализм и качество работы на высшем уровне.',
-              rating: 5,
-              projectType: 'Нейроворонка продаж',
-              date: '2023-12-20'
+              id: 'photo-2',
+              url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
+              title: 'Отзыв от Алексея Сидорова о нейроворонке'
             },
             {
-              id: 'test-3',
-              clientName: 'Елена Смирнова',
-              clientPosition: 'CEO TechSolutions',
-              testimonialText: 'Профессиональный подход, качественная работа, отличный результат. AI-консультант экономит нам много времени каждый день.',
-              rating: 5,
-              projectType: 'AI-консультант',
-              date: '2023-11-25'
+              id: 'photo-3',
+              url: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=300&fit=crop',
+              title: 'Отзыв от Елены Смирновой об AI-консультанте'
+            },
+            {
+              id: 'photo-4',
+              url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
+              title: 'Отзыв от Алексея Сидорова о нейроворонке'
+            },
+            {
+              id: 'photo-5',
+              url: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=300&fit=crop',
+              title: 'Отзыв от Елены Смирновой об AI-консультанте'
             }
-          ],
-          externalLinks: [
-            'https://drive.google.com/testimonials-anna',
-            'https://reviews.yandex.ru/anna-ai-expert'
-          ],
-          files: []
+          ]
         },
         validation: {
           required: false,
-          maxTextTestimonials: 10,
-          maxExternalLinks: 5,
-          maxFiles: 20
+          maxPhotos: 20,
+          allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+          maxFileSize: 5242880 // 5MB
         }
       },
       contacts: {
@@ -262,17 +254,15 @@ export class SpecialistProfileViewService implements SpecialistProfileViewAPI {
         description: 'Укажите удобные способы связи',
         data: {
           telegram: '@anna_ai_expert',
-          email: 'anna@example.com',
-          website: 'https://anna-ai-solutions.ru',
+          instagram: 'https://instagram.com/anna_ai_expert',
           phone: '+7 (999) 123-45-67',
           whatsapp: '+7 (999) 123-45-67'
         },
         validation: {
           required: true,
-          atLeastOne: ['telegram', 'email', 'website'],
-          emailFormat: true,
-          websiteFormat: true,
-          telegramFormat: true
+          atLeastOne: ['phone'],
+          telegramFormat: true,
+          instagramFormat: true
         }
       },
       status: 'approved',
@@ -351,7 +341,7 @@ export class SpecialistProfileViewService implements SpecialistProfileViewAPI {
       const services: ServiceDetails[] = [
         ...Object.entries(detailedProfile.services.data.predefinedServices)
           .filter(([_, service]) => service.selected)
-          .map(([key, service]) => ({
+          .map(([, service]) => ({
             name: service.name,
             description: service.description,
             price: service.customPrice || service.basePrice,
@@ -371,26 +361,16 @@ export class SpecialistProfileViewService implements SpecialistProfileViewAPI {
 
       // Transform testimonials
       const testimonials: TestimonialData = {
-        textTestimonials: detailedProfile.testimonials.data.textTestimonials,
-        externalLinks: detailedProfile.testimonials.data.externalLinks,
-        files: detailedProfile.testimonials.data.files,
-        averageRating: detailedProfile.testimonials.data.textTestimonials.length > 0
-          ? detailedProfile.testimonials.data.textTestimonials.reduce((acc, t) => acc + (t.rating || 0), 0) / detailedProfile.testimonials.data.textTestimonials.length
-          : undefined,
-        totalCount: detailedProfile.testimonials.data.textTestimonials.length + detailedProfile.testimonials.data.externalLinks.length + detailedProfile.testimonials.data.files.length
+        photos: detailedProfile.testimonials.data.photos,
+        totalCount: detailedProfile.testimonials.data.photos.length
       }
 
       // Transform contacts
       const contacts: ContactInfo = {
         telegram: detailedProfile.contacts.data.telegram,
-        email: detailedProfile.contacts.data.email,
-        website: detailedProfile.contacts.data.website,
+        instagram: detailedProfile.contacts.data.instagram,
         phone: detailedProfile.contacts.data.phone,
         whatsapp: detailedProfile.contacts.data.whatsapp,
-        discord: detailedProfile.contacts.data.discord,
-        linkedin: detailedProfile.contacts.data.linkedin,
-        preferredContact: detailedProfile.contacts.data.telegram ? 'telegram' : 'email',
-        availability: basicProfile.status
       }
 
       // Create the combined profile data

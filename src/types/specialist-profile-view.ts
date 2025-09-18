@@ -74,10 +74,7 @@ export interface ExperienceEntry {
 
 // Testimonial data for display
 export interface TestimonialData {
-  textTestimonials: TestimonialEntry[]
-  externalLinks: string[]
-  files: FileReference[]
-  averageRating?: number
+  photos: TestimonialPhoto[]
   totalCount: number
 }
 
@@ -93,6 +90,13 @@ export interface TestimonialEntry {
   verified?: boolean
 }
 
+// Photo-based testimonial entry
+export interface TestimonialPhoto {
+  id: string
+  url: string
+  title: string
+}
+
 // File reference for attachments
 export interface FileReference {
   url: string
@@ -104,16 +108,10 @@ export interface FileReference {
 
 // Contact information display
 export interface ContactInfo {
-  telegram?: string
-  email?: string
-  website?: string
   phone?: string
+  telegram?: string
   whatsapp?: string
-  discord?: string
-  linkedin?: string
-  preferredContact?: string
-  responseTime?: string
-  availability?: string
+  instagram?: string
 }
 
 // Profile sections configuration

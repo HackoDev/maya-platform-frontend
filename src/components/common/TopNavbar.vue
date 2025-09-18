@@ -113,7 +113,12 @@ const navigationStore = useNavigationStore()
 
 // Computed properties
 const visibleNavigationItems = computed(() => {
+  const userType = userStore.currentUser?.userType;
   return navigationStore.getVisibleNavigationItems().filter(item => {
+    // check if nav item has specific user type limitation
+    if (!!item.userType && item.userType !== userType) {
+      return false;
+    }
     // Show all items if user is authenticated, or only non-auth required items if not
     return !item.requiresAuth || userStore.isAuthenticated
   })
