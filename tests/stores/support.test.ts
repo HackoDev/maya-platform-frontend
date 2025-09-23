@@ -2,35 +2,34 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useSupportStore } from '@/stores/support'
 import * as supportService from '@/services/support'
+import * as supportApiClient from '@/services/supportApiClient'
 import type { FAQ, SupportTicket } from '@/types'
 
-// Mock the support service
-vi.mock('@/services/support', () => ({
-  mockApiFAQs: vi.fn(),
-  mockApiSupportTickets: vi.fn(),
-  mockApiSubmitTicket: vi.fn(),
+// Mock the support API client
+vi.mock('@/services/supportApiClient', () => ({
+  supportApi: {
+    getFAQs: vi.fn(),
+    getSupportTickets: vi.fn(),
+    createSupportTicket: vi.fn(),
+    getSupportTicketById: vi.fn(),
+    addSupportMessage: vi.fn(),
+    resolveSupportTicket: vi.fn(),
+  },
 }))
+
+// Legacy mock removed; we now depend on supportApiClient mocks only
+vi.mock('@/services/support', () => ({}))
 
 const mockFAQs: FAQ[] = [
   {
     id: '1',
     question: 'Test FAQ 1',
     answer: 'Test answer 1',
-    category: 'general',
-    priority: 1,
-    isPopular: true,
-    createdAt: '2024-01-01T10:00:00Z',
-    updatedAt: '2024-01-01T10:00:00Z',
   },
   {
     id: '2',
     question: 'Test FAQ 2',
     answer: 'Test answer 2',
-    category: 'technical',
-    priority: 2,
-    isPopular: false,
-    createdAt: '2024-01-02T10:00:00Z',
-    updatedAt: '2024-01-02T10:00:00Z',
   },
 ]
 
@@ -74,6 +73,9 @@ describe('Support Store', () => {
         faqs: false,
         tickets: false,
         submission: false,
+        ticket: false,
+        messageSubmission: false,
+        resolution: false,
       })
       expect(store.error).toBeNull()
     })
@@ -92,8 +94,8 @@ describe('Support Store', () => {
 
     it('should return popular FAQs sorted by priority', () => {
       // Test description updated but logic remains the same
-      expect(store.popularFAQs).toHaveLength(1)
-      expect(store.popularFAQs[0]).toEqual(mockFAQs[0])
+      expect(store.popularFAQs).toHaveLength(2)
+      expect(store.popularFAQs).toEqual(mockFAQs)
     })
 
     it('should count open tickets correctly', () => {
@@ -108,7 +110,7 @@ describe('Support Store', () => {
   describe('Actions', () => {
     describe('fetchFAQs', () => {
       it('should fetch FAQs successfully', async () => {
-        vi.mocked(supportService.mockApiFAQs).mockResolvedValue(mockFAQs)
+        vi.mocked(supportApiClient.supportApi.getFAQs).mockResolvedValue(mockFAQs)
 
         await store.fetchFAQs()
 
@@ -119,7 +121,7 @@ describe('Support Store', () => {
 
       it('should handle fetch FAQs error', async () => {
         const errorMessage = 'Network error'
-        vi.mocked(supportService.mockApiFAQs).mockRejectedValue(new Error(errorMessage))
+        vi.mocked(supportApiClient.supportApi.getFAQs).mockRejectedValue(new Error(errorMessage))
 
         await store.fetchFAQs()
 
@@ -129,7 +131,7 @@ describe('Support Store', () => {
       })
 
       it('should set loading state during fetch', async () => {
-        vi.mocked(supportService.mockApiFAQs).mockImplementation(
+        vi.mocked(supportApiClient.supportApi.getFAQs).mockImplementation(
           () => new Promise((resolve) => {
             expect(store.loading.faqs).toBe(true)
             resolve(mockFAQs)
@@ -142,7 +144,7 @@ describe('Support Store', () => {
 
     describe('fetchSupportTickets', () => {
       it('should fetch support tickets successfully', async () => {
-        vi.mocked(supportService.mockApiSupportTickets).mockResolvedValue(mockTickets)
+        vi.mocked(supportApiClient.supportApi.getSupportTickets).mockResolvedValue(mockTickets)
 
         await store.fetchSupportTickets()
 
@@ -153,7 +155,7 @@ describe('Support Store', () => {
 
       it('should handle fetch tickets error', async () => {
         const errorMessage = 'Network error'
-        vi.mocked(supportService.mockApiSupportTickets).mockRejectedValue(new Error(errorMessage))
+        vi.mocked(supportApiClient.supportApi.getSupportTickets).mockRejectedValue(new Error(errorMessage))
 
         await store.fetchSupportTickets()
 
@@ -166,7 +168,7 @@ describe('Support Store', () => {
     describe('submitSupportRequest', () => {
       it('should submit support request successfully', async () => {
         const newTicket = { ...mockTickets[0], id: 'ticket-new', message: 'New ticket' }
-        vi.mocked(supportService.mockApiSubmitTicket).mockResolvedValue(newTicket)
+        vi.mocked(supportApiClient.supportApi.createSupportTicket).mockResolvedValue(newTicket as any)
 
         await store.submitSupportRequest('New ticket')
 
@@ -178,7 +180,7 @@ describe('Support Store', () => {
 
       it('should handle submit error', async () => {
         const errorMessage = 'Submission failed'
-        vi.mocked(supportService.mockApiSubmitTicket).mockRejectedValue(new Error(errorMessage))
+        vi.mocked(supportApiClient.supportApi.createSupportTicket).mockRejectedValue(new Error(errorMessage))
 
         await expect(store.submitSupportRequest('Test message')).rejects.toThrow()
         expect(store.loading.submission).toBe(false)
@@ -236,8 +238,8 @@ describe('Support Store', () => {
 
     describe('initialize', () => {
       it('should initialize both FAQs and tickets', async () => {
-        vi.mocked(supportService.mockApiFAQs).mockResolvedValue(mockFAQs)
-        vi.mocked(supportService.mockApiSupportTickets).mockResolvedValue(mockTickets)
+        vi.mocked(supportApiClient.supportApi.getFAQs).mockResolvedValue(mockFAQs)
+        vi.mocked(supportApiClient.supportApi.getSupportTickets).mockResolvedValue(mockTickets)
 
         await store.initialize()
 

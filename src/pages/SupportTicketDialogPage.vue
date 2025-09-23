@@ -113,7 +113,6 @@ import TicketHeader from '@/components/support/TicketHeader.vue'
 import TicketConversation from '@/components/support/TicketConversation.vue'
 import ResolutionConfirmModal from '@/components/support/ResolutionConfirmModal.vue'
 
-import type { SupportTicket } from '@/types'
 
 // Composables
 const route = useRoute()
@@ -126,17 +125,15 @@ const {
   addMessage,
   resolveTicket,
   clearErrors,
-  setCurrentTicket,
 } = useSupportData()
 
 // Local state
-const ticket = ref<SupportTicket | null>(null)
 const messageError = ref<string | null>(null)
 const initialLoading = ref(true)
 const showResolutionConfirm = ref(false)
 
-// Computed properties
-const isLoading = computed(() => loading.value.ticket)
+// Use the store's currentTicket directly instead of local ref
+const ticket = computed(() => currentTicket.value)
 
 // Load ticket on mount
 const loadTicket = async (): Promise<void> => {
@@ -150,7 +147,6 @@ const loadTicket = async (): Promise<void> => {
     }
     
     await fetchTicket(ticketId)
-    ticket.value = currentTicket.value
   } catch (err) {
     console.error('Failed to load ticket:', err)
   } finally {
@@ -186,13 +182,9 @@ const handleAddMessage = async (message: string): Promise<void> => {
       return
     }
     
-    const newMessage = await addMessage(ticket.value.id, message.trim())
+    await addMessage(ticket.value.id, message.trim())
     
-    // Update local ticket with new message
-    if (ticket.value) {
-      ticket.value.messages.push(newMessage)
-      ticket.value.updatedAt = newMessage.createdAt
-    }
+    // The store automatically updates currentTicket, no manual update needed
   } catch (err) {
     messageError.value = err instanceof Error ? err.message : 'Ошибка отправки сообщения'
     console.error('Failed to add message:', err)
@@ -209,14 +201,9 @@ const handleConfirmResolution = async (): Promise<void> => {
       throw new Error('No ticket selected')
     }
     
-    const updatedTicket = await resolveTicket(ticket.value.id)
+    await resolveTicket(ticket.value.id)
     
-    // Update local ticket
-    if (ticket.value) {
-      ticket.value.status = updatedTicket.status
-      ticket.value.resolvedAt = updatedTicket.resolvedAt
-      ticket.value.updatedAt = updatedTicket.updatedAt
-    }
+    // The store automatically updates currentTicket, no manual update needed
     
     // Close modal
     showResolutionConfirm.value = false

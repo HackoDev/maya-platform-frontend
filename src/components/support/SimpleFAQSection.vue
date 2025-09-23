@@ -107,7 +107,7 @@ const expandedFAQs = ref<Set<string>>(new Set())
 
 // Computed properties
 const sortedFAQs = computed(() => {
-  return [...props.faqs].sort((a, b) => a.priority - b.priority)
+  return [...props.faqs]
 })
 
 // Methods

@@ -8,23 +8,17 @@ const mockFAQs: SimplifiedFAQ[] = [
   {
     id: '1',
     question: 'What is this platform?',
-    answer: 'This is a comprehensive platform for managing various tasks.',
-    priority: 1,
-    isPopular: true
+    answer: 'This is a comprehensive platform for managing various tasks.'
   },
   {
     id: '2',
     question: 'How do I get started?',
-    answer: 'You can get started by creating an account and following the onboarding guide.',
-    priority: 2,
-    isPopular: false
+    answer: 'You can get started by creating an account and following the onboarding guide.'
   },
   {
     id: '3',
     question: 'Is there customer support?',
-    answer: 'Yes, we provide 24/7 customer support through multiple channels.',
-    priority: 3,
-    isPopular: true
+    answer: 'Yes, we provide 24/7 customer support through multiple channels.'
   }
 ]
 
@@ -52,12 +46,12 @@ describe('SimpleFAQSection Component', () => {
       expect(faqItems).toHaveLength(mockFAQs.length)
     })
 
-    it('should render FAQ items in priority order', () => {
+    it('should render FAQ items in order', () => {
       const faqItems = wrapper.findAllComponents(CompactFAQItem)
       
-      expect(faqItems[0].props('faq').id).toBe('1') // priority 1
-      expect(faqItems[1].props('faq').id).toBe('2') // priority 2
-      expect(faqItems[2].props('faq').id).toBe('3') // priority 3
+      expect(faqItems[0].props('faq').id).toBe('1')
+      expect(faqItems[1].props('faq').id).toBe('2')
+      expect(faqItems[2].props('faq').id).toBe('3')
     })
 
     it('should render section header icon', () => {
@@ -212,12 +206,11 @@ describe('SimpleFAQSection Component', () => {
       expect(faqItems[0].props('faq')).toEqual(singleFAQ[0])
     })
 
-    it('should handle FAQs with same priority', async () => {
-      const samePriorityFAQs = mockFAQs.map(faq => ({ ...faq, priority: 1 }))
-      await wrapper.setProps({ faqs: samePriorityFAQs })
+    it('should handle multiple FAQs', async () => {
+      await wrapper.setProps({ faqs: mockFAQs })
       
       const faqItems = wrapper.findAllComponents(CompactFAQItem)
-      expect(faqItems).toHaveLength(samePriorityFAQs.length)
+      expect(faqItems).toHaveLength(mockFAQs.length)
     })
 
     it('should handle both loading and error states gracefully', async () => {

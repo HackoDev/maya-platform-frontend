@@ -6,9 +6,7 @@ import type { SimplifiedFAQ } from '@/types'
 const mockFAQ: SimplifiedFAQ = {
   id: '1',
   question: 'What is this platform?',
-  answer: 'This is a comprehensive platform for managing various tasks and workflows.',
-  priority: 1,
-  isPopular: true
+  answer: 'This is a comprehensive platform for managing various tasks and workflows.'
 }
 
 describe('CompactFAQItem Component', () => {

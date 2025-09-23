@@ -9,7 +9,7 @@
             История обращений
           </h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Ваши последние {{ tickets.length }} обращени{{ getTicketsEnding(tickets.length) }} в поддержку
+            Ваши последние обращения в поддержку
           </p>
         </div>
       </div>

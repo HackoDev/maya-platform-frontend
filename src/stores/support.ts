@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { FAQ, SupportTicket, SupportStoreState, SupportMessage } from '@/types'
-import { 
-  mockApiFAQs, 
-  mockApiSupportTickets, 
-  mockApiSubmitTicket,
-  mockApiGetTicket,
-  mockApiAddMessage,
-  mockApiResolveTicket
-} from '@/services/support'
+import { supportApi } from '@/services/supportApiClient'
+// Legacy mocks kept for reference; replaced by real API calls
+// import { 
+//   mockApiSupportTickets, 
+//   mockApiSubmitTicket,
+//   mockApiGetTicket,
+//   mockApiAddMessage,
+//   mockApiResolveTicket
+// } from '@/services/support'
 
 export const useSupportStore = defineStore('support', () => {
   // State
@@ -34,7 +35,7 @@ export const useSupportStore = defineStore('support', () => {
   )
 
   const popularFAQs = computed(() => 
-    faqs.value.filter(faq => faq.isPopular).sort((a, b) => a.priority - b.priority)
+    faqs.value
   )
 
   const openTicketsCount = computed(() => 
@@ -51,7 +52,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.faqs = true
       error.value = null
       
-      const data = await mockApiFAQs()
+      const data = await supportApi.getFAQs()
       faqs.value = data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch FAQs'
@@ -66,7 +67,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.tickets = true
       error.value = null
       
-      const data = await mockApiSupportTickets()
+      const data = await supportApi.getSupportTickets()
       supportTickets.value = data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch support tickets'
@@ -81,7 +82,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.submission = true
       error.value = null
       
-      const newTicket = await mockApiSubmitTicket(message)
+      const newTicket = await supportApi.createSupportTicket(message)
       
       // Add the new ticket to the beginning of the list
       supportTickets.value.unshift(newTicket)
@@ -126,7 +127,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.ticket = true
       error.value = null
       
-      const data = await mockApiGetTicket(ticketId)
+      const data = await supportApi.getSupportTicketById(ticketId)
       currentTicket.value = data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch ticket'
@@ -142,7 +143,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.messageSubmission = true
       error.value = null
       
-      const newMessage = await mockApiAddMessage(ticketId, message)
+      const newMessage = await supportApi.addSupportMessage(ticketId, message)
       
       // Update current ticket if it matches
       if (currentTicket.value && currentTicket.value.id === ticketId) {
@@ -172,7 +173,7 @@ export const useSupportStore = defineStore('support', () => {
       loading.value.resolution = true
       error.value = null
       
-      const updatedTicket = await mockApiResolveTicket(ticketId)
+      const updatedTicket = await supportApi.resolveSupportTicket(ticketId)
       
       // Update current ticket if it matches
       if (currentTicket.value && currentTicket.value.id === ticketId) {

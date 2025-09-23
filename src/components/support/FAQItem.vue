@@ -21,20 +21,6 @@
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             {{ faq.question }}
           </h3>
-          <div class="flex items-center space-x-2 mt-2">
-            <span 
-              class="px-2 py-1 text-xs font-medium rounded-full"
-              :class="categoryClasses[faq.category]"
-            >
-              {{ categoryLabels[faq.category] }}
-            </span>
-            <span 
-              v-if="faq.isPopular"
-              class="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-full"
-            >
-              Популярный
-            </span>
-          </div>
         </div>
         <div class="flex-shrink-0">
           <ChevronDownIcon 
@@ -91,10 +77,6 @@
                 </button>
               </div>
             </div>
-            
-            <div class="text-xs text-gray-400 dark:text-gray-500">
-              Обновлено: {{ formatDate(faq.updatedAt) }}
-            </div>
           </div>
         </div>
       </div>
@@ -120,20 +102,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Category styling
-const categoryClasses = {
-  general: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  technical: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  billing: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  account: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-}
-
-const categoryLabels = {
-  general: 'Общие',
-  technical: 'Технические',
-  billing: 'Оплата',
-  account: 'Аккаунт',
-}
 
 // Format answer with basic HTML support
 const formattedAnswer = computed(() => {
@@ -143,15 +111,6 @@ const formattedAnswer = computed(() => {
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
 })
 
-// Date formatting
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
-}
 
 // Event handlers
 const handleToggle = (): void => {

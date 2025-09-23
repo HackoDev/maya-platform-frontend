@@ -7,11 +7,6 @@ const mockFAQ: FAQ = {
   id: '1',
   question: 'How do I create an account?',
   answer: 'Click the registration button in the top right corner of the page.',
-  category: 'general',
-  priority: 1,
-  isPopular: true,
-  createdAt: '2024-01-15T10:00:00Z',
-  updatedAt: '2024-01-15T10:00:00Z',
 }
 
 describe('FAQItem Component', () => {
@@ -31,26 +26,6 @@ describe('FAQItem Component', () => {
       expect(wrapper.text()).toContain(mockFAQ.question)
     })
 
-    it('should display category badge', () => {
-      const categoryBadge = wrapper.find('.bg-blue-100')
-      expect(categoryBadge.exists()).toBe(true)
-      expect(categoryBadge.text()).toContain('Общие')
-    })
-
-    it('should display popular badge when FAQ is popular', () => {
-      const popularBadge = wrapper.find('.bg-amber-100')
-      expect(popularBadge.exists()).toBe(true)
-      expect(popularBadge.text()).toContain('Популярный')
-    })
-
-    it('should not display popular badge when FAQ is not popular', async () => {
-      await wrapper.setProps({
-        faq: { ...mockFAQ, isPopular: false },
-      })
-
-      const popularBadge = wrapper.find('.bg-amber-100')
-      expect(popularBadge.exists()).toBe(false)
-    })
 
     it('should display chevron icon', () => {
       const chevronIcon = wrapper.find('svg')
@@ -154,41 +129,6 @@ describe('FAQItem Component', () => {
     })
   })
 
-  describe('Category Styling', () => {
-    it('should apply correct styling for different categories', async () => {
-      // Test general category
-      expect(wrapper.find('.bg-blue-100').exists()).toBe(true)
-
-      // Test technical category
-      await wrapper.setProps({
-        faq: { ...mockFAQ, category: 'technical' },
-      })
-      expect(wrapper.find('.bg-purple-100').exists()).toBe(true)
-
-      // Test billing category
-      await wrapper.setProps({
-        faq: { ...mockFAQ, category: 'billing' },
-      })
-      expect(wrapper.find('.bg-green-100').exists()).toBe(true)
-
-      // Test account category
-      await wrapper.setProps({
-        faq: { ...mockFAQ, category: 'account' },
-      })
-      expect(wrapper.find('.bg-orange-100').exists()).toBe(true)
-    })
-  })
-
-  describe('Date Formatting', () => {
-    it('should display formatted update date', async () => {
-      await wrapper.setProps({ expanded: true })
-      
-      const dateText = wrapper.text()
-      expect(dateText).toContain('Обновлено:')
-      // Check for Russian date format
-      expect(dateText).toMatch(/\d{1,2}\s[а-я]{3}\.?\s\d{4}/)
-    })
-  })
 
   describe('Answer Formatting', () => {
     it('should format answer with basic HTML', async () => {

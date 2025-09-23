@@ -52,48 +52,6 @@
           </div>
         </div>
 
-        <!-- Category Filter -->
-        <div>
-          <label for="faq-category" class="sr-only">Фильтр по категории</label>
-          <select
-            id="faq-category"
-            v-model="selectedCategory"
-            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                   transition-colors duration-200"
-          >
-            <option value="">Все категории</option>
-            <option value="general">Общие вопросы</option>
-            <option value="technical">Технические проблемы</option>
-            <option value="billing">Вопросы по оплате</option>
-            <option value="account">Управление аккаунтом</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Quick filters -->
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="px-3 py-1 text-sm rounded-full border transition-colors duration-200"
-          :class="showPopularOnly 
-            ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700' 
-            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'"
-          @click="togglePopularFilter"
-        >
-          <StarIcon class="inline h-4 w-4 mr-1" />
-          Только популярные
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1 text-sm rounded-full bg-white text-gray-700 border border-gray-300 
-                 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600
-                 transition-colors duration-200"
-          @click="clearAllFilters"
-        >
-          Сбросить фильтры
-        </button>
       </div>
     </div>
 
@@ -189,7 +147,6 @@ import {
   QuestionMarkCircleIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
-  StarIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline'
 import FAQItem from './FAQItem.vue'
@@ -215,8 +172,6 @@ const emit = defineEmits<Emits>()
 
 // Local state
 const searchQuery = ref('')
-const selectedCategory = ref('')
-const showPopularOnly = ref(false)
 const expandedFAQs = ref<Set<string>>(new Set())
 
 // Computed properties
@@ -233,18 +188,7 @@ const filteredFAQs = computed(() => {
     )
   }
 
-  // Category filter
-  if (selectedCategory.value) {
-    result = result.filter(faq => faq.category === selectedCategory.value)
-  }
-
-  // Popular filter
-  if (showPopularOnly.value) {
-    result = result.filter(faq => faq.isPopular)
-  }
-
-  // Sort by priority
-  return result.sort((a, b) => a.priority - b.priority)
+  return result
 })
 
 const hasMoreFAQs = computed(() => false) // For future pagination implementation
@@ -267,14 +211,8 @@ const clearSearch = (): void => {
   searchQuery.value = ''
 }
 
-const togglePopularFilter = (): void => {
-  showPopularOnly.value = !showPopularOnly.value
-}
-
 const clearAllFilters = (): void => {
   searchQuery.value = ''
-  selectedCategory.value = ''
-  showPopularOnly.value = false
 }
 
 const handleRetry = (): void => {
@@ -297,7 +235,7 @@ const getResultsEnding = (count: number): string => {
 }
 
 // Watch for search changes to clear expanded state
-watch([searchQuery, selectedCategory, showPopularOnly], () => {
+watch([searchQuery], () => {
   expandedFAQs.value.clear()
 })
 </script>
