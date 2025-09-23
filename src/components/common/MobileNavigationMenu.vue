@@ -114,9 +114,8 @@ const isActiveRoute = (path: string) => {
   return route.path === path
 }
 
-const handleLogout = () => {
-  userStore.logout()
+const handleLogout = async () => {
   emit('close')
-  router.push('/login')
+  await userStore.logoutWithRedirect('/login')
 }
 </script>

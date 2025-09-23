@@ -24,9 +24,8 @@
           @change="handleFilterChange"
         >
           <option value="">Все статусы</option>
-          <option value="draft">Черновик</option>
-          <option value="published">Опубликовано</option>
-          <option value="closed">Закрыто</option>
+          <option value="true">Опубликовано</option>
+          <option value="false">Закрыто</option>
         </select>
         <button
           v-if="searchQuery || statusFilter"
@@ -41,38 +40,114 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useVacancyStore } from '@/stores/vacancy'
+import { useDebouncedCallback } from '@/composables/useDebounce'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+
+// Router
+const route = useRoute()
+const router = useRouter()
 
 // Stores
 const vacancyStore = useVacancyStore()
 
 // Reactive state
 const searchQuery = ref(vacancyStore.searchQuery)
-const statusFilter = ref('')
+const statusFilter = ref(vacancyStore.isActiveQuery)
+
+// Debounced search function with 500ms delay
+const debouncedSearch = useDebouncedCallback(() => {
+  vacancyStore.setSearchQuery(searchQuery.value)
+  vacancyStore.fetchVacancies()
+  updateUrlQuery()
+}, 500)
 
 // Methods
 const handleSearch = () => {
-  vacancyStore.setSearchQuery(searchQuery.value)
-  vacancyStore.fetchVacancies()
+  debouncedSearch()
 }
 
 const handleFilterChange = () => {
   // In a real implementation, we would filter by status
   console.log('Status filter changed:', statusFilter.value)
+  vacancyStore.setIsActiveQuery(statusFilter.value)
   vacancyStore.fetchVacancies()
+  updateUrlQuery()
 }
 
 const clearFilters = () => {
   searchQuery.value = ''
   statusFilter.value = ''
   vacancyStore.setSearchQuery('')
+  vacancyStore.setIsActiveQuery('')
   vacancyStore.fetchVacancies()
+  updateUrlQuery()
+}
+
+const updateUrlQuery = () => {
+  const query: Record<string, string> = {}
+  
+  if (searchQuery.value.trim()) {
+    query.search = searchQuery.value.trim()
+  }
+  
+  if (statusFilter.value) {
+    query.isActive = statusFilter.value
+  }
+  
+  // Update URL without triggering navigation
+  router.replace({ 
+    path: route.path, 
+    query: Object.keys(query).length > 0 ? query : undefined 
+  })
+}
+
+const initializeFromUrl = () => {
+  const urlSearch = route.query.search as string
+  const urlisActive = route.query.isActive as string
+  
+  if (urlSearch) {
+    searchQuery.value = urlSearch
+    vacancyStore.setSearchQuery(urlSearch)
+  }
+  
+  if (urlisActive) {
+    statusFilter.value = urlisActive
+    vacancyStore.setIsActiveQuery(urlisActive)
+  }
 }
 
 // Watch for changes in the store
 watch(() => vacancyStore.searchQuery, (newQuery) => {
   searchQuery.value = newQuery
+})
+
+// Watch for changes in the store
+watch(() => vacancyStore.isActiveQuery, (newQuery) => {
+  statusFilter.value = newQuery
+})
+
+// Watch for route changes to sync with URL
+watch(() => route.query, (newQuery) => {
+  const urlSearch = newQuery.search as string
+  const urlIsActive = newQuery.isActive as string
+  
+  if (urlSearch !== searchQuery.value) {
+    searchQuery.value = urlSearch || ''
+    vacancyStore.setSearchQuery(urlSearch || '')
+  }
+  
+  console.log('urlIsActive', urlIsActive)
+  if (urlIsActive !== statusFilter.value) {
+    statusFilter.value = urlIsActive || ''
+    vacancyStore.setIsActiveQuery(urlIsActive || '')
+  }
+}, { deep: true })
+
+// Initialize from URL on mount
+onMounted(() => {
+  initializeFromUrl()
 })
 </script>

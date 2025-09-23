@@ -5,9 +5,9 @@
       <nav class="flex mb-6" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
           <li class="inline-flex items-center">
-            <router-link to="/profile/vacancies" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 dark:text-gray-400 dark:hover:text-white">
+            <router-link :to="breadcrumbRoute" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 dark:text-gray-400 dark:hover:text-white">
               <HomeIcon class="w-4 h-4 mr-2" />
-              Мои вакансии
+              {{ breadcrumbText }}
             </router-link>
           </li>
           <li aria-current="page">
@@ -51,6 +51,7 @@
       <div v-else-if="vacancy">
         <VacancyDetail 
           :vacancy="vacancy" 
+          :show-actions="isVacancyAuthor ?? false"
           @edit="handleEdit"
           @close="handleClose"
           @publish="handlePublish"
@@ -113,25 +114,25 @@
               Телефон для связи
             </label>
             <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancy as any)?._fakeData?.contactInfo?.phone || vacancy?.clientPhone }}
+              {{ vacancy?.author?.phone || vacancy?.clientPhone }}
             </p>
           </div>
 
-          <div v-if="(vacancy as any)?._fakeData?.contactInfo?.telegram">
+          <div v-if="vacancy?.author?.telegram">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Telegram
             </label>
             <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancy as any)._fakeData.contactInfo.telegram }}
+              {{ vacancy.author.telegram }}
             </p>
           </div>
 
-          <div v-if="(vacancy as any)?._fakeData?.contactInfo?.whatsapp">
+          <div v-if="vacancy?.author?.whatsapp">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               WhatsApp
             </label>
             <p class="mt-1 text-sm text-gray-900 dark:text-white">
-              {{ (vacancy as any)._fakeData.contactInfo.whatsapp }}
+              {{ vacancy.author.whatsapp }}
             </p>
           </div>
 
@@ -160,18 +161,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVacancyStore } from '@/stores/vacancy'
+import { useUserStore } from '@/stores/user'
+import { vacancyApiClient } from '@/services/vacancyApiClient'
 import { HomeIcon, ChevronRightIcon, ExclamationTriangleIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
 import VacancyDetail from '@/components/vacancies/VacancyDetail.vue'
 import VacancyForm from '@/components/vacancies/VacancyForm.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import type { Vacancy } from '@/types/vacancy'
-import { getVacancyById } from '@/services/fakeVacancyService'
 
 // Stores
 const vacancyStore = useVacancyStore()
+const userStore = useUserStore()
 
 // Router
 const route = useRoute()
@@ -187,6 +190,24 @@ const showPhoneNumber = ref(false)
 // Computed properties
 const vacancy = ref<Vacancy | null>(null)
 
+// Check if current user is the author of the vacancy
+const isVacancyAuthor = computed(() => {
+  return vacancy.value && userStore.currentUser && 
+         vacancy.value.author?.id.toString() === userStore.currentUser.id.toString()
+})
+
+// Get breadcrumb text based on user type
+const breadcrumbText = computed(() => {
+  if (!userStore.currentUser) return 'Мои вакансии'
+  return userStore.currentUser.userType === 'specialist' ? 'Вакансии' : 'Мои вакансии'
+})
+
+// Get breadcrumb route based on user type
+const breadcrumbRoute = computed(() => {
+  if (!userStore.currentUser) return '/profile/vacancies'
+  return userStore.currentUser.userType === 'specialist' ? '/vacancies' : '/profile/vacancies'
+})
+
 // Methods
 const loadVacancy = async () => {
   loading.value = true
@@ -194,39 +215,12 @@ const loadVacancy = async () => {
 
   try {
     const vacancyId = route.params.id as string
-    // Use fake data service to get specific vacancy
-    const fakeVacancy = getVacancyById(vacancyId)
-
-    if (fakeVacancy) {
-      // Convert FakeVacancy to Vacancy for compatibility
-      const convertedVacancy: Vacancy = {
-        ...fakeVacancy,
-        clientPhone: fakeVacancy.contactInfo.phone
-      }
-      
-      // Store the fake vacancy data for use in modals
-      ;(convertedVacancy as any)._fakeData = fakeVacancy
-      
-      vacancy.value = convertedVacancy
-    } else {
-      // If not found, create a fake vacancy with the requested ID
-      const fakeVacancy = await import('@/services/fakeVacancyService').then(module => 
-        module.generateFakeVacancyWithId(vacancyId)
-      )
-      
-      // Convert FakeVacancy to Vacancy for compatibility
-      const convertedVacancy: Vacancy = {
-        ...fakeVacancy,
-        clientPhone: fakeVacancy.contactInfo.phone
-      }
-      
-      // Store the fake vacancy data for use in modals
-      ;(convertedVacancy as any)._fakeData = fakeVacancy
-      
-      vacancy.value = convertedVacancy
-    }
+    // Use real API service to get specific vacancy
+    const apiVacancy = await vacancyApiClient.getVacancyById(vacancyId)
+    vacancy.value = apiVacancy
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Ошибка загрузки вакансии'
+    console.error('Error loading vacancy:', err)
   } finally {
     loading.value = false
   }
@@ -246,7 +240,7 @@ const handlePublish = async () => {
   try {
     const updatedVacancy = await vacancyStore.updateVacancy(vacancy.value.id, {
       ...vacancy.value,
-      status: 'published'
+      isActive: true,
     })
     vacancy.value = updatedVacancy
   } catch (err) {
@@ -260,7 +254,7 @@ const handleCloseVacancy = async () => {
   try {
     const updatedVacancy = await vacancyStore.updateVacancy(vacancy.value.id, {
       ...vacancy.value,
-      status: 'closed'
+      isActive: false,
     })
     vacancy.value = updatedVacancy
   } catch (err) {
@@ -274,7 +268,7 @@ const handleReopen = async () => {
   try {
     const updatedVacancy = await vacancyStore.updateVacancy(vacancy.value.id, {
       ...vacancy.value,
-      status: 'draft'
+      isActive: true,
     })
     vacancy.value = updatedVacancy
   } catch (err) {

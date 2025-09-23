@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useVacancyStore } from '@/stores/vacancy'
 import { PlusIcon, ExclamationTriangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
 import VacancySearch from '@/components/vacancies/VacancySearch.vue'
@@ -119,6 +119,7 @@ const vacancyStore = useVacancyStore()
 
 // Router
 const router = useRouter()
+const route = useRoute()
 
 // State for confirm dialog
 const showConfirmDialog = ref(false)
@@ -174,7 +175,9 @@ const handleSaveVacancy = async (vacancyData: Partial<Vacancy>) => {
       await vacancyStore.updateVacancy(vacancyStore.selectedVacancy.id, vacancyData)
     } else {
       // Create new vacancy
-      await vacancyStore.createVacancy(vacancyData)
+      const newVacancy = await vacancyStore.createVacancy(vacancyData)
+      // Redirect to the newly created vacancy details page
+      router.push(`/profile/vacancies/${newVacancy.id}`)
     }
     vacancyStore.closeVacancyForm()
   } catch (err) {
@@ -185,6 +188,12 @@ const handleSaveVacancy = async (vacancyData: Partial<Vacancy>) => {
 
 // Lifecycle
 onMounted(() => {
+  // Check if there's a search query in the URL
+  const urlSearch = route.query.search as string
+  if (urlSearch) {
+    // Set the search query in the store and fetch vacancies
+    vacancyStore.setSearchQuery(urlSearch)
+  }
   vacancyStore.fetchVacancies()
 })
 </script>

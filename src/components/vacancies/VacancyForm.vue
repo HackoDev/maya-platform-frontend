@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :show="isOpen" @close="handleClose">
+  <BaseModal :show="isOpen" @close="handleClose" size="xl">
     <template #header>
       <h3 class="text-lg font-medium text-gray-900 dark:text-white">
         {{ isEditing ? 'Редактировать вакансию' : 'Создать вакансию' }}
@@ -7,7 +7,7 @@
     </template>
 
     <template #default>
-      <form @submit.prevent="handleSubmit" class="space-y-6">
+      <form @submit.prevent="handleSubmit" class="space-y-8">
         <!-- Title -->
         <div>
           <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -44,10 +44,10 @@
           <textarea
             id="description"
             v-model="form.description"
-            rows="6"
+            rows="10"
             maxlength="2000"
             :class="[
-              'block w-full rounded-md border shadow-sm focus:ring focus:outline-none sm:text-sm',
+              'block w-full rounded-md border shadow-sm focus:ring focus:outline-none sm:text-sm resize-y min-h-[200px]',
               formErrors.description 
                 ? 'border-red-300 focus:ring-red-500 focus:border-red-500 dark:border-red-500 dark:focus:ring-red-500 dark:focus:border-red-500' 
                 : 'border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:border-gray-600 dark:focus:ring-purple-500 dark:focus:border-purple-500 dark:bg-gray-700 dark:text-white'
@@ -71,15 +71,14 @@
           </label>
           <select
             id="status"
-            v-model="form.status"
+            v-model="form.isActive"
             :class="[
               'block w-full rounded-md border shadow-sm focus:ring focus:outline-none sm:text-sm',
               'border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:border-gray-600 dark:focus:ring-purple-500 dark:focus:border-purple-500 dark:bg-gray-700 dark:text-white'
             ]"
           >
-            <option value="draft">Черновик</option>
-            <option value="published">Опубликовано</option>
-            <option value="closed">Закрыто</option>
+            <option value="false">Черновик</option>
+            <option value="true">Опубликовано</option>
           </select>
         </div>
 
@@ -151,7 +150,7 @@ const emit = defineEmits<Emits>()
 const form = reactive({
   title: '',
   description: '',
-  status: 'draft' as 'draft' | 'published' | 'closed'
+  isActive: true
 })
 
 const formErrors = reactive({
@@ -222,12 +221,12 @@ watch(
     if (newVacancy) {
       form.title = newVacancy.title
       form.description = newVacancy.description
-      form.status = newVacancy.status
+      form.isActive = newVacancy.isActive
     } else {
       // Reset form for new vacancy
       form.title = ''
       form.description = ''
-      form.status = 'draft'
+      form.isActive = true
     }
     // Clear errors when form is opened
     clearErrors()

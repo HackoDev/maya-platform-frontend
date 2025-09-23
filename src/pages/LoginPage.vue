@@ -45,12 +45,12 @@
             </div>
           </div>
 
-          <BaseButton type="submit" class="w-full" :disabled="userStore.loading">
-            {{ userStore.loading ? 'Вход...' : 'Войти' }}
+          <BaseButton type="submit" class="w-full" :disabled="session.isLoading.value">
+            {{ session.isLoading.value ? 'Вход...' : 'Войти' }}
           </BaseButton>
 
-          <div v-if="userStore.error" class="text-red-600 dark:text-red-400 text-sm text-center">
-            {{ userStore.error }}
+          <div v-if="session.error.value" class="text-red-600 dark:text-red-400 text-sm text-center">
+            {{ session.error.value }}
           </div>
         </form>
 
@@ -97,13 +97,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useGlobalSession } from '@/composables/useSession'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import MayaLogoIcon from '@/components/icons/MayaLogoIcon.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+const session = useGlobalSession()
 
 const form = ref({
   email: '',
@@ -117,44 +117,58 @@ const handleRedirect = () => {
 }
 
 const handleSubmit = async () => {
-  await userStore.login(form.value.email, form.value.password)
-  
-  userStore.isAuthenticated && handleRedirect();
+  try {
+    const success = await session.login(form.value.email, form.value.password)
+    
+    if (success) {
+      handleRedirect()
+    }
+  } catch (error) {
+    console.error('Login failed:', error)
+  }
 }
 
 // Predefined login methods for testing
 const loginAsSpecialist = async () => {
-  await userStore.login('specialist@example.com', 'password')
-  if (userStore.isAuthenticated) {
-    // Update user type to specialist
-    if (userStore.currentUser) {
-      userStore.currentUser.userType = 'specialist'
-      userStore.currentUser.firstName = 'Евгений '
-      userStore.currentUser.isOpenToOffers = true
-      userStore.currentUser.avatar =
-        'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
-      userStore.currentUser.lastName = 'Хацко'
-      userStore.currentUser.name = 'Евгений Хацко'
+  try {
+    const success = await session.login('specialist@example.com', 'password')
+    if (success) {
+      // Update user type to specialist
+      if (session.currentUser.value) {
+        session.currentUser.value.userType = 'specialist'
+        session.currentUser.value.firstName = 'Евгений '
+        session.currentUser.value.isOpenToOffers = true
+        session.currentUser.value.avatar =
+          'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
+        session.currentUser.value.lastName = 'Хацко'
+        session.currentUser.value.name = 'Евгений Хацко'
+      }
+      handleRedirect()
     }
-    handleRedirect()
+  } catch (error) {
+    console.error('Specialist login failed:', error)
   }
 }
 
 const loginAsClient = async () => {
-  await userStore.login('client@example.com', 'password')
-  if (userStore.isAuthenticated) {
-    // Update user type to client
-    if (userStore.currentUser) {
-      userStore.currentUser.avatar =
-        'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
-      userStore.currentUser.userType = 'client'
-      userStore.currentUser.isOpenToOffers = true
-      userStore.currentUser.firstName = 'Майя'
-      userStore.currentUser.lastName = 'Галицкая'
-      userStore.currentUser.name =
-        userStore.currentUser.firstName + ' ' + userStore.currentUser.lastName
+  try {
+    const success = await session.login('client@example.com', 'password')
+    if (success) {
+      // Update user type to client
+      if (session.currentUser.value) {
+        session.currentUser.value.avatar =
+          'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
+        session.currentUser.value.userType = 'client'
+        session.currentUser.value.isOpenToOffers = true
+        session.currentUser.value.firstName = 'Майя'
+        session.currentUser.value.lastName = 'Галицкая'
+        session.currentUser.value.name =
+          session.currentUser.value.firstName + ' ' + session.currentUser.value.lastName
+      }
+      handleRedirect()
     }
-    handleRedirect()
+  } catch (error) {
+    console.error('Client login failed:', error)
   }
 }
 </script>

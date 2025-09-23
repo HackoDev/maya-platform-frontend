@@ -65,8 +65,7 @@ const isActiveRoute = (path: string) => {
   return route.path === path
 }
 
-const handleLogout = () => {
-  userStore.logout()
-  router.push('/login')
+const handleLogout = async () => {
+  await userStore.logoutWithRedirect('/login')
 }
 </script>

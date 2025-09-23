@@ -40,7 +40,7 @@
         <div class="flex items-center space-x-4">
           <!-- Create Vacancy Button (only visible for clients) -->
           <button
-            v-if="userStore.isAuthenticated && userStore.currentUser?.userType === 'client'"
+            v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'client'"
             @click="$emit('create-vacancy')"
             class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
           >
@@ -48,7 +48,7 @@
             Создать вакансию
           </button>
           
-          <UserProfileSection v-if="userStore.isAuthenticated" :user="userStore.currentUser" />
+          <UserProfileSection v-if="session.isAuthenticated.value" :user="session.currentUser.value" />
           <template v-else>
             <router-link
               to="/login"
@@ -75,7 +75,7 @@
     <MobileNavigationMenu
       :is-open="navigationStore.isMobileMenuOpen"
       :navigation-items="visibleNavigationItems"
-      :user="userStore.currentUser"
+      :user="session.currentUser.value"
       @close="navigationStore.closeMobileMenu"
     />
   </nav>
@@ -85,7 +85,7 @@
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Bars3Icon, XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
-import { useUserStore } from '@/stores/user'
+import { useGlobalSession } from '@/composables/useSession'
 import { useNavigationStore } from '@/stores/navigation'
 import UserProfileSection from './UserProfileSection.vue'
 import MobileNavigationMenu from './MobileNavigationMenu.vue'
@@ -108,19 +108,19 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
-const userStore = useUserStore()
+const session = useGlobalSession()
 const navigationStore = useNavigationStore()
 
 // Computed properties
 const visibleNavigationItems = computed(() => {
-  const userType = userStore.currentUser?.userType;
+  const userType = session.currentUser.value?.userType;
   return navigationStore.getVisibleNavigationItems().filter(item => {
     // check if nav item has specific user type limitation
     if (!!item.userType && item.userType !== userType) {
       return false;
     }
     // Show all items if user is authenticated, or only non-auth required items if not
-    return !item.requiresAuth || userStore.isAuthenticated
+    return !item.requiresAuth || session.isAuthenticated.value
   })
 })
 

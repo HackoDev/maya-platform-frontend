@@ -8,11 +8,13 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:proxy": "vite --host",
     "build": "vue-tsc && vite build",
     "build:dev": "vite build --mode development",
     "build:staging": "vite build --mode staging",
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
+    "preview:prod": "vite preview --mode production",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "format": "prettier --write .",

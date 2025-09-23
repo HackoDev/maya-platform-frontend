@@ -365,7 +365,7 @@
                   v-model="passwordForm.currentPassword"
                   type="password"
                   placeholder="Введите текущий пароль"
-                  :error="formStates.password.errors.currentPassword"
+                  :error="formStates.password.errors?.currentPassword"
                   required
                 />
               </div>
@@ -373,21 +373,21 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label
-                    for="newPassword"
+                    for="password1"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
                     Новый пароль
                   </label>
                   <BaseInput
-                    id="newPassword"
-                    v-model="passwordForm.newPassword"
+                    id="password1"
+                    v-model="passwordForm.password1"
                     type="password"
                     placeholder="Введите новый пароль"
-                    :error="formStates.password.errors.newPassword"
+                    :error="formStates.password.errors?.password1"
                     required
                   />
                   <!-- Password Strength Indicator -->
-                  <div v-if="passwordForm.newPassword" class="mt-2">
+                  <div v-if="passwordForm.password1" class="mt-2">
                     <div class="flex items-center space-x-2">
                       <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
@@ -414,31 +414,31 @@
                     Подтвердите новый пароль
                   </label>
                   <BaseInput
-                    id="confirmPassword"
-                    v-model="passwordForm.confirmPassword"
+                    id="password2"
+                    v-model="passwordForm.password2"
                     type="password"
                     placeholder="Повторите новый пароль"
-                    :error="formStates.password.errors.confirmPassword"
+                    :error="formStates.password.errors.password2"
                     required
                   />
                   <!-- Password Match Indicator -->
-                  <div v-if="passwordForm.confirmPassword && passwordForm.newPassword" class="mt-2">
+                  <div v-if="passwordForm.password2 && passwordForm.password1" class="mt-2">
                     <div class="flex items-center space-x-2">
                       <CheckCircleIcon
-                        v-if="passwordForm.newPassword === passwordForm.confirmPassword"
+                        v-if="passwordForm.password1 === passwordForm.password2"
                         class="h-4 w-4 text-green-500 dark:text-green-400"
                       />
                       <XCircleIcon v-else class="h-4 w-4 text-red-500 dark:text-red-400" />
                       <span
                         class="text-xs"
                         :class="
-                          passwordForm.newPassword === passwordForm.confirmPassword
+                          passwordForm.password1 === passwordForm.password2
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                         "
                       >
                         {{
-                          passwordForm.newPassword === passwordForm.confirmPassword
+                          passwordForm.password1 === passwordForm.password2
                             ? 'Пароли совпадают'
                             : 'Пароли не совпадают'
                         }}
@@ -512,6 +512,7 @@ import {
   XCircleIcon,
   SwatchIcon,
 } from '@heroicons/vue/24/outline'
+import { prepareErrorResponse } from '@/types/errors'
 
 // Types for form data
 interface PersonalInfoForm {
@@ -535,14 +536,14 @@ interface EmailForm {
 
 interface PasswordForm {
   currentPassword: string
-  newPassword: string
-  confirmPassword: string
+  password1: string
+  password2: string
 }
 
 interface FormState {
   isLoading: boolean
   isValid: boolean
-  errors: Record<string, string>
+  errors: Record<string, string[]>
   successMessage: string
   errorMessage: string
 }
@@ -579,8 +580,8 @@ const emailForm = reactive<EmailForm>({
 
 const passwordForm = reactive<PasswordForm>({
   currentPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+  password1: '',
+  password2: '',
 })
 
 // Form states
@@ -623,7 +624,7 @@ const userInitials = computed(() => {
 
 // Password strength calculation (copied from ChangePasswordPage)
 const passwordStrength = computed(() => {
-  const password = passwordForm.newPassword
+  const password = passwordForm.password1
   if (!password) return 0
 
   let strength = 0
@@ -687,11 +688,11 @@ const isEmailFormValid = computed(() => {
 const isPasswordFormValid = computed(() => {
   return (
     passwordForm.currentPassword &&
-    passwordForm.newPassword &&
-    passwordForm.confirmPassword &&
-    passwordForm.newPassword === passwordForm.confirmPassword &&
-    passwordForm.newPassword.length >= 8 &&
-    passwordForm.currentPassword !== passwordForm.newPassword
+    passwordForm.password1 &&
+    passwordForm.password2 &&
+    passwordForm.password1 === passwordForm.password2 &&
+    passwordForm.password1.length >= 8 &&
+    passwordForm.currentPassword !== passwordForm.password1
   )
 })
 
@@ -720,7 +721,7 @@ const submitPersonalInfo = async () => {
 
   formStates.personalInfo.isLoading = true
   formStates.personalInfo.errors = {}
-  formStates.personalInfo.successMessage = ''
+  formStates.personalInfo.successMessage = 'Идет сохранение...'
   formStates.personalInfo.errorMessage = ''
 
   try {
@@ -736,8 +737,12 @@ const submitPersonalInfo = async () => {
     await userStore.updatePersonalInfo(updateData)
 
     formStates.personalInfo.successMessage = 'Личная информация успешно обновлена'
+    personalInfoForm.avatar = null;
   } catch (error) {
-    formStates.personalInfo.errorMessage = 'Ошибка при обновлении личной информации'
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при обновлении личной информации.')
+    formStates.personalInfo.errorMessage = message
+    formStates.personalInfo.successMessage = ''
+    formStates.personalInfo.errors = errorsData || {}
     console.error('Failed to update personal info:', error)
   } finally {
     formStates.personalInfo.isLoading = false
@@ -747,7 +752,7 @@ const submitPersonalInfo = async () => {
 const submitContactInfo = async () => {
   formStates.contactInfo.isLoading = true
   formStates.contactInfo.errors = {}
-  formStates.contactInfo.successMessage = ''
+  formStates.contactInfo.successMessage = 'Идет сохранение...'
   formStates.contactInfo.errorMessage = ''
 
   try {
@@ -759,7 +764,10 @@ const submitContactInfo = async () => {
 
     formStates.contactInfo.successMessage = 'Контактная информация успешно обновлена'
   } catch (error) {
-    formStates.contactInfo.errorMessage = 'Ошибка при обновлении контактной информации'
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при обновлении контактной информации.')
+    formStates.contactInfo.errorMessage = message
+    formStates.contactInfo.successMessage = ''
+    formStates.contactInfo.errors = errorsData || {}
     console.error('Failed to update contact info:', error)
   } finally {
     formStates.contactInfo.isLoading = false
@@ -771,7 +779,7 @@ const submitEmail = async () => {
 
   formStates.email.isLoading = true
   formStates.email.errors = {}
-  formStates.email.successMessage = ''
+  formStates.email.successMessage = 'Идет сохранение...'
   formStates.email.errorMessage = ''
 
   try {
@@ -790,7 +798,10 @@ const submitEmail = async () => {
     emailForm.newEmail = ''
     emailForm.confirmEmail = ''
   } catch (error) {
-    formStates.email.errorMessage = 'Ошибка при обновлении email адреса'
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при обновлении email адреса.')
+    formStates.email.errorMessage = message
+    formStates.email.successMessage = ''
+    formStates.email.errors = errorsData || {}
     console.error('Failed to update email:', error)
   } finally {
     formStates.email.isLoading = false
@@ -802,25 +813,28 @@ const submitPasswordChange = async () => {
 
   formStates.password.isLoading = true
   formStates.password.errors = {}
-  formStates.password.successMessage = ''
+  formStates.password.successMessage = 'Идет сохранение...'
   formStates.password.errorMessage = ''
 
   try {
     await userStore.changePassword({
       currentPassword: passwordForm.currentPassword,
-      newPassword: passwordForm.newPassword,
-      confirmPassword: passwordForm.confirmPassword,
+      newPassword: passwordForm.password1,
+      confirmPassword: passwordForm.password2,
     })
 
     formStates.password.successMessage = 'Пароль успешно изменен'
 
     // Reset form for security
     passwordForm.currentPassword = ''
-    passwordForm.newPassword = ''
-    passwordForm.confirmPassword = ''
+    passwordForm.password1 = ''
+    passwordForm.password2 = ''
   } catch (error) {
-    formStates.password.errorMessage = 'Ошибка при смене пароля. Проверьте введенные данные.'
-    console.error('Failed to change password:', error)
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при смене пароля. Проверьте введенные данные.')
+    formStates.password.errorMessage = message
+    formStates.password.successMessage = ''
+    formStates.password.errors = errorsData || {}
+    console.error(`Failed to change password: ${JSON.stringify(formStates.password.errors)}`);
   } finally {
     formStates.password.isLoading = false
   }

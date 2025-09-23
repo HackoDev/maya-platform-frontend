@@ -7,20 +7,13 @@
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">
           {{ vacancy.title }}
         </h2>
-        <div class="flex space-x-2">
+        <div v-if="props.showActions" class="flex space-x-2">
           <button
             @click="$emit('edit')"
             class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
           >
             <PencilIcon class="-ml-1 mr-1 h-4 w-4" />
             Редактировать
-          </button>
-          <button
-            @click="$emit('close')"
-            class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-900"
-          >
-            <XMarkIcon class="-ml-1 mr-1 h-4 w-4" />
-            Закрыть
           </button>
         </div>
       </div>
@@ -77,24 +70,24 @@
         </div>
       </div>
 
-      <div class="mt-8 flex justify-end space-x-3">
+      <div v-if="props.showActions" class="mt-8 flex justify-end space-x-3">
         <button
-          v-if="vacancy.status === 'published'"
-          @click="$emit('close-vacancy')"
+          v-if="vacancy.isActive"
+          @click="showConfirmation('close')"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900"
         >
           Закрыть вакансию
         </button>
         <button
-          v-else-if="vacancy.status === 'draft'"
-          @click="$emit('publish')"
+          v-else-if="vacancy.isActive === false"
+          @click="showConfirmation('publish')"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900"
         >
           Опубликовать
         </button>
         <button
-          v-else-if="vacancy.status === 'closed'"
-          @click="$emit('reopen')"
+          v-else-if="vacancy.isActive === false"
+          @click="showConfirmation('reopen')"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
         >
           Открыть повторно
@@ -102,18 +95,34 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirmation Modal -->
+  <ConfirmDialog
+    :is-open="showConfirmModal"
+    :title="modalConfig.title"
+    :message="modalConfig.message"
+    :confirm-text="modalConfig.confirmText"
+    :cancel-text="modalConfig.cancelText"
+    :confirm-button-type="modalConfig.confirmButtonType"
+    @confirm="handleConfirm"
+    @cancel="handleCancel"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Vacancy } from '@/types/vacancy'
-import { PencilIcon, XMarkIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
+import { PencilIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 interface Props {
   vacancy: Vacancy
+  showActions?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  showActions: true
+})
 
 const emit = defineEmits<{
   (e: 'edit'): void
@@ -124,20 +133,19 @@ const emit = defineEmits<{
   (e: 'contact'): void
 }>()
 
+// Modal state management
+const showConfirmModal = ref(false)
+const pendingAction = ref<'close' | 'publish' | 'reopen' | null>(null)
+
 // Computed properties
 const statusConfig = computed(() => {
-  switch (props.vacancy.status) {
-    case 'draft':
-      return {
-        text: 'Черновик',
-        classes: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      }
-    case 'published':
+  switch (props.vacancy.isActive) {
+    case true:
       return {
         text: 'Опубликовано',
         classes: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
       }
-    case 'closed':
+    case false:
       return {
         text: 'Закрыто',
         classes: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
@@ -146,6 +154,44 @@ const statusConfig = computed(() => {
       return {
         text: 'Черновик',
         classes: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+      }
+  }
+})
+
+// Computed properties for modal
+const modalConfig = computed(() => {
+  switch (pendingAction.value) {
+    case 'close':
+      return {
+        title: 'Закрыть вакансию',
+        message: `Вы уверены, что хотите закрыть вакансию "${props.vacancy.title}"? После закрытия вакансия не будет отображаться в поиске.`,
+        confirmText: 'Закрыть',
+        cancelText: 'Отмена',
+        confirmButtonType: 'danger' as const
+      }
+    case 'publish':
+      return {
+        title: 'Опубликовать вакансию',
+        message: `Вы уверены, что хотите опубликовать вакансию "${props.vacancy.title}"? После публикации вакансия станет доступна для просмотра специалистами.`,
+        confirmText: 'Опубликовать',
+        cancelText: 'Отмена',
+        confirmButtonType: 'primary' as const
+      }
+    case 'reopen':
+      return {
+        title: 'Открыть вакансию повторно',
+        message: `Вы уверены, что хотите открыть вакансию "${props.vacancy.title}" повторно? Вакансия снова станет доступна для просмотра специалистами.`,
+        confirmText: 'Открыть',
+        cancelText: 'Отмена',
+        confirmButtonType: 'primary' as const
+      }
+    default:
+      return {
+        title: 'Подтверждение',
+        message: 'Вы уверены?',
+        confirmText: 'Подтвердить',
+        cancelText: 'Отмена',
+        confirmButtonType: 'primary' as const
       }
   }
 })
@@ -160,5 +206,33 @@ const formatDate = (dateString: string): string => {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+const showConfirmation = (action: 'close' | 'publish' | 'reopen') => {
+  pendingAction.value = action
+  showConfirmModal.value = true
+}
+
+const handleConfirm = () => {
+  if (pendingAction.value) {
+    switch (pendingAction.value) {
+      case 'close':
+        emit('close-vacancy')
+        break
+      case 'publish':
+        emit('publish')
+        break
+      case 'reopen':
+        emit('reopen')
+        break
+    }
+  }
+  showConfirmModal.value = false
+  pendingAction.value = null
+}
+
+const handleCancel = () => {
+  showConfirmModal.value = false
+  pendingAction.value = null
 }
 </script>

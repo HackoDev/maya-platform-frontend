@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Vacancy, VacancyStoreState, VacancyPaginationResponse, VacancySearchFilters } from '@/types/vacancy'
-import { VacancyService } from '@/services/vacancy'
+import type { Vacancy, VacancyPaginationResponse, VacancySearchFilters } from '@/types/vacancy'
+import { vacancyApiClient } from '@/services/vacancyApiClient'
 import { useUserStore } from '@/stores/user'
-import { getPaginatedVacancies, getVacancyById, generateFakeVacancyWithId, type FakeVacancy } from '@/services/fakeVacancyService'
+import { getVacancyById } from '@/services/fakeVacancyService'
 
 export const useVacancyStore = defineStore('vacancy', () => {
   // State
@@ -13,6 +13,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
   const loadingMore = ref(false)
   const error = ref<string | null>(null)
   const searchQuery = ref('')
+  const isActiveQuery = ref<string>('')
   const showVacancyForm = ref(false)
   const showContactModal = ref(false)
   const selectedVacancy = ref<Vacancy | null>(null)
@@ -21,14 +22,17 @@ export const useVacancyStore = defineStore('vacancy', () => {
   const searchFilters = ref<VacancySearchFilters>({
     query: '',
     page: 1,
-    limit: 7, // Changed to 7 as per requirements
+    limit: 7,
+    isActive: undefined,
   })
   const hasSearched = ref(false)
   const lastSearchResults = ref<VacancyPaginationResponse | null>(null)
 
   // Service
-  const vacancyService = new VacancyService()
   const userStore = useUserStore()
+  
+  // Initialize the API client with stored token
+  vacancyApiClient.initializeWithStoredToken()
 
   // Getters
   const filteredVacancies = computed(() => {
@@ -36,27 +40,20 @@ export const useVacancyStore = defineStore('vacancy', () => {
       return vacancies.value
     }
     
-    return vacancies.value.filter(vacancy => 
-      vacancy.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      vacancy.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+    return vacancies.value
   })
 
   const publishedVacancies = computed(() => {
-    return allVacancies.value.filter(vacancy => vacancy.status === 'published')
-  })
-
-  const draftVacancies = computed(() => {
-    return vacancies.value.filter(vacancy => vacancy.status === 'draft')
+    return allVacancies.value.filter(vacancy => vacancy.isActive === true)
   })
 
   const closedVacancies = computed(() => {
-    return vacancies.value.filter(vacancy => vacancy.status === 'closed')
+    return vacancies.value.filter(vacancy => vacancy.isActive === false)
   })
 
   const myVacancies = computed(() => {
     if (!userStore.currentUser) return []
-    return vacancies.value.filter(vacancy => vacancy.clientId === userStore.currentUser!.id)
+    return vacancies.value.filter(vacancy => vacancy.clientId === userStore.currentUser!.id.toString())
   })
 
   const canLoadMore = computed(() => {
@@ -68,9 +65,16 @@ export const useVacancyStore = defineStore('vacancy', () => {
     loading.value = true
     error.value = null
 
+    console.log(`fetchVacancies: searchQuery.value: ${searchQuery.value}, isActiveQuery.value: ${isActiveQuery.value}`)
+
     try {
-      const data = await vacancyService.getMyVacancies(searchQuery.value)
-      vacancies.value = data
+      const response = await vacancyApiClient.getMyVacancies({
+        limit: 100, // Get all my vacancies
+        offset: 0,
+        search: searchQuery.value,
+        isActive: isActiveQuery.value,
+      })
+      vacancies.value = response.vacancies
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch vacancies'
       console.error('Error fetching vacancies:', err)
@@ -92,60 +96,26 @@ export const useVacancyStore = defineStore('vacancy', () => {
     error.value = null
 
     try {
-      // Simulate network delay for demonstration
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Use fake data instead of real API
-      const fakeResults = getPaginatedVacancies(page, pageSize)
-      
-      // Convert FakeVacancy to Vacancy for compatibility and store fake data
-      const convertedVacancies = fakeResults.vacancies.map(fakeVacancy => ({
-        id: fakeVacancy.id,
-        title: fakeVacancy.title,
-        description: fakeVacancy.description,
-        status: fakeVacancy.status,
-        createdAt: fakeVacancy.createdAt,
-        updatedAt: fakeVacancy.updatedAt,
-        clientId: fakeVacancy.clientId,
-        clientName: fakeVacancy.clientName,
-        clientPhone: fakeVacancy.contactInfo.phone, // Use phone from contactInfo
-        _fakeData: fakeVacancy // Store the full fake data for contact info
-      }))
+      const offset = (page - 1) * pageSize
+      const response = await vacancyApiClient.getVacancies({
+        limit: pageSize,
+        offset: offset,
+      })
       
       if (isLoadingMore) {
         // Append new data to existing data
-        allVacancies.value = [...allVacancies.value, ...convertedVacancies]
+        allVacancies.value = [...allVacancies.value, ...response.vacancies]
         currentPage.value = page
-        hasMoreVacancies.value = fakeResults.hasMore
+        hasMoreVacancies.value = response.hasMore
       } else {
         // Replace existing data
-        allVacancies.value = convertedVacancies
+        allVacancies.value = response.vacancies
         currentPage.value = 1
-        hasMoreVacancies.value = fakeResults.hasMore
+        hasMoreVacancies.value = response.hasMore
         hasSearched.value = true
       }
       
-      // Convert FakeVacancy to Vacancy for compatibility (for lastSearchResults)
-      const convertedResults: VacancyPaginationResponse = {
-        vacancies: convertedVacancies.map(vacancy => ({
-          id: vacancy.id,
-          title: vacancy.title,
-          description: vacancy.description,
-          status: vacancy.status,
-          createdAt: vacancy.createdAt,
-          updatedAt: vacancy.updatedAt,
-          clientId: vacancy.clientId,
-          clientName: vacancy.clientName,
-          clientPhone: vacancy.clientPhone,
-          _fakeData: (vacancy as any)._fakeData // Preserve _fakeData property
-        })),
-        page: page,
-        pageSize: pageSize,
-        total: fakeResults.total,
-        hasMore: fakeResults.hasMore
-      }
-      
-      lastSearchResults.value = convertedResults
+      lastSearchResults.value = response
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch vacancies'
       console.error('Error fetching all vacancies:', err)
@@ -181,59 +151,23 @@ export const useVacancyStore = defineStore('vacancy', () => {
     error.value = null
 
     try {
-      // Simulate network delay for demonstration
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Use fake data instead of real API
-      const fakeResults = getPaginatedVacancies(
-        currentPage.value,
-        searchFilters.value.limit || 7
-      )
-
-      // Convert FakeVacancy to Vacancy for compatibility and store fake data
-      const convertedVacancies = fakeResults.vacancies.map(fakeVacancy => ({
-        id: fakeVacancy.id,
-        title: fakeVacancy.title,
-        description: fakeVacancy.description,
-        status: fakeVacancy.status,
-        createdAt: fakeVacancy.createdAt,
-        updatedAt: fakeVacancy.updatedAt,
-        clientId: fakeVacancy.clientId,
-        clientName: fakeVacancy.clientName,
-        clientPhone: fakeVacancy.contactInfo.phone, // Use phone from contactInfo
-        _fakeData: fakeVacancy // Store the full fake data for contact info
-      }))
+      const offset = (currentPage.value - 1) * (searchFilters.value.limit || 7)
+      const response = await vacancyApiClient.searchVacancies({
+        limit: searchFilters.value.limit || 7,
+        offset: offset,
+        isActive: searchFilters.value.isActive,
+      })
 
       if (resetResults) {
-        allVacancies.value = convertedVacancies
+        allVacancies.value = response.vacancies
       } else {
         // Append for infinite scroll
-        allVacancies.value.push(...convertedVacancies)
+        allVacancies.value.push(...response.vacancies)
       }
 
-      // Convert FakeVacancy to Vacancy for compatibility (for lastSearchResults)
-      const convertedResults: VacancyPaginationResponse = {
-        vacancies: convertedVacancies.map(vacancy => ({
-          id: vacancy.id,
-          title: vacancy.title,
-          description: vacancy.description,
-          status: vacancy.status,
-          createdAt: vacancy.createdAt,
-          updatedAt: vacancy.updatedAt,
-          clientId: vacancy.clientId,
-          clientName: vacancy.clientName,
-          clientPhone: vacancy.clientPhone,
-          _fakeData: (vacancy as any)._fakeData // Preserve _fakeData property
-        })),
-        page: currentPage.value,
-        pageSize: searchFilters.value.limit || 7,
-        total: fakeResults.total,
-        hasMore: fakeResults.hasMore
-      }
-
-      lastSearchResults.value = convertedResults
+      lastSearchResults.value = response
       hasSearched.value = true
-      hasMoreVacancies.value = fakeResults.hasMore
+      hasMoreVacancies.value = response.hasMore
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to search vacancies'
       if (resetResults) {
@@ -277,16 +211,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
     error.value = null
 
     try {
-      // Add client information from current user
-      const userData = userStore.currentUser
-      if (userData) {
-        vacancyData.clientId = userData.id
-        vacancyData.clientName = `${userData.firstName} ${userData.lastName}`
-        // In a real implementation, we would get the phone from user profile
-        vacancyData.clientPhone = vacancyData.clientPhone || '+7 (999) 123-45-67'
-      }
-
-      const newVacancy = await vacancyService.createVacancy(vacancyData)
+      const newVacancy = await vacancyApiClient.createVacancy(vacancyData)
       vacancies.value.push(newVacancy)
       return newVacancy
     } catch (err) {
@@ -303,7 +228,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
     error.value = null
 
     try {
-      const updatedVacancy = await vacancyService.updateVacancy(id, vacancyData)
+      const updatedVacancy = await vacancyApiClient.updateVacancy(id, vacancyData)
       
       // Update the vacancy in the list
       const index = vacancies.value.findIndex(v => v.id === id)
@@ -332,7 +257,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
     error.value = null
 
     try {
-      await vacancyService.deleteVacancy(id)
+      await vacancyApiClient.deleteVacancy(id)
       
       // Remove the vacancy from the list
       vacancies.value = vacancies.value.filter(vacancy => vacancy.id !== id)
@@ -352,6 +277,11 @@ export const useVacancyStore = defineStore('vacancy', () => {
     searchQuery.value = query
   }
 
+  const setIsActiveQuery = (isActive: string) => {
+    console.log('setIsActiveQuery', isActive)
+    isActiveQuery.value = isActive
+  }
+
   const clearError = () => {
     error.value = null
   }
@@ -367,18 +297,25 @@ export const useVacancyStore = defineStore('vacancy', () => {
   }
 
   const openContactModal = (vacancy: Vacancy) => {
-    // Always ensure we have the full fake data for contact info
-    const fakeVacancy = getVacancyById(vacancy.id)
-    if (fakeVacancy) {
-      // Update the vacancy with full contact info
+    // Use real API data if available, fallback to fake data for backward compatibility
+    if (vacancy.author && vacancy.author.phone) {
+      // Use real API data
       selectedVacancy.value = {
         ...vacancy,
-        clientPhone: fakeVacancy.contactInfo.phone,
-        _fakeData: fakeVacancy,
-      } as Vacancy
+        clientPhone: vacancy.author.phone,
+      }
     } else {
-      // Fallback to the provided vacancy if we can't find the fake data
-      selectedVacancy.value = vacancy
+      // Fallback to fake data for backward compatibility
+      const fakeVacancy = getVacancyById(vacancy.id)
+      if (fakeVacancy) {
+        selectedVacancy.value = {
+          ...vacancy,
+          clientPhone: fakeVacancy.contactInfo.phone,
+          _fakeData: fakeVacancy,
+        } as Vacancy
+      } else {
+        selectedVacancy.value = vacancy
+      }
     }
     showContactModal.value = true
   }
@@ -410,6 +347,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
     loadingMore,
     error,
     searchQuery,
+    isActiveQuery,
     showVacancyForm,
     showContactModal,
     selectedVacancy,
@@ -422,7 +360,6 @@ export const useVacancyStore = defineStore('vacancy', () => {
     // Getters
     filteredVacancies,
     publishedVacancies,
-    draftVacancies,
     closedVacancies,
     myVacancies,
     canLoadMore,
@@ -436,6 +373,7 @@ export const useVacancyStore = defineStore('vacancy', () => {
     updateVacancy,
     deleteVacancy,
     setSearchQuery,
+    setIsActiveQuery,
     clearError,
     openVacancyForm,
     closeVacancyForm,

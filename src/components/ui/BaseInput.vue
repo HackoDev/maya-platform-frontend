@@ -20,10 +20,13 @@
     >
 
     <p v-if="error" class="text-sm text-red-600 dark:text-red-400">
-      {{ error }}
+      {{ 
+        error ? Array.isArray(error) ? error.join(' ') : error : ''
+      }}
+      <!-- {{ error ? Array.isArray(error) ? error.join(', ') : error : '' }} -->
     </p>
 
-    <p v-if="hint && !error" class="text-sm text-gray-500 dark:text-gray-400">
+    <p v-if="hint && !error && error?.length === 0" class="text-sm text-gray-500 dark:text-gray-400">
       {{ hint }}
     </p>
   </div>
@@ -40,7 +43,7 @@ interface Props {
   placeholder?: string
   required?: boolean
   disabled?: boolean
-  error?: string
+  error?: string | string[]
   hint?: string
   size?: 'sm' | 'md' | 'lg'
 }

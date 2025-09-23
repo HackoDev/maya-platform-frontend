@@ -386,14 +386,6 @@ const moderationStatusConfig = computed(() => {
 })
 
 const handleLogout = async () => {
-  try {
-    // Call the store logout method
-    userStore.logout()
-    
-    // Redirect to login page
-    await router.push('/login')
-  } catch (error) {
-    console.error('Logout failed:', error)
-  }
+  await userStore.logoutWithRedirect('/login')
 }
 </script>

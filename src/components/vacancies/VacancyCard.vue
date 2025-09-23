@@ -1,11 +1,13 @@
 <template>
   <div
     class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
-    :class="{ 'cursor-pointer': !isOwner }"
   >
     <div class="p-6">
       <div class="flex justify-between items-start">
-        <div @click="!isOwner ? $emit('view', vacancy) : null">
+        <div 
+          @click="$emit('view', vacancy)"
+          :class="{ 'cursor-pointer': true }"
+        >
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             {{ vacancy.title }}
           </h3>
@@ -84,18 +86,13 @@ const userStore = useUserStore()
 
 // Computed properties
 const statusConfig = computed(() => {
-  switch (props.vacancy.status) {
-    case 'draft':
-      return {
-        text: 'Черновик',
-        classes: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      }
-    case 'published':
+  switch (props.vacancy.isActive) {
+    case true:
       return {
         text: 'Опубликовано',
         classes: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
       }
-    case 'closed':
+    case false:
       return {
         text: 'Закрыто',
         classes: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',

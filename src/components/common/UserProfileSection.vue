@@ -146,10 +146,9 @@ const handleSettings = () => {
   router.push('/profile/settings')
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
   closeDropdown()
-  userStore.logout()
-  router.push('/login')
+  await userStore.logoutWithRedirect('/login')
 }
 
 const handleClickOutside = (event: Event) => {

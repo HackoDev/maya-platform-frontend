@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useGlobalSession } from '@/composables/useSession'
 
 // Lazy-loaded pages
 const HomePage = () => import('@/pages/HomePage.vue')
@@ -168,35 +168,88 @@ const router = createRouter({
 })
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
+router.beforeEach(async (to, _from, next) => {
+  try {
+    const session = useGlobalSession()
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-    return
+    // Wait for session initialization if it's still loading
+    if (session.isLoading.value) {
+      console.log('⏳ Waiting for session initialization...')
+      
+      // Wait for session to be initialized using a Promise with timeout
+      try {
+        await new Promise<void>((resolve) => {
+          let attempts = 0
+          const maxAttempts = 50 // 5 seconds max wait time (50 * 100ms)
+          
+          const checkInitialization = () => {
+            attempts++
+            
+            if (!session.isLoading.value) {
+              resolve()
+            } else if (attempts >= maxAttempts) {
+              console.warn('⚠️ Session initialization timeout, proceeding anyway')
+              resolve() // Proceed anyway to avoid blocking navigation
+            } else {
+              // Still loading, check again in 100ms
+              setTimeout(checkInitialization, 100)
+            }
+          }
+          checkInitialization()
+        })
+      } catch (error) {
+        console.error('❌ Error waiting for session initialization:', error)
+        // Proceed anyway to avoid blocking navigation
+      }
+    }
+
+    // Session is initialized, handle navigation
+    handleNavigation(to, next, session)
+  } catch (error) {
+    console.error('❌ Navigation guard error:', error)
+    // Ensure next is always called, even on error
+    next()
   }
-
-  // Redirect authenticated users away from login
-  if (to.meta.hideForAuth && userStore.isAuthenticated) {
-    next({ name: 'Home' })
-    return
-  }
-
-  // Redirect specialist to home page if they are trying to access a specialist denied pages
-  if (to.meta.specialistDenied && userStore.currentUser?.userType === 'specialist') {
-    next({ name: (to.meta.fallbackRedirect || 'Home') as string })
-    return
-  }
-
-  // Redirect client to home page if they are trying to access a client denied pages
-  if (to.meta.clientDenied && userStore.currentUser?.userType === 'client') {
-    next({ name: (to.meta.fallbackRedirect || 'Home') as string })
-    return
-  }
-
-  next()
 })
+
+function handleNavigation(to: any, next: any, session: any) {
+  try {
+    // Check if route requires authentication
+    if (to.meta.requiresAuth && !session.isAuthenticated.value) {
+      console.log('🔒 Route requires authentication, redirecting to login')
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+      return
+    }
+
+    // Redirect authenticated users away from login
+    if (to.meta.hideForAuth && session.isAuthenticated.value) {
+      console.log('👤 User is authenticated, redirecting from login page')
+      next({ name: 'Home' })
+      return
+    }
+
+    // Redirect specialist to home page if they are trying to access a specialist denied pages
+    if (to.meta.specialistDenied && session.currentUser.value?.userType === 'specialist') {
+      console.log('🚫 Specialist denied access, redirecting')
+      next({ name: (to.meta.fallbackRedirect || 'Home') as string })
+      return
+    }
+
+    // Redirect client to home page if they are trying to access a client denied pages
+    if (to.meta.clientDenied && session.currentUser.value?.userType === 'client') {
+      console.log('🚫 Client denied access, redirecting')
+      next({ name: (to.meta.fallbackRedirect || 'Home') as string })
+      return
+    }
+
+    // Allow navigation
+    next()
+  } catch (error) {
+    console.error('❌ Error in handleNavigation:', error)
+    // Ensure next is always called, even on error
+    next()
+  }
+}
 
 // Update document title
 router.afterEach(to => {

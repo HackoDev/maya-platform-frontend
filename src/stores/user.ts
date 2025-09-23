@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { User } from '@/types'
 import { UserService } from '@/services/user'
+import { authApi, type LoginCredentials } from '@/services/authApiClient'
 
 // Profile update interfaces
 export interface PersonalInfoUpdate {
@@ -51,52 +52,71 @@ export const useUserStore = defineStore('user', () => {
     return currentUser.value.userType === 'specialist' ? 'Специалист' : 'Клиент'
   })
 
-  const login = async (email: string, _password: string) => {
+  const login = async (email: string, password: string) => {
     loading.value = true
     error.value = null
 
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Determine user type based on email for testing purposes
-      let userType: 'specialist' | 'client' = 'specialist'
-      if (email === 'client@example.com') {
-        userType = 'client'
+      // Use authApiClient for real authentication
+      const credentials: LoginCredentials = {
+        username: email,
+        password: password,
+        client_id: import.meta.env.VITE_OAUTH_CLIENT_ID || 'XtBXtiE3ceaBoTdeagaLvBWArAhIR5oalakmwXFu',
+        grant_type: 'password'
       }
 
-      currentUser.value = {
-        id: '1',
-        name: userType === 'specialist' ? 'Анна Смирнова' : 'Иван Петров',
-        firstName: userType === 'specialist' ? 'Анна' : 'Иван',
-        lastName: userType === 'specialist' ? 'Смирнова' : 'Петров',
-        email,
-        role: 'user',
-        userType,
-        isActive: true,
-        isOpenToOffers: userType === 'specialist' ? true : undefined, // Only specialists have this field
-        // Fake contact data for demo
-        phone: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',
-        whatsapp: userType === 'specialist' ? '+7 (916) 123-45-67' : '+7 (903) 987-65-43',
-        telegram: userType === 'specialist' ? '@anna_designer' : '@ivan_employer',
-        avatar: undefined,
-        lastLoginAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Login failed'
+      const response = await authApi.login(credentials)
+      
+      // Set current user from the API response
+      currentUser.value = response.user
+      
+      return response
+    } catch (err: any) {
+      throw err
     } finally {
       loading.value = false
     }
   }
 
-  const logout = () => {
-    currentUser.value = null
-    error.value = null
-    
-    // Clear any cached data
-    users.value = []
+  const logout = async () => {
+    try {
+      // Use authApiClient logout to clear tokens
+      await authApi.logout()
+    } catch (err) {
+      console.warn('Error during logout:', err)
+    } finally {
+      // Clear local state regardless of API call result
+      currentUser.value = null
+      error.value = null
+      users.value = []
+    }
+  }
+
+  const logoutWithRedirect = async (redirectPath: string = '/login') => {
+    try {
+      // Perform logout
+      await logout()
+      
+      // Import router dynamically to avoid circular dependencies
+      const { useRouter } = await import('vue-router')
+      const router = useRouter()
+      
+      // Redirect to specified path
+      await router.push(redirectPath)
+      
+    } catch (error) {
+      console.error('Error during logout with redirect:', error)
+      // Fallback: try to redirect anyway
+      try {
+        const { useRouter } = await import('vue-router')
+        const router = useRouter()
+        await router.push(redirectPath)
+      } catch (redirectError) {
+        console.error('Error during fallback redirect:', redirectError)
+        // Last resort: reload the page
+        window.location.href = redirectPath
+      }
+    }
   }
 
   // New action to update the isOpenToOffers flag
@@ -105,12 +125,13 @@ export const useUserStore = defineStore('user', () => {
 
     try {
       // Call the user service to update the status
-      const updatedUser = await userService.updateUserOpenToOffers(currentUser.value.id, isOpenToOffers)
+      const updatedUser = await userService.updateUserOpenToOffers(isOpenToOffers)
       
       // Update the local state with the response
       currentUser.value = updatedUser
+      // Sync with authApiClient
+      authApi.updateUserData(currentUser.value)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update open to offers status'
       throw err
     }
   }
@@ -123,10 +144,13 @@ export const useUserStore = defineStore('user', () => {
         currentUser.value.firstName = response.firstName
         currentUser.value.lastName = response.lastName
         currentUser.value.avatar = response.avatar
+        // Update name field
+        currentUser.value.name = `${response.firstName} ${response.lastName}`
+        // Sync with authApiClient
+        authApi.updateUserData(currentUser.value)
       }
       return response
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update personal info'
       throw err
     }
   }
@@ -139,10 +163,11 @@ export const useUserStore = defineStore('user', () => {
         currentUser.value.phone = data.phone
         currentUser.value.whatsapp = data.whatsapp
         currentUser.value.telegram = data.telegram
+        // Sync with authApiClient
+        authApi.updateUserData(currentUser.value)
       }
       return response
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update contact info'
       throw err
     }
   }
@@ -153,7 +178,6 @@ export const useUserStore = defineStore('user', () => {
       // Handle email verification flow
       return response
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update email'
       throw err
     }
   }
@@ -163,8 +187,41 @@ export const useUserStore = defineStore('user', () => {
       const response = await userService.changePassword(data)
       return response
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to change password'
       throw err
+    }
+  }
+
+  // Initialize with stored authentication data
+  const initializeAuth = () => {
+    try {
+      const hasStoredToken = authApi.initialize()
+      if (hasStoredToken) {
+        const storedUser = authApi.getCurrentUser()
+        if (storedUser) {
+          currentUser.value = storedUser
+        }
+      }
+      return hasStoredToken
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // Sync user data with authApiClient
+  const syncUserData = () => {
+    const authUser = authApi.getCurrentUser()
+    if (authUser && currentUser.value) {
+      // Update local user data with auth data
+      currentUser.value = authUser
+    }
+  }
+
+  // Update user data in both store and authApiClient
+  const updateUserData = (userData: Partial<User>) => {
+    if (currentUser.value) {
+      const updatedUser = { ...currentUser.value, ...userData }
+      currentUser.value = updatedUser
+      authApi.updateUserData(updatedUser)
     }
   }
 
@@ -180,10 +237,14 @@ export const useUserStore = defineStore('user', () => {
     userTypeLabel,
     login,
     logout,
+    logoutWithRedirect,
     updateOpenToOffers,
     updatePersonalInfo,
     updateContactInfo,
     updateEmail,
     changePassword,
+    initializeAuth,
+    syncUserData,
+    updateUserData,
   }
 })

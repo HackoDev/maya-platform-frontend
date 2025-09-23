@@ -1,23 +1,23 @@
 // Global type definitions
 
 export interface User {
-  id: string
+  id: number
   name: string
   firstName: string
   lastName: string
   email: string
-  avatar?: string
-  role: 'admin' | 'user' | 'moderator'
-  userType: 'specialist' | 'client'
+  avatar: string | null
+  role?: 'admin' | 'user' | 'moderator'  // Optional for backward compatibility
+  userType: string
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
   // Contact information
-  phone?: string
-  whatsapp?: string
-  telegram?: string
-  lastLoginAt?: string
+  phone: string | null
+  whatsapp: string | null
+  telegram: string | null
+  lastLoginAt: string
   createdAt: string
-  updatedAt: string
+  updatedAt?: string  // Optional for backward compatibility
 }
 
 export interface ApiResponse<T> {
