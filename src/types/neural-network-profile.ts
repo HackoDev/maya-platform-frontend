@@ -27,14 +27,7 @@ export interface SpecializationBlock {
   title: 'Я специализируюсь на:'
   description: 'Выберите области вашей экспертизы'
   data: {
-    neuralAssistants: boolean // Нейроассистенты (AI-боты)
-    neuralFunnels: boolean // Нейроворонки (продажи + автоматизация)
-    contentGeneration: boolean // Контент с помощью нейросетей
-    visuals: boolean // Визуалы (обложки, графика, Reels)
-    audioVideoProcessing: boolean // Обработка аудио и видео
-    promptBases: boolean // Базы промптов
-    chatbotSetup: boolean // Настройка чат-ботов
-    neuralNetworkTraining: boolean // Обучение других нейросетям
+    selectedSpecializationIds: number[] // IDs of selected specializations from API
     customSpecializations?: string[] // Дополнительные специализации
   }
   validation: {
@@ -65,15 +58,7 @@ export interface AbilitiesBlock {
   title: 'Что ты умеешь?'
   description: 'Отметь то, что делаешь, чтобы клиенту было понятно'
   data: {
-    funnelAssembly: boolean // Собираю нейроворонки (от лида до оплаты)
-    personalAIAssistants: boolean // Создаю персональных AI-ассистентов
-    sellingTextsWithGPT: boolean // Пишу продающие тексты с ChatGPT
-    visualGeneration: boolean // Генерирую визуалы в Midjourney/DALLE
-    reelsContentAI: boolean // Настраиваю Reels-контент с помощью AI
-    videoProcessing: boolean // Обрабатываю видео в нейросетях
-    funnelAutomation: boolean // Автоматизирую воронки с GPT + Tilda/Telegram
-    promptBases: boolean // Делаю базы промптов под задачи клиента
-    trainingConsultations: boolean // Провожу обучение/консультации
+    selectedSkillIds: number[] // IDs of selected skills from API
     customAbilities?: string[] // Дополнительные навыки
   }
   validation: {
@@ -107,10 +92,8 @@ export interface PortfolioBlock {
 // Block 5: Services and Pricing
 export interface ServiceOption {
   selected: boolean
-  name: string
-  basePrice: number
   customPrice?: number
-  description?: string
+  customDescription?: string
 }
 
 export interface CustomService {
@@ -125,12 +108,8 @@ export interface ServicesBlock {
   title: 'Твои услуги и цены'
   description: 'Можно выбрать или вписать свои'
   data: {
-    predefinedServices: {
-      neuralAssistantTurnkey: ServiceOption // Нейроассистент под ключ — от 15 000 руб
-      neuralSalesFunnel: ServiceOption // Нейроворонка для продаж — от 25 000 руб
-      promptBase: ServiceOption // База промптов — от 3 000 руб
-      trainingConsultation: ServiceOption // Обучение/консультация — от 2 000 руб
-    }
+    selectedServiceIds: number[] // IDs of selected services from API
+    serviceOptions: Record<number, ServiceOption> // Custom options for selected services
     customServices: CustomService[] // Дополнительные услуги
   }
   validation: {

@@ -5,6 +5,8 @@ import type {
   NeuralNetworkFormState,
   ValidationError
 } from '@/types/neural-network-profile'
+import { portfoliosApi } from '@/services/portfoliosApiClient'
+import type { Skill, Specialization, Service } from '@/types/portfolio'
 
 export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', () => {
   // State
@@ -13,61 +15,28 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
   const isSaving = ref(false)
   const validationErrors = ref<ValidationError[]>([])
 
+  // Portfolio data from API
+  const skills = ref<Skill[]>([])
+  const specializations = ref<Specialization[]>([])
+  const services = ref<Service[]>([])
+  const portfolioDataLoading = ref(false)
+
   // Form state
   const formState = reactive<NeuralNetworkFormState>({
     // Form data
     specializations: {
-      neuralAssistants: false,
-      neuralFunnels: false,
-      contentGeneration: false,
-      visuals: false,
-      audioVideoProcessing: false,
-      promptBases: false,
-      chatbotSetup: false,
-      neuralNetworkTraining: false,
+      selectedSpecializationIds: [],
       customSpecializations: []
     },
     superpower: '',
     abilities: {
-      funnelAssembly: false,
-      personalAIAssistants: false,
-      sellingTextsWithGPT: false,
-      visualGeneration: false,
-      reelsContentAI: false,
-      videoProcessing: false,
-      funnelAutomation: false,
-      promptBases: false,
-      trainingConsultations: false,
+      selectedSkillIds: [],
       customAbilities: []
     },
     portfolio: [],
     services: {
-      predefinedServices: {
-        neuralAssistantTurnkey: {
-          selected: false,
-          name: 'Нейроассистент под ключ',
-          basePrice: 15000,
-          description: 'Полная настройка AI-ассистента для вашего бизнеса'
-        },
-        neuralSalesFunnel: {
-          selected: false,
-          name: 'Нейроворонка для продаж',
-          basePrice: 25000,
-          description: 'Автоматизированная воронка продаж с AI-компонентами'
-        },
-        promptBase: {
-          selected: false,
-          name: 'База промптов',
-          basePrice: 3000,
-          description: 'Коллекция готовых промптов под ваши задачи'
-        },
-        trainingConsultation: {
-          selected: false,
-          name: 'Обучение/консультация',
-          basePrice: 2000,
-          description: 'Персональное обучение работе с нейросетями'
-        }
-      },
+      selectedServiceIds: [],
+      serviceOptions: {},
       customServices: []
     },
     experience: [],
@@ -112,8 +81,93 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     return requiredBlocks.every(blockId => formState.completedBlocks.has(blockId))
   })
 
+  // Portfolio data loading
+  const loadPortfolioData = async () => {
+    portfolioDataLoading.value = true
+    try {
+      const [skillsResponse, specializationsResponse, servicesResponse] = await Promise.all([
+        portfoliosApi.getSkills({ limit: 100 }),
+        portfoliosApi.getSpecializations({ limit: 100 }),
+        portfoliosApi.getServices({ limit: 100 })
+      ])
+      
+      skills.value = skillsResponse.skills
+      specializations.value = specializationsResponse.specializations
+      services.value = servicesResponse.services
+    } catch (error) {
+      console.error('Error loading portfolio data:', error)
+      // Set empty arrays as fallback
+      skills.value = []
+      specializations.value = []
+      services.value = []
+    } finally {
+      portfolioDataLoading.value = false
+    }
+  }
+
+  // Helper functions for form field updates
+  const updateSpecializationSelection = (specializationId: number, selected: boolean) => {
+    if (selected) {
+      if (!formState.specializations.selectedSpecializationIds.includes(specializationId)) {
+        formState.specializations.selectedSpecializationIds.push(specializationId)
+      }
+    } else {
+      const index = formState.specializations.selectedSpecializationIds.indexOf(specializationId)
+      if (index > -1) {
+        formState.specializations.selectedSpecializationIds.splice(index, 1)
+      }
+    }
+    formState.isDirty = true
+  }
+
+  const updateSkillSelection = (skillId: number, selected: boolean) => {
+    if (selected) {
+      if (!formState.abilities.selectedSkillIds.includes(skillId)) {
+        formState.abilities.selectedSkillIds.push(skillId)
+      }
+    } else {
+      const index = formState.abilities.selectedSkillIds.indexOf(skillId)
+      if (index > -1) {
+        formState.abilities.selectedSkillIds.splice(index, 1)
+      }
+    }
+    formState.isDirty = true
+  }
+
+  const updateServiceSelection = (serviceId: number, selected: boolean) => {
+    if (selected) {
+      if (!formState.services.selectedServiceIds.includes(serviceId)) {
+        formState.services.selectedServiceIds.push(serviceId)
+        // Initialize service options
+        formState.services.serviceOptions[serviceId] = {
+          selected: true,
+          customPrice: undefined,
+          customDescription: undefined
+        }
+      }
+    } else {
+      const index = formState.services.selectedServiceIds.indexOf(serviceId)
+      if (index > -1) {
+        formState.services.selectedServiceIds.splice(index, 1)
+        // Remove service options
+        delete formState.services.serviceOptions[serviceId]
+      }
+    }
+    formState.isDirty = true
+  }
+
+  const updateServiceOption = (serviceId: number, option: 'customPrice' | 'customDescription', value: any) => {
+    if (formState.services.serviceOptions[serviceId]) {
+      formState.services.serviceOptions[serviceId][option] = value
+      formState.isDirty = true
+    }
+  }
+
   // Actions
-  const initializeForm = (existingProfile?: NeuralNetworkProfileSchema) => {
+  const initializeForm = async (existingProfile?: NeuralNetworkProfileSchema) => {
+    // Load portfolio data first
+    await loadPortfolioData()
+    
     if (existingProfile) {
       currentProfile.value = existingProfile
       // Populate form state from existing profile
@@ -147,14 +201,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         title: 'Я специализируюсь на:',
         description: 'Выберите области вашей экспертизы',
         data: {
-          neuralAssistants: true,
-          neuralFunnels: true,
-          contentGeneration: false,
-          visuals: false,
-          audioVideoProcessing: false,
-          promptBases: true,
-          chatbotSetup: false,
-          neuralNetworkTraining: false,
+          selectedSpecializationIds: [1, 2, 6], // Mock selected specializations
           customSpecializations: []
         },
         validation: {
@@ -181,15 +228,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         title: 'Что ты умеешь?',
         description: 'Отметь то, что делаешь, чтобы клиенту было понятно',
         data: {
-          funnelAssembly: true,
-          personalAIAssistants: true,
-          sellingTextsWithGPT: false,
-          visualGeneration: false,
-          reelsContentAI: false,
-          videoProcessing: false,
-          funnelAutomation: true,
-          promptBases: true,
-          trainingConsultations: false,
+          selectedSkillIds: [1, 2, 7, 8], // Mock selected skills
           customAbilities: []
         },
         validation: {
@@ -210,31 +249,10 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
         title: 'Твои услуги и цены',
         description: 'Можно выбрать или вписать свои',
         data: {
-          predefinedServices: {
-            neuralAssistantTurnkey: {
-              selected: false,
-              name: 'Нейроассистент под ключ',
-              basePrice: 15000,
-              description: 'Полная настройка AI-ассистента для вашего бизнеса'
-            },
-            neuralSalesFunnel: {
-              selected: false,
-              name: 'Нейроворонка для продаж',
-              basePrice: 25000,
-              description: 'Автоматизированная воронка продаж с AI-компонентами'
-            },
-            promptBase: {
-              selected: false,
-              name: 'База промптов',
-              basePrice: 3000,
-              description: 'Коллекция готовых промптов под ваши задачи'
-            },
-            trainingConsultation: {
-              selected: false,
-              name: 'Обучение/консультация',
-              basePrice: 2000,
-              description: 'Персональное обучение работе с нейросетями'
-            }
+          selectedServiceIds: [1, 2], // Mock selected services
+          serviceOptions: {
+            1: { selected: true, customPrice: 15000, customDescription: 'Полная настройка AI-ассистента для вашего бизнеса' },
+            2: { selected: true, customPrice: 25000, customDescription: 'Автоматизированная воронка продаж с AI-компонентами' }
           },
           customServices: []
         },
@@ -310,8 +328,8 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       case 'specializations':
         if (fieldId === 'customSpecializations') {
           formState.specializations.customSpecializations = value
-        } else {
-          (formState.specializations as any)[fieldId] = value
+        } else if (fieldId === 'selectedSpecializationIds') {
+          formState.specializations.selectedSpecializationIds = value
         }
         break
       case 'superpower':
@@ -320,8 +338,8 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       case 'abilities':
         if (fieldId === 'customAbilities') {
           formState.abilities.customAbilities = value
-        } else {
-          ;(formState.abilities as any)[fieldId] = value
+        } else if (fieldId === 'selectedSkillIds') {
+          formState.abilities.selectedSkillIds = value
         }
         break
       case 'portfolio':
@@ -330,9 +348,13 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       case 'services':
         if (fieldId === 'customServices') {
           formState.services.customServices = value
-        } else if (fieldId.startsWith('predefinedServices.')) {
-          const serviceKey: string = fieldId.substring(18) // length of 'predefinedServices.'
-          (formState.services.predefinedServices as any)[serviceKey] = value
+        } else if (fieldId === 'selectedServiceIds') {
+          formState.services.selectedServiceIds = value
+        } else if (fieldId.startsWith('serviceOptions.')) {
+          const serviceId = parseInt(fieldId.substring(15)) // length of 'serviceOptions.'
+          if (formState.services.serviceOptions[serviceId]) {
+            formState.services.serviceOptions[serviceId] = value
+          }
         }
         break
       case 'experience':
@@ -403,9 +425,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     const errors: ValidationError[] = []
     const data = formState.specializations
     
-    const selectedCount = Object.values(data).filter(value => 
-      typeof value === 'boolean' && value
-    ).length
+    const selectedCount = data.selectedSpecializationIds.length
 
     if (selectedCount === 0) {
       errors.push({
@@ -453,9 +473,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     const errors: ValidationError[] = []
     const data = formState.abilities
     
-    const selectedCount = Object.values(data).filter(value => 
-      typeof value === 'boolean' && value
-    ).length
+    const selectedCount = data.selectedSkillIds.length
 
     if (selectedCount === 0) {
       errors.push({
@@ -531,31 +549,20 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
   const resetForm = () => {
     currentProfile.value = null
     formState.specializations = {
-      neuralAssistants: false,
-      neuralFunnels: false,
-      contentGeneration: false,
-      visuals: false,
-      audioVideoProcessing: false,
-      promptBases: false,
-      chatbotSetup: false,
-      neuralNetworkTraining: false,
+      selectedSpecializationIds: [],
       customSpecializations: []
     }
     formState.superpower = ''
     formState.abilities = {
-      funnelAssembly: false,
-      personalAIAssistants: false,
-      sellingTextsWithGPT: false,
-      visualGeneration: false,
-      reelsContentAI: false,
-      videoProcessing: false,
-      funnelAutomation: false,
-      promptBases: false,
-      trainingConsultations: false,
+      selectedSkillIds: [],
       customAbilities: []
     }
     formState.portfolio = []
-    formState.services.customServices = []
+    formState.services = {
+      selectedServiceIds: [],
+      serviceOptions: {},
+      customServices: []
+    }
     formState.experience = []
     formState.testimonials = {
       photos: []
@@ -657,6 +664,12 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     validationErrors,
     isLoading,
     isSaving,
+    
+    // Portfolio data
+    skills,
+    specializations,
+    services,
+    portfolioDataLoading,
 
     // Getters
     getCompletionPercentage,
@@ -672,6 +685,13 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     saveDraft,
     submitProfile,
     resetForm,
-    getBlockValidationStatus
+    getBlockValidationStatus,
+    
+    // Portfolio data actions
+    loadPortfolioData,
+    updateSpecializationSelection,
+    updateSkillSelection,
+    updateServiceSelection,
+    updateServiceOption
   }
 })

@@ -14,28 +14,31 @@
 
     <div class="space-y-4">
       <!-- Abilities Options Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div v-if="store.portfolioDataLoading" class="text-center py-8">
+        <div class="text-gray-500 dark:text-gray-400">Загрузка навыков...</div>
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label
-          v-for="ability in abilities"
-          :key="ability.key"
+          v-for="skill in store.skills"
+          :key="skill.id"
           class="relative flex items-start p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600': formState.abilities[ability.key] }"
+          :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600': isSkillSelected(skill.id) }"
         >
           <input
             type="checkbox"
-            :checked="formState.abilities[ability.key]"
-            @change="updateAbility(ability.key, ($event.target as HTMLInputElement).checked)"
+            :checked="isSkillSelected(skill.id)"
+            @change="updateAbility(skill.id, ($event.target as HTMLInputElement).checked)"
             class="sr-only"
           />
           <div class="flex items-start">
             <div
               class="flex-shrink-0 w-5 h-5 border-2 rounded transition-colors mt-0.5"
-              :class="formState.abilities[ability.key] 
+              :class="isSkillSelected(skill.id) 
                 ? 'bg-green-600 border-green-600' 
                 : 'border-gray-300 dark:border-gray-500'"
             >
               <svg
-                v-if="formState.abilities[ability.key]"
+                v-if="isSkillSelected(skill.id)"
                 class="w-3 h-3 text-white mx-auto mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -49,13 +52,13 @@
             </div>
             <div class="ml-3">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ ability.label }}
+                {{ skill.name }}
               </div>
-              <div v-if="ability.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {{ ability.description }}
+              <div v-if="skill.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {{ skill.description }}
               </div>
-              <div v-if="ability.tools" class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                Инструменты: {{ ability.tools.join(', ') }}
+              <div v-if="skill.tags && skill.tags.length > 0" class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                Инструменты: {{ skill.tags.join(', ') }}
               </div>
             </div>
           </div>
@@ -135,6 +138,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { NeuralNetworkFormState } from '@/types/neural-network-profile'
+import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
 
 interface Props {
   formState: NeuralNetworkFormState
@@ -148,79 +152,26 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const abilities = [
-  {
-    key: 'funnelAssembly',
-    label: 'Собираю нейроворонки (от лида до оплаты)',
-    description: 'Полный цикл автоматизации продаж с использованием ИИ',
-    tools: ['ChatGPT', 'Tilda', 'Telegram', 'AmoCRM']
-  },
-  {
-    key: 'personalAIAssistants',
-    label: 'Создаю персональных AI-ассистентов',
-    description: 'Разработка и настройка персонализированных AI-помощников',
-    tools: ['OpenAI API', 'Custom GPT', 'Zapier']
-  },
-  {
-    key: 'sellingTextsWithGPT',
-    label: 'Пишу продающие тексты с ChatGPT',
-    description: 'Создание эффективных продающих текстов через нейросети',
-    tools: ['ChatGPT', 'Claude', 'Jasper']
-  },
-  {
-    key: 'visualGeneration',
-    label: 'Генерирую визуалы в Midjourney/DALLE',
-    description: 'Создание качественных изображений через AI-генераторы',
-    tools: ['Midjourney', 'DALL-E', 'Stable Diffusion']
-  },
-  {
-    key: 'reelsContentAI',
-    label: 'Настраиваю Reels-контент с помощью AI',
-    description: 'Автоматизация создания контента для социальных сетей',
-    tools: ['RunwayML', 'Luma AI', 'CapCut']
-  },
-  {
-    key: 'videoProcessing',
-    label: 'Обрабатываю видео в нейросетях',
-    description: 'AI-обработка и монтаж видеоконтента',
-    tools: ['RunwayML', 'Topaz Video AI', 'Descript']
-  },
-  {
-    key: 'funnelAutomation',
-    label: 'Автоматизирую воронки с GPT + Tilda/Telegram',
-    description: 'Интеграция ИИ в воронки продаж и автоматизация процессов',
-    tools: ['GPT API', 'Tilda', 'Telegram Bot API', 'Make.com']
-  },
-  {
-    key: 'promptBases',
-    label: 'Делаю базы промптов под задачи клиента',
-    description: 'Создание коллекций эффективных промптов для бизнес-задач',
-    tools: ['Notion', 'Airtable', 'Custom solutions']
-  },
-  {
-    key: 'trainingConsultations',
-    label: 'Провожу обучение/консультации',
-    description: 'Персональные консультации и групповое обучение работе с ИИ',
-    tools: ['Zoom', 'Miro', 'Методические материалы']
-  }
-]
+const store = useNeuralNetworkProfileStore()
 
 const customAbilities = ref<{ value: string }[]>([])
 const validationError = ref('')
 
 const selectedCount = computed(() => {
-  return Object.values(props.formState.abilities).filter(value => 
-    typeof value === 'boolean' && value
-  ).length + (props.formState.abilities.customAbilities?.length || 0)
+  return props.formState.abilities.selectedSkillIds.length + (props.formState.abilities.customAbilities?.length || 0)
 })
+
+const isSkillSelected = (skillId: number): boolean => {
+  return props.formState.abilities.selectedSkillIds.includes(skillId)
+}
 
 // Initialize custom abilities from form state
 if (props.formState.abilities.customAbilities?.length) {
   customAbilities.value = props.formState.abilities.customAbilities.map(value => ({ value }))
 }
 
-const updateAbility = (key: string, checked: boolean) => {
-  emit('update', 'abilities', key, checked)
+const updateAbility = (skillId: number, checked: boolean) => {
+  store.updateSkillSelection(skillId, checked)
   validateBlock()
 }
 

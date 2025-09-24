@@ -19,19 +19,22 @@
           Популярные услуги нейросетевых специалистов
         </h4>
         
-        <div class="space-y-4">
+        <div v-if="store.portfolioDataLoading" class="text-center py-8">
+          <div class="text-gray-500 dark:text-gray-400">Загрузка услуг...</div>
+        </div>
+        <div v-else class="space-y-4">
           <div
-            v-for="(service, key) in predefinedServices"
-            :key="key"
+            v-for="service in store.services"
+            :key="service.id"
             class="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
-            :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600': service.selected }"
+            :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600': isServiceSelected(service.id) }"
           >
             <div class="flex items-start justify-between">
               <label class="flex items-start cursor-pointer flex-1">
                 <input
                   type="checkbox"
-                  :checked="service.selected"
-                  @change="updatePredefinedService(key, 'selected', ($event.target as HTMLInputElement).checked)"
+                  :checked="isServiceSelected(service.id)"
+                  @change="updateService(service.id, ($event.target as HTMLInputElement).checked)"
                   class="mt-1 mr-3"
                 />
                 <div class="flex-1">
@@ -42,21 +45,21 @@
                     {{ service.description }}
                   </div>
                   <div class="text-sm font-medium text-green-600 dark:text-green-400 mt-2">
-                    от {{ formatPrice(service.basePrice) }} руб
+                    {{ service.price }}
                   </div>
                 </div>
               </label>
             </div>
 
             <!-- Custom Price Input -->
-            <div v-if="service.selected" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="isServiceSelected(service.id)" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Ваша цена (руб)
                 </label>
                 <input
-                  :value="service.customPrice || service.basePrice"
-                  @input="updatePredefinedService(key, 'customPrice', parseInt(($event.target as HTMLInputElement).value) || service.basePrice)"
+                  :value="getServiceOption(service.id).customPrice || extractPrice(service.price)"
+                  @input="updateServiceOption(service.id, 'customPrice', parseInt(($event.target as HTMLInputElement).value) || extractPrice(service.price))"
                   type="number"
                   min="0"
                   step="1000"
@@ -68,8 +71,8 @@
                   Дополнительное описание
                 </label>
                 <input
-                  :value="service.description"
-                  @input="updatePredefinedService(key, 'description', ($event.target as HTMLInputElement).value)"
+                  :value="getServiceOption(service.id).customDescription || service.description"
+                  @input="updateServiceOption(service.id, 'customDescription', ($event.target as HTMLInputElement).value)"
                   type="text"
                   placeholder="Уточните особенности вашей услуги..."
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
@@ -225,6 +228,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { NeuralNetworkFormState, CustomService } from '@/types/neural-network-profile'
+import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
 
 interface Props {
   formState: NeuralNetworkFormState
@@ -238,26 +242,37 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const predefinedServices = computed(() => props.formState.services.predefinedServices)
+const store = useNeuralNetworkProfileStore()
+
 const customServices = computed(() => props.formState.services.customServices)
 
 const totalServices = computed(() => {
-  const selectedPredefined = Object.values(predefinedServices.value).filter(s => s.selected).length
+  const selectedServices = props.formState.services.selectedServiceIds.length
   const customCount = customServices.value.length
-  return selectedPredefined + customCount
+  return selectedServices + customCount
 })
 
-const updatePredefinedService = (serviceKey: string, field: string, value: any) => {
-  const updated = { ...predefinedServices.value }
-  ;(updated as any)[serviceKey] = { ...updated[serviceKey as keyof typeof updated], [field]: value }
-  
-  // Handle special case for negotiable price type
-  if (field === 'priceType' && value === 'negotiable') {
-    ;(updated as any)[serviceKey].price = 'По договоренности'
-  }
-  
-  emit('update', 'services', `predefinedServices.${serviceKey}`, (updated as any)[serviceKey])
+const isServiceSelected = (serviceId: number): boolean => {
+  return props.formState.services.selectedServiceIds.includes(serviceId)
+}
+
+const getServiceOption = (serviceId: number) => {
+  return props.formState.services.serviceOptions[serviceId] || { selected: false }
+}
+
+const updateService = (serviceId: number, selected: boolean) => {
+  store.updateServiceSelection(serviceId, selected)
   emit('validate', '5')
+}
+
+const updateServiceOption = (serviceId: number, option: 'customPrice' | 'customDescription', value: any) => {
+  store.updateServiceOption(serviceId, option, value)
+  emit('validate', '5')
+}
+
+const extractPrice = (priceString: string): number => {
+  const match = priceString.match(/\d+/)
+  return match ? parseInt(match[0]) : 0
 }
 
 const addCustomService = () => {

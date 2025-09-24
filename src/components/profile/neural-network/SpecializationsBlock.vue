@@ -14,28 +14,31 @@
 
     <div class="space-y-4">
       <!-- Specialization Options Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div v-if="store.portfolioDataLoading" class="text-center py-8">
+        <div class="text-gray-500 dark:text-gray-400">Загрузка специализаций...</div>
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label
-          v-for="specialization in specializations"
-          :key="specialization.key"
+          v-for="specialization in store.specializations"
+          :key="specialization.id"
           class="relative flex items-start p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600': formState.specializations[specialization.key] }"
+          :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600': isSpecializationSelected(specialization.id) }"
         >
           <input
             type="checkbox"
-            :checked="formState.specializations[specialization.key]"
-            @change="updateSpecialization(specialization.key, ($event.target as HTMLInputElement).checked)"
+            :checked="isSpecializationSelected(specialization.id)"
+            @change="updateSpecialization(specialization.id, ($event.target as HTMLInputElement).checked)"
             class="sr-only"
           />
           <div class="flex items-center">
             <div
               class="flex-shrink-0 w-5 h-5 border-2 rounded transition-colors"
-              :class="formState.specializations[specialization.key] 
+              :class="isSpecializationSelected(specialization.id) 
                 ? 'bg-blue-600 border-blue-600' 
                 : 'border-gray-300 dark:border-gray-500'"
             >
               <svg
-                v-if="formState.specializations[specialization.key]"
+                v-if="isSpecializationSelected(specialization.id)"
                 class="w-3 h-3 text-white mx-auto mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -49,7 +52,7 @@
             </div>
             <div class="ml-3">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ specialization.label }}
+                {{ specialization.name }}
               </div>
               <div v-if="specialization.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {{ specialization.description }}
@@ -114,6 +117,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { NeuralNetworkFormState } from '@/types/neural-network-profile'
+import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
 
 interface Props {
   formState: NeuralNetworkFormState
@@ -127,66 +131,27 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const specializations = [
-  {
-    key: 'neuralAssistants',
-    label: 'Нейроассистенты (AI-боты)',
-    description: 'Создание и настройка AI-ботов для автоматизации общения'
-  },
-  {
-    key: 'neuralFunnels',
-    label: 'Нейроворонки (продажи + автоматизация)',
-    description: 'Автоматизированные воронки продаж с использованием ИИ'
-  },
-  {
-    key: 'contentGeneration',
-    label: 'Контент с помощью нейросетей',
-    description: 'Генерация текстового контента через AI-инструменты'
-  },
-  {
-    key: 'visuals',
-    label: 'Визуалы (обложки, графика, Reels)',
-    description: 'Создание визуального контента с помощью нейросетей'
-  },
-  {
-    key: 'audioVideoProcessing',
-    label: 'Обработка аудио и видео',
-    description: 'AI-обработка мультимедийного контента'
-  },
-  {
-    key: 'promptBases',
-    label: 'Базы промптов',
-    description: 'Создание коллекций эффективных промптов'
-  },
-  {
-    key: 'chatbotSetup',
-    label: 'Настройка чат-ботов',
-    description: 'Разработка и внедрение чат-ботов для бизнеса'
-  },
-  {
-    key: 'neuralNetworkTraining',
-    label: 'Обучение других нейросетям',
-    description: 'Консультации и обучение работе с AI-инструментами'
-  }
-]
+const store = useNeuralNetworkProfileStore()
 
 const customSpecializations = ref<{ value: string }[]>([])
 const validationError = ref('')
 const maxSelections = 8
 
 const selectedCount = computed(() => {
-  return Object.values(props.formState.specializations).filter(value => 
-    typeof value === 'boolean' && value
-  ).length
+  return props.formState.specializations.selectedSpecializationIds.length
 })
+
+const isSpecializationSelected = (specializationId: number): boolean => {
+  return props.formState.specializations.selectedSpecializationIds.includes(specializationId)
+}
 
 // Initialize custom specializations from form state
 if (props.formState.specializations.customSpecializations?.length) {
   customSpecializations.value = props.formState.specializations.customSpecializations.map(value => ({ value }))
 }
 
-const updateSpecialization = (key: string, checked: boolean) => {
-  emit('update', 'specializations', key, checked)
+const updateSpecialization = (specializationId: number, checked: boolean) => {
+  store.updateSpecializationSelection(specializationId, checked)
   validateBlock()
 }
 
