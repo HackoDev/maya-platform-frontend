@@ -149,6 +149,7 @@ export class AuthApiClient extends BaseApiClient {
   private clientId: string
   private isRefreshing: boolean = false
   private refreshPromise: Promise<OAuth2TokenResponse> | null = null
+  private isLoggingOut: boolean = false
 
   constructor(
     baseURL?: string,
@@ -253,42 +254,66 @@ export class AuthApiClient extends BaseApiClient {
    * Logout and clear stored tokens
    */
   async logout(): Promise<void> {
+    // Prevent multiple simultaneous logout calls
+    if (this.isLoggingOut) {
+      console.log('🚪 [Logout] Already logging out, skipping...')
+      return
+    }
+    
+    this.isLoggingOut = true
+    console.log('🚪 [Logout] Starting logout process...')
+    
     try {
       // Revoke tokens on server using OAuth2 revoke endpoint
       const accessToken = this.tokenStorage.getToken()
       const refreshToken = this.tokenStorage.getRefreshToken()
       
+      console.log('🚪 [Logout] Has access token:', !!accessToken)
+      console.log('🚪 [Logout] Has refresh token:', !!refreshToken)
+      console.log('🚪 [Logout] Tokens are different:', accessToken !== refreshToken)
+      
       // Revoke access token if available
       if (accessToken) {
-        await this.post('/oauth2/revoke_token/', new URLSearchParams({
-          token: accessToken,
-          client_id: this.clientId,
-        }), {
-          headers: {
-            'Content-Type': CONTENT_TYPES.URL_ENCODED,
-          },
-        }).catch((error) => {
-          console.warn('Failed to revoke access token:', error)
-        })
+        console.log('🚪 [Logout] Revoking access token...')
+        try {
+          await this.post('/oauth2/revoke_token/', new URLSearchParams({
+            token: accessToken,
+            client_id: this.clientId,
+          }), {
+            headers: {
+              'Content-Type': CONTENT_TYPES.URL_ENCODED,
+            },
+          })
+          console.log('✅ [Logout] Access token revoked successfully')
+        } catch (error) {
+          console.warn('⚠️ [Logout] Failed to revoke access token:', error)
+        }
       }
       
       // Revoke refresh token if available and different from access token
       if (refreshToken && refreshToken !== accessToken) {
-        await this.post('/oauth2/revoke_token/', new URLSearchParams({
-          token: refreshToken,
-          client_id: this.clientId,
-        }), {
-          headers: {
-            'Content-Type': CONTENT_TYPES.URL_ENCODED,
-          },
-        }).catch((error) => {
-          console.warn('Failed to revoke refresh token:', error)
-        })
+        console.log('🚪 [Logout] Revoking refresh token...')
+        try {
+          await this.post('/oauth2/revoke_token/', new URLSearchParams({
+            token: refreshToken,
+            client_id: this.clientId,
+          }), {
+            headers: {
+              'Content-Type': CONTENT_TYPES.URL_ENCODED,
+            },
+          })
+          console.log('✅ [Logout] Refresh token revoked successfully')
+        } catch (error) {
+          console.warn('⚠️ [Logout] Failed to revoke refresh token:', error)
+        }
+      } else if (refreshToken && refreshToken === accessToken) {
+        console.log('ℹ️ [Logout] Refresh token same as access token, skipping separate revocation')
       }
     } catch (error) {
-      console.warn('Error during logout:', error)
+      console.warn('⚠️ [Logout] Error during token revocation:', error)
     } finally {
       // Clear stored tokens and user data
+      console.log('🧹 [Logout] Clearing stored tokens and user data...')
       this.tokenStorage.removeToken()
       this.tokenStorage.removeRefreshToken()
       this.tokenStorage.removeUser()
@@ -297,6 +322,10 @@ export class AuthApiClient extends BaseApiClient {
       const headers = this.getDefaultHeaders()
       delete headers['Authorization']
       this.setDefaultHeaders(headers)
+      console.log('✅ [Logout] Logout process completed')
+      
+      // Reset logout flag
+      this.isLoggingOut = false
     }
   }
 
@@ -306,24 +335,38 @@ export class AuthApiClient extends BaseApiClient {
   async refreshAccessToken(): Promise<OAuth2TokenResponse> {
     const refreshToken = this.tokenStorage.getRefreshToken()
     
+    console.log('🔄 [Token Refresh] Starting token refresh process...')
+    console.log('🔄 [Token Refresh] Has refresh token:', !!refreshToken)
+    console.log('🔄 [Token Refresh] Currently refreshing:', this.isRefreshing)
+    
     if (!refreshToken) {
+      console.error('❌ [Token Refresh] No refresh token available')
       throw new Error('No refresh token available')
     }
 
     // Prevent multiple simultaneous refresh requests
     if (this.isRefreshing && this.refreshPromise) {
+      console.log('🔄 [Token Refresh] Already refreshing, waiting for existing promise...')
       return this.refreshPromise
     }
 
+    console.log('🔄 [Token Refresh] Initiating new refresh request...')
     this.isRefreshing = true
     this.refreshPromise = this.performTokenRefresh(refreshToken)
 
     try {
       const response = await this.refreshPromise
+      console.log('✅ [Token Refresh] Token refresh successful')
+      console.log('✅ [Token Refresh] New access token received:', !!response.access_token)
+      console.log('✅ [Token Refresh] New refresh token received:', !!response.refresh_token)
       return response
+    } catch (error) {
+      console.error('❌ [Token Refresh] Token refresh failed:', error)
+      throw error
     } finally {
       this.isRefreshing = false
       this.refreshPromise = null
+      console.log('🔄 [Token Refresh] Refresh process completed, flags reset')
     }
   }
 
@@ -337,6 +380,15 @@ export class AuthApiClient extends BaseApiClient {
       client_id: this.clientId,
     }
 
+    console.log('🔄 [Token Refresh] Making refresh request to /oauth2/token/')
+    console.log('🔄 [Token Refresh] Client ID:', this.clientId)
+    console.log('🔄 [Token Refresh] Refresh token (first 10 chars):', refreshToken.substring(0, 10) + '...')
+    console.log('🔄 [Token Refresh] Request data:', { 
+      grant_type: refreshData.grant_type, 
+      client_id: refreshData.client_id,
+      refresh_token: refreshToken.substring(0, 10) + '...'
+    })
+
     try {
       const response = await this.post<OAuth2TokenResponse>(
         '/oauth2/token/',
@@ -349,13 +401,23 @@ export class AuthApiClient extends BaseApiClient {
         }
       )
 
+      console.log('✅ [Token Refresh] Refresh API call successful')
+      console.log('✅ [Token Refresh] Response status:', response.status)
+      console.log('✅ [Token Refresh] Has access token:', !!response.data.access_token)
+      console.log('✅ [Token Refresh] Has refresh token:', !!response.data.refresh_token)
+      console.log('✅ [Token Refresh] Has user data:', !!response.data.user)
+      console.log('✅ [Token Refresh] Token type:', response.data.token_type)
+      console.log('✅ [Token Refresh] Expires in:', response.data.expires_in, 'seconds')
+
       // Store new tokens and user data
       this.tokenStorage.setToken(response.data.access_token)
       if (response.data.refresh_token) {
         this.tokenStorage.setRefreshToken(response.data.refresh_token)
+        console.log('✅ [Token Refresh] New refresh token stored')
       }
       if (response.data.user) {
         this.tokenStorage.setUser(response.data.user)
+        console.log('✅ [Token Refresh] User data updated')
       }
 
       // Update default headers with new token
@@ -363,15 +425,57 @@ export class AuthApiClient extends BaseApiClient {
         ...this.getDefaultHeaders(),
         'Authorization': `Bearer ${response.data.access_token}`,
       })
+      console.log('✅ [Token Refresh] Authorization header updated')
 
       return response.data
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ [Token Refresh] Refresh API call failed')
+      console.error('❌ [Token Refresh] Error status:', error.status)
+      console.error('❌ [Token Refresh] Error message:', error.message)
+      console.error('❌ [Token Refresh] Error data:', error.data)
+      console.error('❌ [Token Refresh] Full error:', error)
+      
       // If refresh fails, clear all tokens and user data
+      console.log('🧹 [Token Refresh] Clearing all stored tokens due to refresh failure')
       this.tokenStorage.removeToken()
       this.tokenStorage.removeRefreshToken()
       this.tokenStorage.removeUser()
+      
+      // Remove authorization header
+      const headers = this.getDefaultHeaders()
+      delete headers['Authorization']
+      this.setDefaultHeaders(headers)
+      console.log('🧹 [Token Refresh] Authorization header removed')
+      
       throw error
     }
+  }
+
+  /**
+   * Retry a request with fresh token in headers
+   */
+  private async retryWithFreshToken(originalMethod: Function, args: any[], freshToken: string | null): Promise<any> {
+    if (!freshToken) {
+      throw new Error('No fresh token available for retry')
+    }
+
+    // Extract the original arguments
+    const [url, dataOrParams, config] = args
+    
+    // Create new config with fresh token in Authorization header
+    const retryConfig = {
+      ...config,
+      headers: {
+        ...config?.headers,
+        'Authorization': `Bearer ${freshToken}`,
+      },
+    }
+
+    console.log('🔄 [Retry] Retrying with fresh token in headers')
+    console.log('🔄 [Retry] Fresh token (first 10 chars):', freshToken.substring(0, 10) + '...')
+    
+    // Call the original method with updated config
+    return await originalMethod(url, dataOrParams, retryConfig)
   }
 
   /**
@@ -390,17 +494,36 @@ export class AuthApiClient extends BaseApiClient {
       try {
         return await originalMethod(...args)
       } catch (error: any) {
+        console.log('🔍 [401 Handler] Request failed with status:', error.status)
+        console.log('🔍 [401 Handler] Error message:', error.message)
+        console.log('🔍 [401 Handler] Has refresh token:', !!this.tokenStorage.getRefreshToken())
+        
         // If we get a 401 and have a refresh token, try to refresh
         if (error.status === 401 && this.tokenStorage.getRefreshToken()) {
+          console.log('🔄 [401 Handler] 401 detected, attempting token refresh...')
           try {
             await this.refreshAccessToken()
-            // Retry the original request with new token
-            return await originalMethod(...args)
-          } catch (refreshError) {
+            console.log('✅ [401 Handler] Token refresh successful, retrying original request...')
+            
+            // Get the fresh token for the retry
+            const freshToken = this.getAccessToken()
+            console.log('🔄 [401 Handler] Fresh token for retry:', freshToken ? freshToken.substring(0, 10) + '...' : 'none')
+            
+            // Retry the original request with fresh token in headers
+            const retryResult = await this.retryWithFreshToken(originalMethod, args, freshToken)
+            console.log('✅ [401 Handler] Original request retry successful')
+            return retryResult
+          } catch (refreshError: any) {
+            console.error('❌ [401 Handler] Token refresh failed:', refreshError)
+            console.error('❌ [401 Handler] Refresh error status:', refreshError.status)
+            console.error('❌ [401 Handler] Refresh error message:', refreshError.message)
+            console.log('🧹 [401 Handler] Logging out due to refresh failure...')
             // If refresh fails, logout and rethrow original error
             await this.logout()
             throw error
           }
+        } else if (error.status === 401) {
+          console.log('⚠️ [401 Handler] 401 detected but no refresh token available')
         }
         throw error
       }
@@ -439,7 +562,12 @@ export class AuthApiClient extends BaseApiClient {
   ): Promise<T> {
     const token = this.getAccessToken()
     
+    console.log(`🔐 [Auth Request] ${method} ${url}`)
+    console.log('🔐 [Auth Request] Has access token:', !!token)
+    console.log('🔐 [Auth Request] Token (first 10 chars):', token ? token.substring(0, 10) + '...' : 'none')
+    
     if (!token) {
+      console.error('❌ [Auth Request] No access token available')
       throw new Error('No access token available. Please login first.')
     }
 
@@ -493,6 +621,7 @@ export class AuthApiClient extends BaseApiClient {
         break
     }
 
+    console.log(`✅ [Auth Request] ${method} ${url} completed successfully`)
     return response.data
   }
 
@@ -502,14 +631,20 @@ export class AuthApiClient extends BaseApiClient {
   initializeWithStoredToken(): boolean {
     const token = this.tokenStorage.getToken()
     
+    console.log('🚀 [Auth Init] Initializing with stored token...')
+    console.log('🚀 [Auth Init] Has stored token:', !!token)
+    console.log('🚀 [Auth Init] Token (first 10 chars):', token ? token.substring(0, 10) + '...' : 'none')
+    
     if (token) {
       this.setDefaultHeaders({
         ...this.getDefaultHeaders(),
         'Authorization': `Bearer ${token}`,
       })
+      console.log('✅ [Auth Init] Authorization header set from stored token')
       return true
     }
     
+    console.log('ℹ️ [Auth Init] No stored token found')
     return false
   }
 
