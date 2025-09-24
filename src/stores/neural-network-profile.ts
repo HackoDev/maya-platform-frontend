@@ -7,6 +7,7 @@ import type {
 } from '@/types/neural-network-profile'
 import { portfoliosApi } from '@/services/portfoliosApiClient'
 import type { Skill, Specialization, Service } from '@/types/portfolio'
+import { useUserStore } from '@/stores/user'
 
 export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', () => {
   // State
@@ -44,10 +45,8 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       photos: []
     },
     contacts: {
-      phone: '',
-      telegram: undefined,
-      whatsapp: undefined,
-      instagram: undefined
+      useUserContacts: true,
+      overrideContacts: undefined
     },
 
     // Form state
@@ -284,18 +283,14 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       },
       contacts: {
         title: 'Как тебе можно написать?',
-        description: 'Укажите удобные способы связи',
+        description: 'Контактная информация из настроек профиля',
         data: {
-          phone: '',
-          telegram: undefined,
-          whatsapp: undefined,
-          instagram: undefined
+          useUserContacts: true,
+          overrideContacts: undefined
         },
         validation: {
           required: true,
-          atLeastOne: ['phone'],
-          telegramFormat: true,
-          instagramFormat: true
+          hasAtLeastOneContact: true
         }
       }
     }
@@ -489,38 +484,32 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
 
   const validateContacts = (): ValidationError[] => {
     const errors: ValidationError[] = []
-    const data = formState.contacts
 
-    // Phone is required as primary contact
-    const hasPhone = !!data.phone && data.phone.trim().length > 0
+    // Check if user has at least one contact method
+    const userStore = useUserStore()
+    const user = userStore.currentUser
     
-    if (!hasPhone) {
+    if (!user) {
       errors.push({
         blockId: '8',
         fieldId: 'contacts',
-        errorMessage: 'Укажите номер телефона',
+        errorMessage: 'Пользователь не авторизован',
         errorType: 'required'
       })
-    }
-    // Email and website removed from model
-
-    // Validate telegram format
-    if (data.telegram && !isValidTelegram(data.telegram)) {
-      errors.push({
-        blockId: '8',
-        fieldId: 'telegram',
-        errorMessage: 'Telegram должен начинаться с @',
-        errorType: 'format'
-      })
+      return errors
     }
 
-    // Validate instagram format
-    if (data.instagram && !isValidInstagram(data.instagram)) {
+    // Check if user has at least one contact method
+    const hasPhone = !!(user.phone && user.phone.trim().length > 0)
+    const hasWhatsapp = !!(user.whatsapp && user.whatsapp.trim().length > 0)
+    const hasTelegram = !!(user.telegram && user.telegram.trim().length > 0)
+    
+    if (!hasPhone && !hasWhatsapp && !hasTelegram) {
       errors.push({
         blockId: '8',
-        fieldId: 'instagram',
-        errorMessage: 'Instagram должен быть @username или URL',
-        errorType: 'format'
+        fieldId: 'contacts',
+        errorMessage: 'Укажите хотя бы один способ связи в настройках профиля',
+        errorType: 'required'
       })
     }
 
@@ -568,10 +557,8 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
       photos: []
     }
     formState.contacts = {
-      phone: '',
-      telegram: undefined,
-      whatsapp: undefined,
-      instagram: undefined
+      useUserContacts: true,
+      overrideContacts: undefined
     }
     formState.currentBlock = 1
     formState.completedBlocks.clear()
@@ -646,16 +633,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
 
   // Utility functions
 
-  const isValidTelegram = (telegram: string): boolean => {
-    return telegram.startsWith('@') && telegram.length > 1
-  }
-
-  const isValidInstagram = (instagram: string): boolean => {
-    // Accept @username format or full Instagram URL
-    const usernameRegex = /^@[a-zA-Z0-9._]{1,30}$/
-    const urlRegex = /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]{1,30}\/?$/
-    return usernameRegex.test(instagram) || urlRegex.test(instagram)
-  }
+  // Contact validation functions removed - contacts are now read-only from user profile
 
   return {
     // State

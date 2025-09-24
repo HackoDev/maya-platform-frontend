@@ -162,18 +162,22 @@ export interface TestimonialsBlock {
 // Block 8: Contacts
 export interface ContactsBlock {
   title: 'Как тебе можно написать?'
-  description: 'Укажите удобные способы связи'
+  description: 'Контактная информация из настроек профиля'
   data: {
-    phone: string // Телефон (обязательно)
-    telegram?: string // Telegram: @username (опционально)
-    whatsapp?: string // WhatsApp (опционально)
-    instagram?: string // Instagram: @username или URL (опционально)
+    // Contacts are now read-only and pulled from user profile
+    useUserContacts: true
+    // Optional: allow overriding specific contacts for the profile
+    overrideContacts?: {
+      phone?: string
+      telegram?: string
+      whatsapp?: string
+      instagram?: string
+    }
   }
   validation: {
     required: true
-    atLeastOne: ['phone']
-    telegramFormat: true
-    instagramFormat: true
+    // Validation now checks if user has at least one contact method
+    hasAtLeastOneContact: true
   }
 }
 
