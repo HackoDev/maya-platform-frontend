@@ -54,41 +54,6 @@
           </div>
         </form>
 
-        <!-- Predefined User Profiles -->
-        <div class="mt-8">
-          <div class="relative">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                Или войдите как
-              </span>
-            </div>
-          </div>
-
-          <div class="mt-6 grid grid-cols-1 gap-3">
-            <button
-              @click="loginAsSpecialist"
-              type="button"
-              class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800"
-            >
-              <span>Специалист</span>
-              <span class="ml-2 text-xs bg-green-800 dark:bg-green-900 px-2 py-1 rounded"
-                >Тест</span
-              >
-            </button>
-
-            <button
-              @click="loginAsClient"
-              type="button"
-              class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
-            >
-              <span>Клиент</span>
-              <span class="ml-2 text-xs bg-blue-800 dark:bg-blue-900 px-2 py-1 rounded">Тест</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -128,47 +93,4 @@ const handleSubmit = async () => {
   }
 }
 
-// Predefined login methods for testing
-const loginAsSpecialist = async () => {
-  try {
-    const success = await session.login('specialist@example.com', 'password')
-    if (success) {
-      // Update user type to specialist
-      if (session.currentUser.value) {
-        session.currentUser.value.userType = 'specialist'
-        session.currentUser.value.firstName = 'Евгений '
-        session.currentUser.value.isOpenToOffers = true
-        session.currentUser.value.avatar =
-          'https://ca.slack-edge.com/TCPCGHZRN-U085RMHDTRR-be74a12f2553-512'
-        session.currentUser.value.lastName = 'Хацко'
-        session.currentUser.value.name = 'Евгений Хацко'
-      }
-      handleRedirect()
-    }
-  } catch (error) {
-    console.error('Specialist login failed:', error)
-  }
-}
-
-const loginAsClient = async () => {
-  try {
-    const success = await session.login('client@example.com', 'password')
-    if (success) {
-      // Update user type to client
-      if (session.currentUser.value) {
-        session.currentUser.value.avatar =
-          'https://optim.tildacdn.com/tild6334-3932-4163-b563-373933393264/-/resize/240x/-/format/webp/image_162.png.webp'
-        session.currentUser.value.userType = 'client'
-        session.currentUser.value.isOpenToOffers = true
-        session.currentUser.value.firstName = 'Майя'
-        session.currentUser.value.lastName = 'Галицкая'
-        session.currentUser.value.name =
-          session.currentUser.value.firstName + ' ' + session.currentUser.value.lastName
-      }
-      handleRedirect()
-    }
-  } catch (error) {
-    console.error('Client login failed:', error)
-  }
-}
 </script>
