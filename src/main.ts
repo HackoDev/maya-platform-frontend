@@ -7,6 +7,7 @@ import App from './App.vue'
 import router from './router'
 import { useThemeStore } from './stores/theme'
 import { useGlobalSession } from './composables/useSession'
+import { usePortfolioCatalogStore } from './stores/portfolio-catalog'
 
 const app = createApp(App)
 
@@ -16,6 +17,7 @@ app.use(router)
 // Initialize stores
 const themeStore = useThemeStore()
 const session = useGlobalSession()
+const portfolioCatalog = usePortfolioCatalogStore()
 
 // Initialize theme system
 themeStore.initializeTheme()
@@ -35,6 +37,9 @@ const initializeApp = async () => {
       console.log('ℹ️ No stored session found, user needs to login')
     }
     
+    // Preload portfolio catalog (skills, specializations, services)
+    await portfolioCatalog.initialize()
+
     // Mount the app
     app.mount('#app')
     

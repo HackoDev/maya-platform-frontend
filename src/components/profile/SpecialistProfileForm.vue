@@ -82,11 +82,7 @@
         </BaseButton>
       </div>
 
-      <NeuralNetworkQuestionnaireForm
-        :initial-data="neuralNetworkInitialData"
-        @submit="handleNeuralNetworkSubmit"
-        @save-draft="handleNeuralNetworkDraft"
-      />
+      <NeuralNetworkProfileWrapper />
     </div>
 
     <!-- Original Standard Form Content -->
@@ -224,7 +220,7 @@ import { useSpecialistStore } from '@/stores/specialist'
 import { UserIcon, CpuChipIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
-import NeuralNetworkQuestionnaireForm from './neural-network/NeuralNetworkQuestionnaireForm.vue'
+import NeuralNetworkProfileWrapper from './NeuralNetworkProfileWrapper.vue'
 
 // Form sections
 import PersonalInfoSection from './PersonalInfoSection.vue'

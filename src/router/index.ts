@@ -12,7 +12,8 @@ const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
 const SupportPage = () => import('@/pages/SupportPage.vue')
 const SupportTicketDialogPage = () => import('@/pages/SupportTicketDialogPage.vue')
 const NeuralNetworkProfilePage = () => import('@/pages/NeuralNetworkProfilePage.vue')
-const SpecialistProfileViewPage = () => import('@/pages/SpecialistProfileViewPage.vue')
+const NeuralNetworkProfileSimplePage = () => import('@/pages/NeuralNetworkProfileSimplePage.vue')
+const SpecialistProfileViewSimplePage = () => import('@/pages/SpecialistProfileViewSimplePage.vue')
 const MyVacanciesPage = () => import('@/pages/MyVacanciesPage.vue')
 const AllVacanciesPage = () => import('@/pages/AllVacanciesPage.vue')
 const VacancyDetailPage = () => import('@/pages/VacancyDetailPage.vue')
@@ -62,6 +63,17 @@ const routes: RouteRecordRaw[] = [
     component: NeuralNetworkProfilePage,
     meta: {
       title: 'Анкета специалиста',
+      requiresAuth: true,
+      clientDenied: true,
+    },
+  },
+  
+  {
+    path: '/profile/neural-network-simple',
+    name: 'NeuralNetworkProfileSimple',
+    component: NeuralNetworkProfileSimplePage,
+    meta: {
+      title: 'Анкета специалиста (простая версия)',
       requiresAuth: true,
       clientDenied: true,
     },
@@ -124,7 +136,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/specialist/:id',
     name: 'SpecialistProfile',
-    component: SpecialistProfileViewPage,
+    component: SpecialistProfileViewSimplePage,
     props: true,
     meta: {
       title: 'Профиль специалиста',
@@ -133,6 +145,7 @@ const routes: RouteRecordRaw[] = [
       fallbackRedirect: 'NeuralNetworkProfile'
     },
   },
+  
   {
     path: '/support',
     name: 'Support',

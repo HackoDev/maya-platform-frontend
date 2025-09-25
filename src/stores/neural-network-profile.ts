@@ -5,9 +5,10 @@ import type {
   NeuralNetworkFormState,
   ValidationError
 } from '@/types/neural-network-profile'
-import { portfoliosApi } from '@/services/portfoliosApiClient'
+// import { portfoliosApi } from '@/services/portfoliosApiClient'
 import type { Skill, Specialization, Service } from '@/types/portfolio'
 import { useUserStore } from '@/stores/user'
+import { usePortfolioCatalogStore } from '@/stores/portfolio-catalog'
 
 export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', () => {
   // State
@@ -16,11 +17,12 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
   const isSaving = ref(false)
   const validationErrors = ref<ValidationError[]>([])
 
-  // Portfolio data from API
-  const skills = ref<Skill[]>([])
-  const specializations = ref<Specialization[]>([])
-  const services = ref<Service[]>([])
-  const portfolioDataLoading = ref(false)
+  // Portfolio data from global catalog
+  const catalog = usePortfolioCatalogStore()
+  const skills = computed<Skill[]>(() => catalog.skills)
+  const specializations = computed<Specialization[]>(() => catalog.specializations)
+  const services = computed<Service[]>(() => catalog.services)
+  const portfolioDataLoading = computed<boolean>(() => catalog.isLoading)
 
   // Form state
   const formState = reactive<NeuralNetworkFormState>({
@@ -80,27 +82,10 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfile', 
     return requiredBlocks.every(blockId => formState.completedBlocks.has(blockId))
   })
 
-  // Portfolio data loading
+  // Portfolio data loading (ensure global catalog is ready)
   const loadPortfolioData = async () => {
-    portfolioDataLoading.value = true
-    try {
-      const [skillsResponse, specializationsResponse, servicesResponse] = await Promise.all([
-        portfoliosApi.getSkills({ limit: 100 }),
-        portfoliosApi.getSpecializations({ limit: 100 }),
-        portfoliosApi.getServices({ limit: 100 })
-      ])
-      
-      skills.value = skillsResponse.skills
-      specializations.value = specializationsResponse.specializations
-      services.value = servicesResponse.services
-    } catch (error) {
-      console.error('Error loading portfolio data:', error)
-      // Set empty arrays as fallback
-      skills.value = []
-      specializations.value = []
-      services.value = []
-    } finally {
-      portfolioDataLoading.value = false
+    if (!catalog.isInitialized) {
+      await catalog.initialize()
     }
   }
 
