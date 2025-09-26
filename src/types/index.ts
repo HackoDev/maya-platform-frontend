@@ -11,6 +11,7 @@ export interface User {
   userType: string
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
+  portfolioStatus?: 'published' | 'draft' | 'archived' | null // Backend-driven portfolio status
   uiTheme?: string | null  // User's preferred UI theme
   // Contact information
   phone: string | null

@@ -127,8 +127,8 @@
                 <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
                   Анкета специалиста
                 </h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {{ moderationStatusConfig.text }}. Заполнено {{ questionnaireCompletion }}%. Улучшите свою анкету.
+                <p class="mt-2 text-sm" :class="portfolioStatusBadge.classes">
+                  {{ portfolioStatusBadge.text }}
                 </p>
               </div>
               <CpuChipIcon class="h-6 w-6 text-purple-600 dark:text-purple-400 flex-shrink-0" />
@@ -316,53 +316,40 @@ const userInitials = computed(() => {
 })
 
 // Computed properties for questionnaire status
-const questionnaireStatus = computed(() => {
-  const profile = neuralNetworkStore.currentProfile
-  return profile?.status || 'draft'
+// Portfolio status (from user model for specialists)
+const portfolioStatus = computed(() => {
+  if (userStore.currentUser?.userType !== 'specialist') return null
+  return userStore.currentUser?.portfolioStatus ?? null
 })
 
-const questionnaireCompletion = computed(() => {
-  return neuralNetworkStore.getCompletionPercentage
+const portfolioStatusBadge = computed(() => {
+  const status = portfolioStatus.value
+  if (status === 'published') {
+    return {
+      text: 'Статус анкеты: опубликована',
+      classes: 'text-green-700 dark:text-green-400'
+    }
+  }
+  if (status === 'draft') {
+    return {
+      text: 'Статус анкеты: черновик',
+      classes: 'text-yellow-700 dark:text-yellow-400'
+    }
+  }
+  if (status === 'archived') {
+    return {
+      text: 'Статус анкеты: архивирована',
+      classes: 'text-red-700 dark:text-red-400'
+    }
+  }
+  return {
+    text: 'Статус анкеты: не создана',
+    classes: 'text-red-700 dark:text-red-400'
+  }
 })
 
 // Removed unused questionnaireActionText
 
-// Moderation status styling
-const moderationStatusConfig = computed(() => {
-  const status = questionnaireStatus.value
-  switch (status) {
-    case 'draft':
-      return {
-        text: 'Черновик',
-        classes: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
-        icon: '✏️'
-      }
-    case 'pending':
-      return {
-        text: 'На модерации',
-        classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-        icon: '⏳'
-      }
-    case 'approved':
-      return {
-        text: 'Одобрено',
-        classes: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-        icon: '✅'
-      }
-    case 'rejected':
-      return {
-        text: 'Отклонено',
-        classes: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-        icon: '❌'
-      }
-    default:
-      return {
-        text: 'Черновик',
-        classes: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
-        icon: '✏️'
-      }
-  }
-})
 
 const handleLogout = async () => {
   await userStore.logoutWithRedirect('/login')
