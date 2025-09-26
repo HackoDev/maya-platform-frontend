@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { VacancyApiClient } from '../vacancyApiClient'
-import type { ApiVacancy, ApiVacancyListResponse } from '@/types/vacancy'
+import type { ApiVacancy, ApiVacancyListResponse } from '../../types/vacancy'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -27,18 +27,19 @@ describe('VacancyApiClient', () => {
         id: 'test-id',
         title: 'Test Vacancy',
         description: 'Test Description',
-        is_active: true,
+        isActive: true,
         author: {
+          id: '1',
           email: 'test@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
+          firstName: 'John',
+          lastName: 'Doe',
           avatar: '/avatar.jpg',
           whatsapp: '+1234567890',
           phone: '+1234567890',
           telegram: 'johndoe'
         },
-        created_timestamp: '2023-01-01T00:00:00Z',
-        updated_timestamp: '2023-01-01T00:00:00Z'
+        createdTimestamp: '2023-01-01T00:00:00Z',
+        updatedTimestamp: '2023-01-01T00:00:00Z'
       }
 
       // Access private method through type assertion for testing
@@ -48,7 +49,6 @@ describe('VacancyApiClient', () => {
         id: 'test-id',
         title: 'Test Vacancy',
         description: 'Test Description',
-        status: 'published', // is_active: true should map to 'published'
         createdAt: '2023-01-01T00:00:00Z',
         updatedAt: '2023-01-01T00:00:00Z',
         clientId: 'test@example.com',
@@ -59,27 +59,28 @@ describe('VacancyApiClient', () => {
       })
     })
 
-    it('should map is_active: false to draft status', () => {
+    it('should handle isActive: false correctly', () => {
       const apiVacancy: ApiVacancy = {
         id: 'test-id',
         title: 'Test Vacancy',
         description: 'Test Description',
-        is_active: false,
+        isActive: false,
         author: {
+          id: '1',
           email: 'test@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
+          firstName: 'John',
+          lastName: 'Doe',
           avatar: '/avatar.jpg',
           whatsapp: '+1234567890',
           phone: '+1234567890',
           telegram: 'johndoe'
         },
-        created_timestamp: '2023-01-01T00:00:00Z',
-        updated_timestamp: '2023-01-01T00:00:00Z'
+        createdTimestamp: '2023-01-01T00:00:00Z',
+        updatedTimestamp: '2023-01-01T00:00:00Z'
       }
 
       const converted = (client as any).convertApiVacancyToVacancy(apiVacancy)
-      expect(converted.status).toBe('draft')
+      expect(converted.isActive).toBe(false)
     })
   })
 
@@ -96,15 +97,15 @@ describe('VacancyApiClient', () => {
       expect(converted).toEqual({
         title: 'Test Vacancy',
         description: 'Test Description',
-        is_active: true
+        isActive: true
       })
     })
 
-    it('should map status to is_active correctly', () => {
+    it('should handle isActive correctly', () => {
       const vacancy = {
         title: 'Test Vacancy',
         description: 'Test Description',
-        status: 'published' as const
+        isActive: false
       }
 
       const converted = (client as any).convertVacancyToApiFormat(vacancy)
@@ -112,56 +113,49 @@ describe('VacancyApiClient', () => {
       expect(converted).toEqual({
         title: 'Test Vacancy',
         description: 'Test Description',
-        is_active: true
+        isActive: false
       })
     })
   })
 
   describe('getVacancies', () => {
     it('should call the correct endpoint with parameters', async () => {
-      // Mock the base client's get method instead of fetch directly
-      const mockGet = vi.spyOn(client, 'get').mockResolvedValueOnce({
-        data: {
-          items: [
-            {
-              id: 'test-id',
-              title: 'Test Vacancy',
-              description: 'Test Description',
-              is_active: true,
-              author: {
-                email: 'test@example.com',
-                first_name: 'John',
-                last_name: 'Doe',
-                avatar: '/avatar.jpg',
-                whatsapp: '+1234567890',
-                phone: '+1234567890',
-                telegram: 'johndoe'
-              },
-              created_timestamp: '2023-01-01T00:00:00Z',
-              updated_timestamp: '2023-01-01T00:00:00Z'
-            }
-          ],
-          count: 1
-        },
-        status: 200,
-        statusText: 'OK',
-        headers: {}
-      })
+      const mockResponse = {
+        items: [
+          {
+            id: 'test-id',
+            title: 'Test Vacancy',
+            description: 'Test Description',
+            isActive: true,
+            author: {
+              id: '1',
+              email: 'test@example.com',
+              firstName: 'John',
+              lastName: 'Doe',
+              avatar: '/avatar.jpg',
+              whatsapp: '+1234567890',
+              phone: '+1234567890',
+              telegram: 'johndoe'
+            },
+            createdTimestamp: '2023-01-01T00:00:00Z',
+            updatedTimestamp: '2023-01-01T00:00:00Z'
+          }
+        ],
+        count: 1
+      }
+
+      const mockGet = vi.spyOn(client, 'authenticatedRequest').mockResolvedValueOnce(mockResponse)
 
       const result = await client.getVacancies({ limit: 10, offset: 0 })
 
-      expect(mockGet).toHaveBeenCalledWith('/api/web/vacancies', { limit: 10, offset: 0 }, expect.objectContaining({
-        headers: expect.objectContaining({
-          'Authorization': 'Bearer mock-token'
-        })
-      }))
+      expect(mockGet).toHaveBeenCalledWith('GET', '/api/web/vacancies', { limit: 10, offset: 0 })
 
       expect(result).toEqual({
         vacancies: expect.arrayContaining([
           expect.objectContaining({
             id: 'test-id',
             title: 'Test Vacancy',
-            status: 'published'
+            isActive: true
           })
         ]),
         page: 1,
@@ -174,32 +168,92 @@ describe('VacancyApiClient', () => {
     })
   })
 
+  describe('getRandomVacancies', () => {
+    it('should fetch random vacancies from the correct endpoint', async () => {
+      const mockResponse: ApiVacancy[] = [
+        {
+          id: 'random-1',
+          title: 'Random Vacancy 1',
+          description: 'Random Description 1',
+          isActive: true,
+          author: {
+            id: '1',
+            email: 'test@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            avatar: '/avatar.jpg',
+            whatsapp: '+1234567890',
+            phone: '+1234567890',
+            telegram: 'johndoe'
+          },
+          createdTimestamp: '2023-01-01T00:00:00Z',
+          updatedTimestamp: '2023-01-01T00:00:00Z'
+        },
+        {
+          id: 'random-2',
+          title: 'Random Vacancy 2',
+          description: 'Random Description 2',
+          isActive: true,
+          author: {
+            id: '2',
+            email: 'test2@example.com',
+            firstName: 'Jane',
+            lastName: 'Smith',
+            avatar: '/avatar2.jpg',
+            whatsapp: '+1234567891',
+            phone: '+1234567891',
+            telegram: 'janesmith'
+          },
+          createdTimestamp: '2023-01-02T00:00:00Z',
+          updatedTimestamp: '2023-01-02T00:00:00Z'
+        }
+      ]
+
+      const mockGet = vi.spyOn(client, 'authenticatedRequest').mockResolvedValueOnce(mockResponse)
+
+      const result = await client.getRandomVacancies()
+
+      expect(mockGet).toHaveBeenCalledWith('GET', '/api/web/vacancies/random')
+      expect(result).toHaveLength(2)
+      expect(result[0]).toEqual(expect.objectContaining({
+        id: 'random-1',
+        title: 'Random Vacancy 1',
+        clientId: 'test@example.com',
+        clientName: 'John Doe'
+      }))
+      expect(result[1]).toEqual(expect.objectContaining({
+        id: 'random-2',
+        title: 'Random Vacancy 2',
+        clientId: 'test2@example.com',
+        clientName: 'Jane Smith'
+      }))
+
+      mockGet.mockRestore()
+    })
+  })
+
   describe('createVacancy', () => {
     it('should create vacancy with correct data', async () => {
       const mockResponse: ApiVacancy = {
         id: 'new-id',
         title: 'New Vacancy',
         description: 'New Description',
-        is_active: true,
+        isActive: true,
         author: {
+          id: '1',
           email: 'test@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
+          firstName: 'John',
+          lastName: 'Doe',
           avatar: '/avatar.jpg',
           whatsapp: '+1234567890',
           phone: '+1234567890',
           telegram: 'johndoe'
         },
-        created_timestamp: '2023-01-01T00:00:00Z',
-        updated_timestamp: '2023-01-01T00:00:00Z'
+        createdTimestamp: '2023-01-01T00:00:00Z',
+        updatedTimestamp: '2023-01-01T00:00:00Z'
       }
 
-      const mockPost = vi.spyOn(client, 'post').mockResolvedValueOnce({
-        data: mockResponse,
-        status: 200,
-        statusText: 'OK',
-        headers: {}
-      })
+      const mockPost = vi.spyOn(client, 'authenticatedRequest').mockResolvedValueOnce(mockResponse)
 
       const vacancyData = {
         title: 'New Vacancy',
@@ -210,16 +264,16 @@ describe('VacancyApiClient', () => {
       const result = await client.createVacancy(vacancyData)
 
       expect(mockPost).toHaveBeenCalledWith(
+        'POST',
         '/api/web/vacancies',
         {
           title: 'New Vacancy',
           description: 'New Description',
-          is_active: true
+          isActive: true
         },
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer mock-token'
+            'Content-Type': 'application/json'
           })
         })
       )
@@ -227,7 +281,7 @@ describe('VacancyApiClient', () => {
       expect(result).toEqual(expect.objectContaining({
         id: 'new-id',
         title: 'New Vacancy',
-        status: 'published'
+        isActive: true
       }))
 
       mockPost.mockRestore()

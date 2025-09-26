@@ -97,8 +97,8 @@
       </div>
 
       <!-- Custom Services -->
-      <div class="custom-services">
-        <h3>Дополнительные услуги</h3>
+      <div class="custom-services mt-8">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Дополнительные услуги</h3>
         
         <div v-if="customServices.length > 0" class="space-y-4 mb-4">
           <div
@@ -176,9 +176,7 @@
                 <input
                   v-if="service.priceType !== 'negotiable'"
                   v-model="service.price"
-                  type="number"
-                  min="0"
-                  step="100"
+                  type="text"
                   class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
                   @input="updateCustomServices"
                 />
@@ -200,7 +198,7 @@
 
         <button
           @click="addCustomService"
-          class="inline-flex items-center px-4 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          class="inline-flex items-center px-4 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 mt-4"
           type="button"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +209,7 @@
       </div>
 
       <!-- Services Summary -->
-      <div v-if="totalServices > 0" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+      <div v-if="totalServices > 0" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg mt-8">
         <h4 class="text-sm font-medium text-green-900 dark:text-green-200 mb-2">
           📋 Итого услуг: {{ totalServices }}
         </h4>
@@ -221,7 +219,7 @@
       </div>
 
       <!-- Tips -->
-      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mt-6">
         <h4 class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
           💡 Советы по ценообразованию:
         </h4>
@@ -234,14 +232,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
@@ -268,84 +258,94 @@ const availableServices = computed(() => store.availableServices)
 const dataLoading = computed(() => store.dataLoading)
 
 const customServices = computed({
-  get: () => props.profile?.services || [],
-  set: (value) => emit('update', { services: value })
+  get: () => props.profile?.customServices || [],
+  set: (value) => emit('update', { customServices: value })
 })
 
 const totalServices = computed(() => {
   const selectedCount = props.profile?.services?.length || 0
-  return selectedCount
+  const customCount = props.profile?.customServices?.length || 0
+  return selectedCount + customCount
 })
 
 const isServiceSelected = (serviceId: number) => {
   if (!props.profile?.services) return false
-  return props.profile.services.some(service => service.id === serviceId.toString())
+  return props.profile.services.includes(serviceId)
 }
 
 const toggleService = (serviceId: number) => {
   if (!props.profile) return
   
-  const service = availableServices.value.find(s => s && s.id === serviceId)
-  if (!service) return
-  
   const isSelected = isServiceSelected(serviceId)
   
   if (isSelected) {
-    // Remove service
-    const updatedServices = props.profile.services.filter(s => s.id !== serviceId.toString())
-    emit('update', { services: updatedServices })
+    // Remove service ID and its options
+    const updatedServices = props.profile.services.filter(id => id !== serviceId)
+    const updatedServiceOptions = { ...props.profile.serviceOptions }
+    delete updatedServiceOptions[serviceId]
+    emit('update', { services: updatedServices, serviceOptions: updatedServiceOptions })
   } else {
-    // Add service
-    const newService: ServiceItem = {
-      id: serviceId.toString(),
-      name: service.name,
-      description: service.description || '',
-      price: service.price || '0',
-      priceType: 'fixed'
+    // Add service ID and initialize its options
+    const updatedServices = [...(props.profile.services || []), serviceId]
+    const service = availableServices.value.find(s => s && s.id === serviceId)
+    const updatedServiceOptions = {
+      ...props.profile.serviceOptions,
+      [serviceId]: {
+        customPrice: service?.price || '0',
+        customDescription: service?.description || ''
+      }
     }
-    const updatedServices = [...(props.profile.services || []), newService]
-    emit('update', { services: updatedServices })
+    emit('update', { services: updatedServices, serviceOptions: updatedServiceOptions })
   }
 }
 
-const extractPrice = (priceString: string | number): number => {
-  if (typeof priceString === 'number') return priceString
-  const match = priceString.match(/\d+/)
-  return match ? parseInt(match[0]) : 0
-}
 
 const getServicePrice = (serviceId: number) => {
-  if (!props.profile?.services) return '0'
-  const service = props.profile.services.find(s => s.id === serviceId.toString())
-  return service ? service.price : '0'
+  // If custom price is set, return it
+  if (props.profile?.serviceOptions?.[serviceId]?.customPrice) {
+    return props.profile.serviceOptions[serviceId].customPrice
+  }
+  
+  // Otherwise return the original service price
+  const service = availableServices.value.find(s => s && s.id === serviceId)
+  return service?.price || '0'
 }
 
 const getServiceDescription = (serviceId: number) => {
-  if (!props.profile?.services) return ''
-  const service = props.profile.services.find(s => s.id === serviceId.toString())
+  // If custom description is set, return it
+  if (props.profile?.serviceOptions?.[serviceId]?.customDescription) {
+    return props.profile.serviceOptions[serviceId].customDescription
+  }
+  
+  // Otherwise return the original service description
+  const service = availableServices.value.find(s => s && s.id === serviceId)
   return service?.description || ''
 }
 
 const updateServicePrice = (serviceId: number, price: string) => {
-  if (!props.profile?.services) return
+  if (!props.profile) return
   
-  const updatedServices = props.profile.services.map(service => 
-    service.id === serviceId.toString() 
-      ? { ...service, price }
-      : service
-  )
-  emit('update', { services: updatedServices })
+  const updatedServiceOptions = {
+    ...props.profile.serviceOptions,
+    [serviceId]: {
+      ...props.profile.serviceOptions?.[serviceId],
+      customPrice: price
+    }
+  }
+  emit('update', { serviceOptions: updatedServiceOptions })
 }
 
 const updateServiceDescription = (serviceId: number, description: string) => {
-  if (!props.profile?.services) return
+  if (!props.profile) return
   
-  const updatedServices = props.profile.services.map(service => 
-    service.id === serviceId.toString() 
-      ? { ...service, description }
-      : service
-  )
-  emit('update', { services: updatedServices })
+  const updatedServiceOptions = {
+    ...props.profile.serviceOptions,
+    [serviceId]: {
+      ...props.profile.serviceOptions?.[serviceId],
+      customDescription: description
+    }
+  }
+  emit('update', { serviceOptions: updatedServiceOptions })
 }
 
 const addCustomService = () => {
@@ -380,16 +380,13 @@ const getPriceLabel = (priceType: string): string => {
   }
 }
 
+
 const getPriceSuffix = (priceType: string): string => {
   switch (priceType) {
     case 'hourly': return 'руб/час'
     case 'project': return 'руб/проект'
     default: return 'руб'
   }
-}
-
-const completeStep = () => {
-  emit('complete', 5)
 }
 </script>
 

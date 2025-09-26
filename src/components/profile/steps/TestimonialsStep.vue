@@ -32,15 +32,23 @@
           <div class="photo-info">
             <div class="photo-header">
               <span class="photo-title">Отзыв #{{ index + 1 }}</span>
-              <button
-                @click="removeTestimonial(index)"
-                class="remove-button"
-                type="button"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div class="photo-actions">
+                <!-- Uploading indicator -->
+                <div v-if="uploadingFiles.has(testimonial.id)" class="uploading-indicator">
+                  <div class="spinner"></div>
+                  <span>Загрузка...</span>
+                </div>
+                <button
+                  v-else
+                  @click="removeTestimonial(index)"
+                  class="remove-button"
+                  type="button"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
             
             <!-- Title Input -->
@@ -50,6 +58,7 @@
               placeholder="Название отзыва"
               class="title-input"
               @input="updateTestimonials"
+              :disabled="uploadingFiles.has(testimonial.id)"
             />
           </div>
         </div>
@@ -125,20 +134,13 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { NeuralNetworkProfile, TestimonialItem } from '@/types/neural-network-profile-simple'
+import { portfoliosApi } from '@/services/portfoliosApiClient'
 
 interface Props {
   profile: NeuralNetworkProfile | null
@@ -153,13 +155,14 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const fileInput = ref<HTMLInputElement>()
+const uploadingFiles = ref<Set<string>>(new Set())
 
 const testimonials = computed({
   get: () => props.profile?.testimonials || [],
   set: (value) => emit('update', { testimonials: value })
 })
 
-const addTestimonial = (file: File) => {
+const addTestimonial = async (file: File) => {
   // Validate file type
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
   if (!allowedTypes.includes(file.type)) {
@@ -180,14 +183,59 @@ const addTestimonial = (file: File) => {
     return
   }
 
-  // Create testimonial item
-  const newTestimonial: TestimonialItem = {
-    id: Date.now().toString(),
+  const fileId = Date.now().toString()
+  const fileName = file.name.replace(/\.[^/.]+$/, '') // Remove file extension
+
+  // Create temporary testimonial item with local URL
+  const tempTestimonial: TestimonialItem = {
+    id: fileId,
     url: URL.createObjectURL(file),
-    title: file.name.replace(/\.[^/.]+$/, '') // Remove file extension
+    title: fileName
   }
 
-  testimonials.value = [...testimonials.value, newTestimonial]
+  // Add to testimonials immediately for UI feedback
+  testimonials.value = [...testimonials.value, tempTestimonial]
+  
+  // Mark as uploading
+  uploadingFiles.value.add(fileId)
+
+  try {
+    // Upload to server
+    const attachment = await portfoliosApi.uploadAttachment({
+      title: fileName,
+      type: 'testimonial',
+      file: file
+    })
+
+    // Update testimonial with server response
+    const updatedTestimonials = testimonials.value.map(testimonial => 
+      testimonial.id === fileId 
+        ? {
+            ...testimonial,
+            id: attachment.id,
+            url: attachment.url,
+            title: attachment.title
+          }
+        : testimonial
+    )
+    
+    testimonials.value = updatedTestimonials
+    
+    // Trigger update event for auto-save
+    emit('update', { testimonials: updatedTestimonials })
+    
+  } catch (error) {
+    console.error('Error uploading testimonial:', error)
+    
+    // Remove failed upload from testimonials
+    const filteredTestimonials = testimonials.value.filter(t => t.id !== fileId)
+    testimonials.value = filteredTestimonials
+    
+    alert('Ошибка загрузки файла. Попробуйте еще раз.')
+  } finally {
+    // Remove from uploading set
+    uploadingFiles.value.delete(fileId)
+  }
 }
 
 const removeTestimonial = (index: number) => {
@@ -195,12 +243,13 @@ const removeTestimonial = (index: number) => {
   testimonials.value = updated
 }
 
-const handleFileUpload = (event: Event) => {
+const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files) {
-    Array.from(target.files).forEach(file => {
-      addTestimonial(file)
-    })
+    // Process files sequentially to avoid overwhelming the server
+    for (const file of Array.from(target.files)) {
+      await addTestimonial(file)
+    }
     // Reset input
     target.value = ''
   }
@@ -211,9 +260,6 @@ const updateTestimonials = () => {
   testimonials.value = [...testimonials.value]
 }
 
-const completeStep = () => {
-  emit('complete', 7)
-}
 </script>
 
 <style scoped>
@@ -263,6 +309,18 @@ const completeStep = () => {
 
 .photo-title {
   @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.photo-actions {
+  @apply flex items-center;
+}
+
+.uploading-indicator {
+  @apply flex items-center space-x-2 text-blue-600 dark:text-blue-400 text-xs;
+}
+
+.spinner {
+  @apply w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin;
 }
 
 .remove-button {

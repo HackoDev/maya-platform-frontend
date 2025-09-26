@@ -92,6 +92,72 @@ export interface PortfolioSearchFilters {
   search?: string
 }
 
+// Attachment interfaces
+export interface Attachment {
+  id: string
+  title: string
+  type: string
+  url: string
+}
+
+export interface AttachmentUploadRequest {
+  title: string
+  type: string
+  file: File
+}
+
+// Specialist search API interfaces
+export interface ApiSpecialistUser {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  avatar?: string
+  whatsapp?: string
+  phone?: string
+  telegram?: string
+}
+
+export interface ApiSpecialistProfile {
+  id: string
+  user: ApiSpecialistUser
+  superpower: string
+  cachedSkills: string[]
+  cachedSpecializations: string[]
+  cachedServices: string[]
+}
+
+export interface ApiSpecialistSearchResponse {
+  items: ApiSpecialistProfile[]
+  count: number
+}
+
+// Frontend specialist profile interface for search results
+export interface SpecialistSearchProfile {
+  id: string
+  userId: number
+  displayName: string
+  superpower: string
+  avatarUrl?: string
+  skills: string[]
+  specializations: string[]
+  services: string[]
+  contacts: {
+    telegram?: string
+    email?: string
+    phone?: string
+    whatsapp?: string
+  }
+}
+
+export interface SpecialistSearchPaginationResponse {
+  specialists: SpecialistSearchProfile[]
+  page: number
+  pageSize: number
+  total: number
+  hasMore: boolean
+}
+
 // Store state interfaces
 export interface SkillStoreState {
   skills: Skill[]

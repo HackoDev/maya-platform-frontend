@@ -85,15 +85,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        :disabled="!isValid"
-        class="btn btn-primary"
-      >
-        Завершить анкету
-      </button>
-    </div>
   </div>
 </template>
 
@@ -143,11 +134,6 @@ const goToSettings = () => {
   router.push('/profile/settings')
 }
 
-const completeStep = () => {
-  if (isValid.value) {
-    emit('complete', 8)
-  }
-}
 
 // Validate step on mount
 onMounted(() => {

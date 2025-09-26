@@ -100,15 +100,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        :disabled="!isValid"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
@@ -189,11 +180,6 @@ const validateStep = () => {
   }
 }
 
-const completeStep = () => {
-  if (isValid.value) {
-    emit('complete', 1)
-  }
-}
 
 // Watch for changes and validate
 watch(() => props.profile?.specializations, validateStep)

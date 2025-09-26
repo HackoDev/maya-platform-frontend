@@ -118,13 +118,13 @@
                 />
               </div>
               <div class="form-group">
-                <label>Инструменты (через запятую)</label>
+                <label>Инструменты</label>
                 <input
-                  :value="item.tools?.join(', ') || ''"
-                  @input="updateItemTools(index, ($event.target as HTMLInputElement).value)"
+                  v-model="item.tools"
                   type="text"
                   placeholder="ChatGPT, Midjourney, Tilda"
                   class="form-input"
+                  @input="updatePortfolio"
                 />
               </div>
             </div>
@@ -168,14 +168,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
@@ -208,7 +200,7 @@ const addPortfolioItem = () => {
     type: 'text',
     content: '',
     result: '',
-    tools: []
+    tools: ''
   }
   
   portfolio.value = [...portfolio.value, newItem]
@@ -224,11 +216,6 @@ const updatePortfolio = () => {
   portfolio.value = [...portfolio.value]
 }
 
-const updateItemTools = (index: number, toolsString: string) => {
-  const tools = toolsString.split(',').map(tool => tool.trim()).filter(tool => tool.length > 0)
-  portfolio.value[index].tools = tools
-  updatePortfolio()
-}
 
 const getContentLabel = (type: string): string => {
   switch (type) {
@@ -250,9 +237,6 @@ const getContentPlaceholder = (type: string): string => {
   }
 }
 
-const completeStep = () => {
-  emit('complete', 4)
-}
 </script>
 
 <style scoped>

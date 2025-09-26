@@ -6,10 +6,11 @@ import type {
   ServiceItem, 
   ExperienceItem, 
   TestimonialItem,
+  PublicLinkItem,
   ValidationResult 
 } from '@/types/neural-network-profile-simple'
 import { createEmptyProfile, validateStep, FORM_STEPS } from '@/types/neural-network-profile-simple'
-// import { portfoliosApi } from '@/services/portfoliosApiClient'
+import { portfoliosApi } from '@/services/portfoliosApiClient'
 import { usePortfolioCatalogStore } from '@/stores/portfolio-catalog'
 import type { Skill, Specialization, Service } from '@/types/portfolio'
 
@@ -66,15 +67,23 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
       
       if (existingProfile) {
         profile.value = existingProfile
-        // Восстанавливаем статус завершенных шагов
         updateCompletedSteps()
       } else {
-        profile.value = createEmptyProfile(userId)
+        // Пытаемся загрузить текущую анкету пользователя с сервера
+        try {
+          const serverProfile = await portfoliosApi.getMySimplifiedProfile()
+          // Если сервер вернул профиль, используем его; иначе создаем пустой
+          profile.value = serverProfile
+          // Обновляем завершенные шаги на основе валидного профиля
+          updateCompletedSteps()
+        } catch (e) {
+          console.warn('Falling back to empty profile due to API error', e)
+          profile.value = createEmptyProfile(userId)
+        }
       }
     } catch (error) {
       console.error('Error initializing profile:', error)
       // Загружаем заглушки как fallback
-      loadFallbackData()
       throw error
     } finally {
       isLoading.value = false
@@ -94,35 +103,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
       availableServices.value = catalog.services
     } catch (error) {
       console.error('Error ensuring portfolio catalog:', error)
-      loadFallbackData()
     }
-  }
-
-  // Загрузка заглушек как fallback
-  const loadFallbackData = () => {
-    availableSpecializations.value = [
-      { id: 1, name: 'Разработка ПО' },
-      { id: 2, name: 'Дизайн' },
-      { id: 3, name: 'Маркетинг' },
-      { id: 4, name: 'Аналитика' },
-      { id: 5, name: 'Контент' }
-    ]
-    
-    availableSkills.value = [
-      { id: 1, name: 'JavaScript', tools: ['React', 'Vue', 'Node.js'] },
-      { id: 2, name: 'Python', tools: ['Django', 'Flask', 'FastAPI'] },
-      { id: 3, name: 'UI/UX Design', tools: ['Figma', 'Sketch', 'Adobe XD'] },
-      { id: 4, name: 'Data Analysis', tools: ['Python', 'R', 'SQL'] },
-      { id: 5, name: 'Content Writing', tools: ['Word', 'Google Docs', 'Notion'] }
-    ]
-    
-    availableServices.value = [
-      { id: 1, name: 'Веб-разработка', description: 'Создание веб-приложений' },
-      { id: 2, name: 'Дизайн интерфейсов', description: 'UI/UX дизайн' },
-      { id: 3, name: 'Контент-маркетинг', description: 'Создание контента' },
-      { id: 4, name: 'Аналитика данных', description: 'Анализ и визуализация данных' },
-      { id: 5, name: 'Консультации', description: 'Экспертные консультации' }
-    ]
   }
 
   const updateProfile = (updates: Partial<NeuralNetworkProfile>) => {
@@ -134,15 +115,32 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
   }
 
   const saveProfile = async () => {
-    if (!profile.value || !isDirty.value) return
+    if (!profile.value) return
     
     isSaving.value = true
     try {
-      // TODO: API call to save profile
-      console.log('Saving profile:', profile.value)
+      // Полное сохранение (пока оставим как заглушку или будущий PUT)
+      console.log('Saving profile (full):', profile.value)
       isDirty.value = false
     } catch (error) {
       console.error('Error saving profile:', error)
+      throw error
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  // Частичное сохранение текущего шага (отправляем только измененные поля)
+  const savePartial = async (partial: Partial<NeuralNetworkProfile>) => {
+    isSaving.value = true
+    try {
+      const updated = await portfoliosApi.patchMyProfile(partial)
+      // Обновляем профиль из ответа сервера и пересчитываем завершенные шаги
+      profile.value = updated
+      updateCompletedSteps()
+      isDirty.value = false
+    } catch (error) {
+      console.error('Error saving partial profile:', error)
       throw error
     } finally {
       isSaving.value = false
@@ -155,7 +153,7 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
     }
     
     if (profile.value) {
-      profile.value.status = 'pending'
+      profile.value.status = 'draft'
       await saveProfile()
     }
   }
@@ -233,25 +231,25 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
     }
     
     updateProfile({
-      services: [...profile.value.services, newService]
+      customServices: [...profile.value.customServices, newService]
     })
   }
 
   const updateService = (id: string, updates: Partial<ServiceItem>) => {
     if (!profile.value) return
     
-    const updatedServices = profile.value.services.map(service =>
+    const updatedServices = profile.value.customServices.map(service =>
       service.id === id ? { ...service, ...updates } : service
     )
     
-    updateProfile({ services: updatedServices })
+    updateProfile({ customServices: updatedServices })
   }
 
   const removeService = (id: string) => {
     if (!profile.value) return
     
-    const updatedServices = profile.value.services.filter(service => service.id !== id)
-    updateProfile({ services: updatedServices })
+    const updatedServices = profile.value.customServices.filter(service => service.id !== id)
+    updateProfile({ customServices: updatedServices })
   }
 
   // Действия для работы с опытом
@@ -306,6 +304,37 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
     updateProfile({ testimonials: updatedTestimonials })
   }
 
+  // Действия для работы с публичными ссылками
+  const addPublicLink = (link: Omit<PublicLinkItem, 'id'>) => {
+    if (!profile.value) return
+    
+    const newLink: PublicLinkItem = {
+      ...link,
+      id: Date.now().toString()
+    }
+    
+    updateProfile({
+      publicLinks: [...profile.value.publicLinks, newLink]
+    })
+  }
+
+  const updatePublicLink = (id: string, updates: Partial<PublicLinkItem>) => {
+    if (!profile.value) return
+    
+    const updatedLinks = profile.value.publicLinks.map(link =>
+      link.id === id ? { ...link, ...updates } : link
+    )
+    
+    updateProfile({ publicLinks: updatedLinks })
+  }
+
+  const removePublicLink = (id: string) => {
+    if (!profile.value) return
+    
+    const updatedLinks = profile.value.publicLinks.filter(link => link.id !== id)
+    updateProfile({ publicLinks: updatedLinks })
+  }
+
 
   return {
     // State
@@ -335,11 +364,11 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
     initializeProfile,
     updateProfile,
     saveProfile,
+    savePartial,
     submitProfile,
     
     // API data
     loadPortfolioData,
-    loadFallbackData,
     
     // Step actions
     setCurrentStep,
@@ -366,5 +395,10 @@ export const useNeuralNetworkProfileStore = defineStore('neuralNetworkProfileSim
     // Testimonial actions
     addTestimonial,
     removeTestimonial,
+    
+    // Public links actions
+    addPublicLink,
+    updatePublicLink,
+    removePublicLink,
   }
 })

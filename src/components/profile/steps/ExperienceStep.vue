@@ -80,13 +80,13 @@
             <div class="form-grid">
               <!-- Tools -->
               <div class="form-group">
-                <label>Инструменты (через запятую)</label>
+                <label>Инструменты</label>
                 <input
-                  :value="entry.tools?.join(', ') || ''"
-                  @input="updateEntryTools(index, ($event.target as HTMLInputElement).value)"
+                  v-model="entry.tools"
                   type="text"
                   placeholder="ChatGPT, Telegram Bot API, Make.com"
                   class="form-input"
+                  @input="updateExperience"
                 />
               </div>
 
@@ -150,14 +150,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
@@ -188,7 +180,7 @@ const addExperience = () => {
     client: '',
     task: '',
     result: '',
-    tools: [],
+    tools: '',
     duration: '',
     year: new Date().getFullYear().toString()
   }
@@ -206,15 +198,7 @@ const updateExperience = () => {
   experience.value = [...experience.value]
 }
 
-const updateEntryTools = (index: number, toolsString: string) => {
-  const tools = toolsString.split(',').map(tool => tool.trim()).filter(tool => tool.length > 0)
-  experience.value[index].tools = tools
-  updateExperience()
-}
 
-const completeStep = () => {
-  emit('complete', 6)
-}
 </script>
 
 <style scoped>

@@ -4,7 +4,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
   return {
     id: 'test-profile-1',
     userId: 'user-123',
-    status: 'draft',
+    status: 'published',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     
@@ -14,6 +14,30 @@ export const createTestProfile = (): NeuralNetworkProfile => {
     
     // Суперспособность
     superpower: 'Создаю нейроассистентов, которые увеличивают конверсию клиентов на 40% и автоматизируют 80% рутинных задач. Специализируюсь на интеграции ChatGPT с бизнес-процессами.',
+    
+    // Публичные ссылки
+    publicLinks: [
+      {
+        id: 'link-1',
+        title: 'Мой сайт',
+        url: 'https://ai-specialist.ru'
+      },
+      {
+        id: 'link-2',
+        title: 'Telegram канал',
+        url: 'https://t.me/ai_insights'
+      },
+      {
+        id: 'link-3',
+        title: 'GitHub',
+        url: 'https://github.com/ai-specialist'
+      },
+      {
+        id: 'link-4',
+        title: 'LinkedIn',
+        url: 'https://linkedin.com/in/ai-specialist'
+      }
+    ],
     
     // Навыки
     skills: [1, 2, 4, 6], // ChatGPT, Midjourney, DALL-E, Stable Diffusion
@@ -28,7 +52,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         type: 'bot',
         content: 'https://t.me/dentist_assistant_bot',
         result: 'Увеличили количество записей на 40%, автоматизировали 80% обращений',
-        tools: ['ChatGPT', 'Telegram Bot API', 'Make.com', 'AmoCRM']
+        tools: 'ChatGPT, Telegram Bot API, Make.com, AmoCRM'
       },
       {
         id: 'portfolio-2',
@@ -37,7 +61,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         type: 'text',
         content: 'Создал систему, которая генерирует 50 постов в день с уникальными изображениями. Интеграция с Instagram API для автоматической публикации.',
         result: 'Сэкономили 20 часов в неделю на создании контента',
-        tools: ['ChatGPT', 'Midjourney', 'Instagram API', 'Python']
+        tools: 'ChatGPT, Midjourney, Instagram API, Python'
       },
       {
         id: 'portfolio-3',
@@ -46,12 +70,13 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         type: 'landing',
         content: 'https://ai-consulting.tilda.ws',
         result: 'Конверсия увеличилась с 2% до 8%',
-        tools: ['Tilda', 'ChatGPT', 'JavaScript', 'Webhook']
+        tools: 'Tilda, ChatGPT, JavaScript, Webhook'
       }
     ],
     
     // Услуги
-    services: [
+    services: [],
+    customServices: [
       {
         id: 'service-1',
         name: 'Создание нейроассистента',
@@ -83,7 +108,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         client: 'ООО "Стоматология Плюс"',
         task: 'Создание нейроассистента для записи пациентов и консультаций',
         result: 'Увеличили количество записей на 40%, автоматизировали 80% обращений, сэкономили 15 часов в неделю',
-        tools: ['ChatGPT', 'Telegram Bot API', 'Make.com'],
+        tools: 'ChatGPT, Telegram Bot API, Make.com',
         duration: '2 недели',
         year: '2024'
       },
@@ -92,7 +117,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         client: 'ИП Иванов (интернет-магазин)',
         task: 'Разработка системы генерации описаний товаров с помощью ИИ',
         result: 'Автоматизировали создание описаний для 1000+ товаров, увеличили конверсию на 25%',
-        tools: ['ChatGPT', 'OpenAI API', 'Python', 'WooCommerce'],
+        tools: 'ChatGPT, OpenAI API, Python, WooCommerce',
         duration: '1 месяц',
         year: '2024'
       },
@@ -101,7 +126,7 @@ export const createTestProfile = (): NeuralNetworkProfile => {
         client: 'Агентство "Маркетинг Про"',
         task: 'Создание нейроассистента для генерации контента в соцсетях',
         result: 'Создали систему, которая генерирует 50 постов в день, сэкономили 20 часов в неделю',
-        tools: ['ChatGPT', 'Midjourney', 'Instagram API', 'Python'],
+        tools: 'ChatGPT, Midjourney, Instagram API, Python',
         duration: '3 недели',
         year: '2023'
       }
@@ -139,20 +164,23 @@ export const createEmptyProfile = (): NeuralNetworkProfile => {
   return {
     id: '',
     userId: '',
-    status: 'draft',
+    status: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     
     specializations: [],
     customSpecializations: [],
     superpower: '',
+    publicLinks: [],
     skills: [],
     customSkills: [],
     portfolio: [],
     services: [],
+    customServices: [],
     serviceOptions: {},
     experience: [],
-    testimonials: []
+    testimonials: [],
+    customContacts: undefined
   }
 }
 
@@ -168,12 +196,46 @@ export const createPartialProfile = (): NeuralNetworkProfile => {
     specializations: [1, 2], // AI, ChatGPT
     customSpecializations: ['Нейроассистенты'],
     superpower: 'Создаю нейроассистентов для бизнеса',
+    publicLinks: [
+      {
+        id: 'link-1',
+        title: 'Мой сайт',
+        url: 'https://example.com'
+      }
+    ],
     skills: [1, 2], // ChatGPT, Midjourney
     customSkills: [],
     
     // Пустые секции
     portfolio: [],
     services: [],
+    customServices: [],
+    serviceOptions: {},
+    experience: [],
+    testimonials: []
+  }
+}
+
+export const createArchivedProfile = (): NeuralNetworkProfile => {
+  return {
+    id: 'archived-profile-1',
+    userId: 'user-789',
+    status: 'archived',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    
+    // Заполненные данные
+    specializations: [1, 3, 5],
+    customSpecializations: ['Старые технологии'],
+    superpower: 'Работал с устаревшими системами',
+    publicLinks: [],
+    skills: [1, 2, 3],
+    customSkills: ['Legacy системы'],
+    
+    // Пустые секции
+    portfolio: [],
+    services: [],
+    customServices: [],
     serviceOptions: {},
     experience: [],
     testimonials: []

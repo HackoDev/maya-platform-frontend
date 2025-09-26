@@ -4,20 +4,34 @@ import type { ServiceOption } from "./neural-network-profile"
 export interface NeuralNetworkProfile {
   id: string
   userId: string
-  status: 'draft' | 'pending' | 'approved' | 'rejected'
+  status: 'draft' | 'published' | 'archived' | null
   createdAt: string
   updatedAt: string
+  
+  // Данные пользователя
+  user?: {
+    id: number
+    email: string
+    firstName: string
+    lastName: string
+    avatar?: string
+    phone?: string
+    telegram?: string
+    whatsapp?: string
+  }
   
   // Основные данные профиля
   specializations: number[] // ID специализаций
   customSpecializations: string[] // Дополнительные специализации
   superpower: string // Описание суперспособности
+  publicLinks: PublicLinkItem[] // Публичные ссылки на сервисы, сайты и т.п.
   
   skills: number[] // ID навыков
   customSkills: string[] // Дополнительные навыки
   
   portfolio: PortfolioItem[]
-  services: ServiceItem[]
+  services: ServiceItem[] // Полные данные услуг (может быть массивом ID или объектов)
+  customServices: ServiceItem[] // Дополнительные услуги
   serviceOptions: Record<string, ServiceOption>
   experience: ExperienceItem[]
   testimonials: TestimonialItem[]
@@ -37,15 +51,15 @@ export interface PortfolioItem {
   type: 'text' | 'link' | 'image' | 'bot' | 'landing'
   content: string // URL или текст
   result?: string
-  tools?: string[]
+  tools?: string
 }
 
 export interface ServiceItem {
-  id: string
+  id: string | number
   name: string
   description: string
   price: string
-  priceType: 'fixed' | 'hourly' | 'project' | 'negotiable'
+  priceType?: 'fixed' | 'hourly' | 'project' | 'negotiable' // Опционально, так как может отсутствовать в данных с сервера
 }
 
 export interface ExperienceItem {
@@ -53,7 +67,7 @@ export interface ExperienceItem {
   client: string
   task: string
   result: string
-  tools?: string[]
+  tools?: string
   year?: string
   duration?: string
 }
@@ -62,6 +76,12 @@ export interface TestimonialItem {
   id: string
   url: string
   title: string
+}
+
+export interface PublicLinkItem {
+  id: string
+  title: string
+  url: string
 }
 
 // Типы для UI состояния
@@ -81,10 +101,10 @@ export const FORM_STEPS: FormStep[] = [
   { id: 1, title: 'Кто ты?', required: true },
   { id: 2, title: 'О себе', required: true },
   { id: 3, title: 'Навыки', required: true },
-  { id: 4, title: 'Портфолио', required: false },
-  { id: 5, title: 'Услуги', required: false },
-  { id: 6, title: 'Опыт', required: false },
-  { id: 7, title: 'Отзывы', required: false },
+  { id: 4, title: 'Портфолио', required: true },
+  { id: 5, title: 'Услуги', required: true },
+  { id: 6, title: 'Опыт', required: true },
+  { id: 7, title: 'Отзывы', required: true },
   { id: 8, title: 'Контакты', required: true }
 ]
 
@@ -115,11 +135,48 @@ export const validateStep = (stepId: number, profile: NeuralNetworkProfile): Val
         errors.push('Выберите хотя бы один навык')
       }
       break
+    
+    case 4: // Портфолио
+      const totalPortfolio = profile.portfolio.length
+      if (totalPortfolio === 0) {
+        errors.push('Добавьте хотя бы один проект')
+      }
+      break
+    
+    case 5: // Услуги
+      const totalServices = profile.services.length + profile.customServices.length
+      if (totalServices === 0) {
+        errors.push('Добавьте хотя бы одну услугу')
+      }
+      break
+    
+    case 6: // Опыт
+      const totalExperience = profile.experience.length
+      if (totalExperience === 0) {
+        errors.push('Добавьте хотя бы один опыт')
+      }
+      break
+    
+    case 7: // Отзывы
+      const totalTestimonials = profile.testimonials.length
+      if (totalTestimonials === 0) {
+        errors.push('Добавьте хотя бы один отзыв')
+      }
+      break
       
     case 8: // Контакты
       // Проверяем, есть ли хотя бы один контакт у пользователя
       // Это будет проверяться в компоненте ContactsStep
+      const totalContacts = [
+        profile.customContacts?.phone,
+        profile.customContacts?.telegram,
+        profile.customContacts?.whatsapp,
+      ].filter(Boolean).length;
+      if (totalContacts === 0) {
+        errors.push('Укажите хотя бы один способ связи')
+      }
       break
+      
   }
   
   return {
@@ -132,16 +189,20 @@ export const validateStep = (stepId: number, profile: NeuralNetworkProfile): Val
 export const createEmptyProfile = (userId: string): NeuralNetworkProfile => ({
   id: '',
   userId,
-  status: 'draft',
+  status: null,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   specializations: [],
   customSpecializations: [],
   superpower: '',
+  publicLinks: [],
   skills: [],
   customSkills: [],
   portfolio: [],
   services: [],
+  customServices: [],
+  serviceOptions: {},
   experience: [],
-  testimonials: []
+  testimonials: [],
+  customContacts: undefined
 })

@@ -5,8 +5,37 @@
       <div class="header-content">
         <div class="header-top">
           <h1 class="form-title">Анкета специалиста</h1>
-          <div class="progress-info">
-            {{ completionPercentage }}% завершено
+          <div class="header-right">
+            <div class="progress-info">
+              {{ completionPercentage }}% завершено
+            </div>
+            <!-- Save Status Indicator -->
+            <div class="save-status">
+              <div v-if="isSaving" class="save-indicator saving">
+                <div class="spinner"></div>
+                <span>Сохранение...</span>
+              </div>
+              <div v-else-if="profile?.status === null" class="save-indicator not-created">
+                <span class="info-icon">ℹ</span>
+                <span>Анкета еще не создана</span>
+              </div>
+              <div v-else-if="profile?.status === 'published'" class="save-indicator published">
+                <span class="checkmark">✓</span>
+                <span>Опубликована</span>
+              </div>
+              <div v-else-if="profile?.status === 'archived'" class="save-indicator archived">
+                <span class="archive-icon">📦</span>
+                <span>Архивирована</span>
+              </div>
+              <div v-else-if="profile?.status === 'draft'" class="save-indicator draft">
+                <span class="draft-icon">📝</span>
+                <span>Черновик</span>
+              </div>
+              <div v-else class="save-indicator draft">
+                <span class="draft-icon">📝</span>
+                <span>Черновик</span>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -26,8 +55,11 @@
             @click="setCurrentStep(step.id)"
             :class="getStepClass(step.id)"
           >
-            {{ step.id }}. {{ step.title }}
-            <span v-if="isStepCompleted(step.id)" class="checkmark">✓</span>
+            <div class="step-content">
+              <div class="step-number">{{ step.id }}</div>
+              <div class="step-title">{{ step.title }}</div>
+              <span v-if="isStepCompleted(step.id)" class="step-checkmark">✓</span>
+            </div>
           </button>
         </div>
       </div>
@@ -118,7 +150,6 @@
 
         <div class="footer-actions">
           <button
-            v-if="isDirty"
             @click="saveDraft"
             :disabled="isSaving"
             class="btn btn-secondary"
@@ -147,10 +178,6 @@
       </div>
     </div>
 
-    <!-- Auto-save indicator -->
-    <div v-if="lastAutoSave" class="auto-save-indicator">
-      <p>Последнее автосохранение: {{ formatDateTime(lastAutoSave) }}</p>
-    </div>
   </div>
 </template>
 
@@ -185,15 +212,18 @@ import ContactsStep from './steps/ContactsStep.vue'
 const store = useNeuralNetworkProfileStore()
 const isDirty = ref(false)
 const lastAutoSave = ref<string | null>(null)
+const isAutoSaving = ref(false)
 
 // Auto-save functionality
 let autoSaveTimeout: number | null = null
+// Accumulate partial changes for steps 1 and 2
+const pendingPartial = ref<Partial<NeuralNetworkProfile>>({})
 
 const profile = computed(() => store.profile)
 const currentStep = computed(() => store.currentStep)
 const completionPercentage = computed(() => store.completionPercentage)
 const canSubmit = computed(() => store.canSubmit)
-const isSaving = computed(() => store.isSaving)
+const isSaving = computed(() => store.isSaving || isAutoSaving.value)
 
 onMounted(async () => {
   // TODO: Get userId from auth store
@@ -210,6 +240,11 @@ onMounted(async () => {
 const initializeProfile = async (userId: string) => {
   try {
     await store.initializeProfile(userId)
+    // Если профиль не найден (status === null), создаем пустой профиль
+    if (store.profile?.status === null) {
+      // Профиль еще не создан, показываем это в UI
+      console.log('Profile not created yet')
+    }
   } catch (error) {
     console.error('Error initializing profile:', error)
   }
@@ -219,12 +254,61 @@ const handleUpdate = (updates: Partial<NeuralNetworkProfile>) => {
   store.updateProfile(updates)
   isDirty.value = true
   
+  // Collect partial updates for all steps
+  const partialKeysForAllSteps: (keyof NeuralNetworkProfile)[] = [
+    // Step 1: Specializations
+    'specializations',
+    'customSpecializations',
+    // Step 2: Superpower
+    'superpower',
+    'publicLinks',
+    // Step 3: Skills
+    'skills',
+    'customSkills',
+    // Step 4: Portfolio
+    'portfolio',
+    // Step 5: Services
+    'services',
+    'customServices',
+    'serviceOptions',
+    // Step 6: Experience
+    'experience',
+    // Step 7: Testimonials
+    'testimonials',
+    // Step 8: Contacts
+    'customContacts',
+  ]
+  const partialToSave: Partial<NeuralNetworkProfile> = {}
+  partialKeysForAllSteps.forEach((key) => {
+    if (key in updates) {
+      // @ts-expect-error index signature
+      partialToSave[key] = updates[key]
+    }
+  })
+  // Merge into pendingPartial
+  Object.assign(pendingPartial.value, partialToSave)
+  
   // Auto-save after 2 seconds of inactivity
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout)
   }
   autoSaveTimeout = setTimeout(async () => {
-    await saveDraft()
+    // If we have partial data, send only those fields
+    if (Object.keys(pendingPartial.value).length > 0) {
+      try {
+        isAutoSaving.value = true
+        await store.savePartial({ ...pendingPartial.value })
+        pendingPartial.value = {}
+        lastAutoSave.value = new Date().toISOString()
+      } catch (e) {
+        console.error('Error during partial auto-save:', e)
+      } finally {
+        isAutoSaving.value = false
+      }
+    } else {
+      // Fallback to full draft save if no partial data
+      await saveDraft()
+    }
   }, 2000)
 }
 
@@ -271,8 +355,6 @@ const nextStep = () => {
 }
 
 const saveDraft = async () => {
-  if (!isDirty.value) return
-  
   try {
     await store.saveProfile()
     isDirty.value = false
@@ -297,16 +379,6 @@ const submitProfile = async () => {
   }
 }
 
-const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
 
 // Watch for profile changes to update dirty state
 watch(() => store.profile, () => {
@@ -335,8 +407,48 @@ watch(() => store.profile, () => {
   @apply text-2xl font-bold text-gray-900 dark:text-white;
 }
 
+.header-right {
+  @apply flex flex-col items-end space-y-2;
+}
+
 .progress-info {
   @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.save-status {
+  @apply flex items-center;
+}
+
+.save-indicator {
+  @apply flex items-center space-x-2 text-sm;
+}
+
+.save-indicator.saving {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+.save-indicator.published {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.save-indicator.not-created {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+.save-indicator.draft {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.save-indicator.archived {
+  @apply text-purple-600 dark:text-purple-400;
+}
+
+.spinner {
+  @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+.info-icon, .draft-icon, .archive-icon {
+  @apply text-sm;
 }
 
 .progress-bar {
@@ -352,27 +464,52 @@ watch(() => store.profile, () => {
 }
 
 .step-button {
-  @apply w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-center relative;
+  @apply w-full px-2 py-2 rounded-md text-xs font-medium transition-all duration-200 text-center relative border;
+}
+
+.step-content {
+  @apply flex items-center justify-center space-x-1;
+}
+
+.step-number {
+  @apply text-xs font-semibold;
+}
+
+.step-title {
+  @apply text-xs leading-tight;
+}
+
+.step-checkmark {
+  @apply absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-500 text-white rounded-full flex items-center justify-center text-xs;
 }
 
 .step-button:not(.step-current):not(.step-completed) {
-  @apply bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300;
+  @apply bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700;
 }
 
 .step-button.step-current {
-  @apply bg-blue-600 text-white;
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-700/50 dark:text-blue-100 border-blue-400 dark:border-blue-500 shadow-md transform scale-105 relative;
+}
+
+.step-button.step-current::after {
+  content: '';
+  @apply absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-blue-500 rounded-full;
+}
+
+.step-button.step-current.step-completed::after {
+  @apply bg-green-500;
 }
 
 .step-button.step-completed {
-  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  @apply bg-green-100 text-green-800 dark:bg-green-800/40 dark:text-green-200 border-green-300 dark:border-green-600;
 }
 
 .step-button.step-required:not(.step-completed):not(.step-current) {
-  @apply border border-red-300 dark:border-red-600;
+  @apply border-red-300 dark:border-red-600;
 }
 
-.checkmark {
-  @apply ml-1;
+.step-button:hover:not(.step-current) {
+  @apply shadow-sm;
 }
 
 .form-content {
@@ -400,13 +537,6 @@ watch(() => store.profile, () => {
   @apply flex space-x-3;
 }
 
-.auto-save-indicator {
-  @apply text-center py-2;
-}
-
-.auto-save-indicator p {
-  @apply text-xs text-gray-500 dark:text-gray-400;
-}
 
 .btn {
   @apply px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;

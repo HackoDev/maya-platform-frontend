@@ -57,7 +57,7 @@
         
         <div class="custom-items">
           <div
-            v-for="(custom, index) in customSkills"
+            v-for="(_, index) in customSkills"
             :key="index"
             class="custom-item"
           >
@@ -119,15 +119,6 @@
       </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        :disabled="!isValid"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
@@ -196,7 +187,8 @@ const removeCustomSkill = (index: number) => {
 }
 
 const updateCustomSkills = () => {
-  // Triggered by v-model
+  // Emit the updated customSkills array
+  emit('update', { customSkills: customSkills.value })
   validateStep()
 }
 
@@ -208,11 +200,6 @@ const validateStep = () => {
   }
 }
 
-const completeStep = () => {
-  if (isValid.value) {
-    emit('complete', 3)
-  }
-}
 
 // Watch for changes and validate
 watch(() => props.profile?.skills, validateStep)

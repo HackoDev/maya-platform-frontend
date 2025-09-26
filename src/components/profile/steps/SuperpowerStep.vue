@@ -66,23 +66,111 @@
           <li>Покажите свою уникальность и экспертность</li>
         </ul>
       </div>
+
+      <!-- Public Links Section -->
+      <div class="public-links-section">
+        <div class="section-header">
+          <h3>🔗 Публичные ссылки</h3>
+          <p>Добавьте ссылки на ваши сервисы, сайты, соцсети и другие ресурсы</p>
+        </div>
+
+        <!-- Links List -->
+        <div class="links-list">
+          <div 
+            v-for="link in profile?.publicLinks || []" 
+            :key="link.id"
+            class="link-item"
+          >
+            <div class="link-content">
+              <div class="link-header">
+                <h4 class="link-title">{{ link.title }}</h4>
+                <div class="link-actions">
+                  <button 
+                    @click="editLink(link)"
+                    class="btn-edit"
+                    title="Редактировать"
+                  >
+                    ✏️
+                  </button>
+                  <button 
+                    @click="removeLink(link.id)"
+                    class="btn-remove"
+                    title="Удалить"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+              <a 
+                :href="link.url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="link-url"
+              >
+                {{ link.url }}
+              </a>
+            </div>
+          </div>
+
+          <!-- Add Link Button -->
+          <button 
+            @click="showAddLinkForm = true"
+            class="add-link-btn"
+            v-if="!showAddLinkForm"
+          >
+            ➕ Добавить ссылку
+          </button>
+
+          <!-- Add/Edit Link Form -->
+          <div v-if="showAddLinkForm" class="link-form">
+            <h4>{{ editingLink ? 'Редактировать ссылку' : 'Добавить ссылку' }}</h4>
+            
+            <div class="form-group">
+              <label for="link-title">Название *</label>
+              <input
+                id="link-title"
+                v-model="linkForm.title"
+                type="text"
+                placeholder="Например: Мой сайт, Telegram канал, GitHub"
+                class="form-input"
+                :class="{ 'error': linkFormErrors.title }"
+              />
+              <span v-if="linkFormErrors.title" class="error-text">{{ linkFormErrors.title }}</span>
+            </div>
+
+            <div class="form-group">
+              <label for="link-url">URL *</label>
+              <input
+                id="link-url"
+                v-model="linkForm.url"
+                type="url"
+                placeholder="https://example.com"
+                class="form-input"
+                :class="{ 'error': linkFormErrors.url }"
+              />
+              <span v-if="linkFormErrors.url" class="error-text">{{ linkFormErrors.url }}</span>
+            </div>
+
+
+            <div class="form-actions">
+              <button @click="saveLink" class="btn btn-primary" :disabled="!isLinkFormValid">
+                {{ editingLink ? 'Сохранить' : 'Добавить' }}
+              </button>
+              <button @click="cancelLinkForm" class="btn btn-secondary">
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="step-actions">
-      <button
-        @click="completeStep"
-        :disabled="!isValid"
-        class="btn btn-primary"
-      >
-        Продолжить
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { NeuralNetworkProfile } from '@/types/neural-network-profile-simple'
+import type { NeuralNetworkProfile, PublicLinkItem } from '@/types/neural-network-profile-simple'
 
 interface Props {
   profile: NeuralNetworkProfile | null
@@ -99,6 +187,18 @@ const emit = defineEmits<Emits>()
 const validationError = ref('')
 const placeholder = 'Создаю нейроассистентов, которые отвечают вместо вас и приносят клиентов на автопилоте.'
 
+// Public links state
+const showAddLinkForm = ref(false)
+const editingLink = ref<PublicLinkItem | null>(null)
+const linkForm = ref({
+  title: '',
+  url: ''
+})
+const linkFormErrors = ref({
+  title: '',
+  url: ''
+})
+
 const characterCount = computed(() => {
   return props.profile?.superpower?.length || 0
 })
@@ -107,6 +207,22 @@ const isValid = computed(() => {
   const text = props.profile?.superpower || ''
   return text.length >= 10 && text.length <= 200 && text.trim().length > 0
 })
+
+// Link form validation
+const isLinkFormValid = computed(() => {
+  return linkForm.value.title.trim().length > 0 && 
+         linkForm.value.url.trim().length > 0 &&
+         isValidUrl(linkForm.value.url)
+})
+
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
 
 const getCounterBarColor = () => {
   const count = characterCount.value
@@ -135,11 +251,85 @@ const validateStep = () => {
   }
 }
 
-const completeStep = () => {
-  if (isValid.value) {
-    emit('complete', 2)
+// Public links methods
+
+const editLink = (link: PublicLinkItem) => {
+  editingLink.value = link
+  linkForm.value = {
+    title: link.title,
+    url: link.url
+  }
+  showAddLinkForm.value = true
+}
+
+const removeLink = (linkId: string) => {
+  const currentLinks = props.profile?.publicLinks || []
+  const updatedLinks = currentLinks.filter(link => link.id !== linkId)
+  emit('update', { publicLinks: updatedLinks })
+}
+
+const saveLink = () => {
+  if (!isLinkFormValid.value) {
+    validateLinkForm()
+    return
+  }
+
+  const currentLinks = props.profile?.publicLinks || []
+  
+  if (editingLink.value) {
+    // Update existing link
+    const updatedLinks = currentLinks.map(link => 
+      link.id === editingLink.value!.id 
+        ? { ...link, ...linkForm.value }
+        : link
+    )
+    emit('update', { publicLinks: updatedLinks })
+  } else {
+    // Add new link
+    const newLink: PublicLinkItem = {
+      id: Date.now().toString(),
+      ...linkForm.value
+    }
+    emit('update', { publicLinks: [...currentLinks, newLink] })
+  }
+  
+  cancelLinkForm()
+}
+
+const cancelLinkForm = () => {
+  showAddLinkForm.value = false
+  editingLink.value = null
+  resetLinkForm()
+}
+
+const resetLinkForm = () => {
+  linkForm.value = {
+    title: '',
+    url: ''
+  }
+  linkFormErrors.value = {
+    title: '',
+    url: ''
   }
 }
+
+const validateLinkForm = () => {
+  linkFormErrors.value = {
+    title: '',
+    url: ''
+  }
+
+  if (!linkForm.value.title.trim()) {
+    linkFormErrors.value.title = 'Название обязательно'
+  }
+
+  if (!linkForm.value.url.trim()) {
+    linkFormErrors.value.url = 'URL обязателен'
+  } else if (!isValidUrl(linkForm.value.url)) {
+    linkFormErrors.value.url = 'Введите корректный URL'
+  }
+}
+
 
 // Watch for changes and validate
 watch(() => props.profile?.superpower, validateStep)
@@ -242,7 +432,97 @@ watch(() => props.profile?.superpower, validateStep)
   @apply text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
 }
 
+.btn-secondary {
+  @apply text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500;
+}
+
 .btn:disabled {
   @apply opacity-50 cursor-not-allowed;
+}
+
+/* Public Links Styles */
+.public-links-section {
+  @apply mt-8 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg;
+}
+
+.section-header {
+  @apply mb-4;
+}
+
+.section-header h3 {
+  @apply text-lg font-semibold text-gray-900 dark:text-white mb-1;
+}
+
+.section-header p {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.links-list {
+  @apply space-y-3;
+}
+
+.link-item {
+  @apply bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4;
+}
+
+.link-content {
+  @apply space-y-2;
+}
+
+.link-header {
+  @apply flex items-center justify-between;
+}
+
+.link-title {
+  @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.link-actions {
+  @apply flex space-x-2;
+}
+
+.btn-edit, .btn-remove {
+  @apply p-1 text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors;
+}
+
+.link-url {
+  @apply text-sm text-blue-600 dark:text-blue-400 hover:underline break-all;
+}
+
+
+.add-link-btn {
+  @apply w-full p-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors;
+}
+
+.link-form {
+  @apply bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-4;
+}
+
+.link-form h4 {
+  @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.form-group {
+  @apply space-y-1;
+}
+
+.form-group label {
+  @apply block text-xs font-medium text-gray-700 dark:text-gray-300;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white;
+}
+
+.form-input.error {
+  @apply border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500;
+}
+
+.error-text {
+  @apply text-xs text-red-600 dark:text-red-400;
+}
+
+.form-actions {
+  @apply flex space-x-2;
 }
 </style>

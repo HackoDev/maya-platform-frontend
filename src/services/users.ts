@@ -19,6 +19,7 @@ export interface UserMeResponse {
   whatsapp: string | null
   phone: string | null
   telegram: string | null
+  uiTheme: string | null
   lastLoginAt: string
   createdAt: string
   name: string
@@ -46,6 +47,10 @@ export interface PasswordChange {
   currentPassword: string
   newPassword: string
   confirmPassword: string
+}
+
+export interface ThemeUpdate {
+  uiTheme: string
 }
 
 /**
@@ -318,6 +323,25 @@ export class UsersApiService extends BaseApiClient {
   }
 
   /**
+   * Update user's UI theme preference
+   * @param data - Theme update data
+   * @returns Promise resolving to the updated user object
+   */
+  async updateTheme(data: ThemeUpdate): Promise<User> {
+    try {
+      this.ensureAuthenticated()
+      const response = await this.patch<UserMeResponse>('/api/web/users/me', {
+        uiTheme: data.uiTheme,
+      })
+      
+      return this.transformUserResponse(response.data)
+    } catch (error) {
+      console.error('Failed to update theme:', error)
+      throw new Error('Failed to update theme preference. Please try again.')
+    }
+  }
+
+  /**
    * Transform API response to match our User interface
    * @param apiUser - User data from API
    * @returns Transformed User object
@@ -333,6 +357,7 @@ export class UsersApiService extends BaseApiClient {
       userType: apiUser.userType,
       isActive: apiUser.isActive,
       isOpenToOffers: false, // Default value, should be included in API response
+      uiTheme: apiUser.uiTheme,
       phone: apiUser.phone,
       whatsapp: apiUser.whatsapp,
       telegram: apiUser.telegram,

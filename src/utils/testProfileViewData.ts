@@ -265,18 +265,18 @@ export const createPartialProfileViewData = (): SpecialistProfileViewData => {
 }
 
 // Helper functions for display formatting
-export const formatPrice = (price: number, priceType: string): string => {
+export const formatPrice = (price: string, priceType: string): string => {
   switch (priceType) {
     case 'fixed':
-      return `${price.toLocaleString('ru-RU')} ₽`
+      return `${price} ₽`
     case 'hourly':
-      return `${price.toLocaleString('ru-RU')} ₽/час`
+      return `${price} ₽/час`
     case 'project':
-      return `${price.toLocaleString('ru-RU')} ₽/проект`
+      return `${price} ₽/проект`
     case 'negotiable':
       return 'По договоренности'
     default:
-      return `${price.toLocaleString('ru-RU')} ₽`
+      return `${price} ₽`
   }
 }
 

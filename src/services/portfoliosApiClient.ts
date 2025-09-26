@@ -12,14 +12,21 @@ import type {
   ApiSpecializationListResponse,
   ApiService,
   ApiServiceListResponse,
+  ApiSpecialistProfile,
+  ApiSpecialistSearchResponse,
   Skill,
   Specialization,
   Service,
   SkillPaginationResponse,
   SpecializationPaginationResponse,
   ServicePaginationResponse,
-  PortfolioSearchFilters
+  SpecialistSearchProfile,
+  SpecialistSearchPaginationResponse,
+  PortfolioSearchFilters,
+  Attachment,
+  AttachmentUploadRequest
 } from '@/types/portfolio'
+import type { NeuralNetworkProfile } from '@/types/neural-network-profile-simple'
 
 /**
  * Portfolio API Client class
@@ -73,6 +80,28 @@ export class PortfoliosApiClient extends AuthApiClient {
       name: apiService.name,
       description: apiService.description,
       price: apiService.price,
+    }
+  }
+
+  /**
+   * Convert API specialist profile to frontend specialist format
+   */
+  private convertApiSpecialistToSpecialist(apiSpecialist: ApiSpecialistProfile): SpecialistSearchProfile {
+    return {
+      id: apiSpecialist.id,
+      userId: apiSpecialist.user.id,
+      displayName: `${apiSpecialist.user.firstName} ${apiSpecialist.user.lastName}`,
+      superpower: apiSpecialist.superpower,
+      avatarUrl: apiSpecialist.user.avatar,
+      skills: apiSpecialist.cachedSkills,
+      specializations: apiSpecialist.cachedSpecializations,
+      services: apiSpecialist.cachedServices,
+      contacts: {
+        telegram: apiSpecialist.user.telegram,
+        email: apiSpecialist.user.email,
+        phone: apiSpecialist.user.phone,
+        whatsapp: apiSpecialist.user.whatsapp,
+      },
     }
   }
 
@@ -189,6 +218,151 @@ export class PortfoliosApiClient extends AuthApiClient {
     const response = await this.authenticatedRequest<ApiService>('GET', `/api/web/portfolios/services/${id}`)
     return this.convertApiServiceToService(response)
   }
+
+  /**
+   * Search specialists with pagination
+   */
+  async searchSpecialists(filters?: PortfolioSearchFilters): Promise<SpecialistSearchPaginationResponse> {
+    const params: Record<string, any> = {}
+    
+    if (filters?.limit) params.limit = filters.limit
+    if (filters?.offset !== undefined) params.offset = filters.offset
+    if (filters?.search) params.search = filters.search
+
+    const response = await this.authenticatedRequest<ApiSpecialistSearchResponse>('GET', '/api/web/portfolios/search', params)
+    
+    const convertedSpecialists = response.items.map(apiSpecialist => 
+      this.convertApiSpecialistToSpecialist(apiSpecialist)
+    )
+
+    // Calculate pagination info
+    const limit = filters?.limit || 100
+    const offset = filters?.offset || 0
+    const currentPage = Math.floor(offset / limit) + 1
+    const hasMore = (offset + limit) < response.count
+
+    return {
+      specialists: convertedSpecialists,
+      page: currentPage,
+      pageSize: limit,
+      total: response.count,
+      hasMore,
+    }
+  }
+
+  /**
+   * Get specialist profile by ID
+   */
+  async getSpecialistById(id: string): Promise<NeuralNetworkProfile> {
+    const response = await this.authenticatedRequest<any>('GET', `/api/web/portfolios/${id}`)
+    return this.convertMeResponseToSimplifiedProfile(response)
+  }
+
+  /**
+   * Get random specialists for homepage
+   */
+  async getRandomSpecialists(): Promise<SpecialistSearchProfile[]> {
+    const response = await this.authenticatedRequest<ApiSpecialistProfile[]>('GET', '/api/web/portfolios/random')
+    return response.map(apiSpecialist => this.convertApiSpecialistToSpecialist(apiSpecialist))
+  }
+
+  /**
+   * Convert "my portfolio" API response to simplified NeuralNetworkProfile
+   */
+  private convertMeResponseToSimplifiedProfile(apiData: any): NeuralNetworkProfile {
+    return {
+      id: apiData.id,
+      userId: apiData.user.id,
+      status: apiData.status,
+      createdAt: apiData?.createdTimestamp ?? new Date().toISOString(),
+      updatedAt: apiData?.updatedTimestamp ?? new Date().toISOString(),
+      // Сохраняем данные пользователя
+      user: {
+        id: apiData.user.id,
+        email: apiData.user.email,
+        firstName: apiData.user.firstName,
+        lastName: apiData.user.lastName,
+        avatar: apiData.user.avatar,
+        phone: apiData.user.phone,
+        telegram: apiData.user.telegram,
+        whatsapp: apiData.user.whatsapp,
+      },
+      specializations: apiData.specializations.map((x: any) => x.id),
+      customSpecializations: apiData.customSpecializations,
+      superpower: apiData.superpower,
+      publicLinks: apiData.publicLinks || [],
+      skills: apiData.skills.map((x: any) => x.id),
+      customSkills: apiData.customSkills,
+      portfolio: apiData.portfolioItems || [],
+      services: apiData.services || [], // Сохраняем полные данные услуг
+      customServices: apiData.customServices || [],
+      // Service options may have a different structure on the backend; keep as empty for now
+      serviceOptions: apiData.serviceOptions,
+      experience: apiData.experience,
+      testimonials: apiData.testimonials,
+      customContacts: {
+        phone: apiData.user.phone,
+        telegram: apiData.user.telegram,
+        whatsapp: apiData.user.whatsapp,
+      },
+    }
+  }
+
+  /**
+   * Fetch current user's portfolio/profile (simplified schema)
+   */
+  async getMySimplifiedProfile(): Promise<NeuralNetworkProfile> {
+    const response = await this.authenticatedRequest<any>('GET', '/api/web/portfolios/me')
+    return this.convertMeResponseToSimplifiedProfile(response)
+  }
+
+  /**
+   * Partially update current user's profile (send only changed fields)
+   * Example payloads:
+   * { superpower: '...' }
+   * { specializations: [1,2], customSpecializations: ['...'] }
+   */
+  async patchMyProfile(partial: Partial<NeuralNetworkProfile>): Promise<NeuralNetworkProfile> {
+    // Backend expects field names aligned with our simplified schema for these blocks
+    const payload: Record<string, any> = {}
+    if (partial.superpower !== undefined) payload.superpower = partial.superpower
+    if (partial.publicLinks !== undefined) payload.publicLinks = partial.publicLinks
+    if (partial.specializations !== undefined) payload.specializations = partial.specializations
+    if (partial.customSpecializations !== undefined) payload.customSpecializations = partial.customSpecializations
+    if (partial.skills !== undefined) payload.skills = partial.skills
+    if (partial.customSkills !== undefined) payload.customSkills = partial.customSkills
+    if (partial.portfolio !== undefined) payload.portfolioItems = partial.portfolio
+    if (partial.services !== undefined) payload.services = partial.services
+    if (partial.customServices !== undefined) payload.customServices = partial.customServices
+    if (partial.serviceOptions !== undefined) payload.serviceOptions = partial.serviceOptions
+    if (partial.experience !== undefined) payload.experience = partial.experience
+    if (partial.testimonials !== undefined) payload.testimonials = partial.testimonials
+    if (partial.customContacts !== undefined) payload.customContacts = partial.customContacts
+
+    const response = await this.authenticatedRequest<any>('PATCH', '/api/web/portfolios/me', payload)
+    return this.convertMeResponseToSimplifiedProfile(response)
+  }
+
+  /**
+   * Upload attachment file for portfolio
+   */
+  async uploadAttachment(uploadRequest: AttachmentUploadRequest): Promise<Attachment> {
+    const formData = new FormData()
+    formData.append('title', uploadRequest.title)
+    formData.append('type', uploadRequest.type)
+    formData.append('file', uploadRequest.file)
+
+    // Override content type for multipart/form-data
+    const config = {
+      headers: {
+        ...this.getDefaultHeaders(),
+        'Content-Type': 'multipart/form-data',
+      }
+    }
+
+    const response = await this.authenticatedRequest<Attachment>('POST', '/api/web/portfolios/me/attachments', formData, config)
+    return response
+  }
 }
 
 // Create default instance
@@ -207,6 +381,18 @@ export const portfoliosApi = {
   // Services operations
   getServices: (filters?: PortfolioSearchFilters) => portfoliosApiClient.getServices(filters),
   getServiceById: (id: number) => portfoliosApiClient.getServiceById(id),
+  
+  // Specialist search operations
+  searchSpecialists: (filters?: PortfolioSearchFilters) => portfoliosApiClient.searchSpecialists(filters),
+  getSpecialistById: (id: string) => portfoliosApiClient.getSpecialistById(id),
+  getRandomSpecialists: () => portfoliosApiClient.getRandomSpecialists(),
+  
+  // Simplified Profile operations
+  getMySimplifiedProfile: () => portfoliosApiClient.getMySimplifiedProfile(),
+  patchMyProfile: (partial: Partial<NeuralNetworkProfile>) => portfoliosApiClient.patchMyProfile(partial),
+  
+  // Attachment operations
+  uploadAttachment: (uploadRequest: AttachmentUploadRequest) => portfoliosApiClient.uploadAttachment(uploadRequest),
 }
 
 // Export types
@@ -217,11 +403,17 @@ export type {
   ApiSpecializationListResponse,
   ApiService,
   ApiServiceListResponse,
+  ApiSpecialistProfile,
+  ApiSpecialistSearchResponse,
   Skill,
   Specialization,
   Service,
   SkillPaginationResponse,
   SpecializationPaginationResponse,
   ServicePaginationResponse,
-  PortfolioSearchFilters
+  SpecialistSearchProfile,
+  SpecialistSearchPaginationResponse,
+  PortfolioSearchFilters,
+  Attachment,
+  AttachmentUploadRequest
 }

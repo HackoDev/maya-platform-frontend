@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
-import type { ThemeMode, ThemeState } from '@/types/theme'
+import type { ThemeMode } from '@/types/theme'
 import { THEME_CONFIG } from '@/types/theme'
 
 /**
@@ -175,6 +175,20 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   /**
+   * Initialize theme from user preferences
+   * @param userTheme - User's preferred theme from backend
+   */
+  const initializeFromUserPreference = (userTheme?: string | null): void => {
+    if (userTheme && ['light', 'dark', 'system'].includes(userTheme)) {
+      // User has a valid theme preference
+      setTheme(userTheme as ThemeMode)
+    } else {
+      // No valid user preference, use default dark theme
+      setTheme(THEME_CONFIG.DEFAULT_THEME)
+    }
+  }
+
+  /**
    * Cleanup function for when the store is no longer needed
    */
   const cleanup = (): void => {
@@ -194,6 +208,7 @@ export const useThemeStore = defineStore('theme', () => {
     toggleTheme,
     cycleTheme,
     initializeTheme,
+    initializeFromUserPreference,
     cleanup,
     
     // Utilities

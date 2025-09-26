@@ -34,7 +34,7 @@
 
     <!-- Profile Content -->
     <div v-else-if="profileStore.currentProfile" class="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <!-- Header with test data controls -->
+      <!-- Header -->
       <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
@@ -42,44 +42,6 @@
               <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                 Просмотр профиля специалиста
               </h1>
-            </div>
-            
-            <!-- Test Data Controls -->
-            <div class="flex items-center space-x-3">
-              <span class="text-sm text-gray-500 dark:text-gray-400">Тестовые данные:</span>
-              <button
-                @click="loadTestData('empty')"
-                :class="[
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
-                  currentTestData === 'empty'
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                ]"
-              >
-                Пустая
-              </button>
-              <button
-                @click="loadTestData('partial')"
-                :class="[
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
-                  currentTestData === 'partial'
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                ]"
-              >
-                Частичная
-              </button>
-              <button
-                @click="loadTestData('full')"
-                :class="[
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
-                  currentTestData === 'full'
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                ]"
-              >
-                Полная
-              </button>
             </div>
           </div>
         </div>
@@ -117,6 +79,7 @@
               :specializations="profileStore.displaySpecializations"
               :abilities="profileStore.displaySkills"
               :services="profileStore.displayServices"
+              :public-links="profileStore.currentProfile.profileData.publicLinks || []"
             />
           </div>
 
@@ -144,6 +107,15 @@
               <div v-if="profileStore.hasExperience" id="experience">
                 <ExperienceSection
                   :experience="profileStore.displayExperience"
+                />
+              </div>
+
+              <!-- Services Section -->
+              <div v-if="profileStore.hasServices" id="services">
+                <ServicesSection
+                  :services="profileStore.displayServices"
+                  :specialist-name="profileStore.currentProfile.basicInfo.displayName"
+                  :contacts="profileStore.displayContacts"
                 />
               </div>
 
@@ -228,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSpecialistProfileViewStore } from '@/stores/specialist-profile-view-simple'
 // Components
@@ -238,6 +210,7 @@ import ProfileOverview from '@/components/profile/ProfileOverview.vue'
 import SpecializationsSection from '@/components/profile/SpecializationsSection.vue'
 import PortfolioSection from '@/components/profile/PortfolioSection.vue'
 import ExperienceSection from '@/components/profile/ExperienceSection.vue'
+import ServicesSection from '@/components/profile/ServicesSection.vue'
 import TestimonialsSection from '@/components/profile/TestimonialsSection.vue'
 import ContactSection from '@/components/profile/ContactSection.vue'
 
@@ -255,16 +228,7 @@ const route = useRoute()
 const router = useRouter()
 const profileStore = useSpecialistProfileViewStore()
 
-// Test data state
-const currentTestData = ref<'empty' | 'partial' | 'full'>('full')
-
 const specialistId = computed(() => props.specialistId || (route.params.id as string))
-
-// Test data functions
-const loadTestData = (type: 'empty' | 'partial' | 'full') => {
-  currentTestData.value = type
-  profileStore.loadTestData(type)
-}
 
 const goBack = () => {
   if (props.modalMode) {
@@ -277,8 +241,7 @@ const goBack = () => {
 
 onMounted(async () => {
   if (specialistId.value) {
-    // Load full test data by default
-    await profileStore.loadTestData('full')
+    await profileStore.loadProfile(specialistId.value)
   }
 })
 

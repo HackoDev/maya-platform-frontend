@@ -25,6 +25,10 @@ export interface PasswordChange {
   confirmPassword: string
 }
 
+export interface ThemeUpdate {
+  uiTheme: string
+}
+
 /**
  * User Service
  * Handles API calls related to user management using the UsersApiService
@@ -156,6 +160,20 @@ export class UserService {
       throw error
     }
   }
+
+  /**
+   * Update user's UI theme preference
+   * @param data - Theme update data
+   * @returns Promise resolving to the updated user object
+   */
+  async updateTheme(data: ThemeUpdate): Promise<User> {
+    try {
+      return await usersApiService.updateTheme(data)
+    } catch (error) {
+      console.error('Failed to update theme:', error)
+      throw error
+    }
+  }
 }
 
 // Create and export default instance
@@ -165,8 +183,8 @@ export const userService = new UserService()
 export const userApi = {
   getCurrentUser: () => userService.getCurrentUser(),
   getUserProfile: (userId: string) => userService.getUserProfile(userId),
-  updateUserOpenToOffers: (userId: string, isOpenToOffers: boolean) => 
-    userService.updateUserOpenToOffers(userId, isOpenToOffers),
+  updateUserOpenToOffers: (isOpenToOffers: boolean) => 
+    userService.updateUserOpenToOffers(isOpenToOffers),
   updatePersonalInfo: (data: PersonalInfoUpdate) => 
     userService.updatePersonalInfo(data),
   updatePersonalInfoText: (firstName: string, lastName: string) => 
@@ -179,4 +197,6 @@ export const userApi = {
     userService.updateEmail(data),
   changePassword: (data: PasswordChange) => 
     userService.changePassword(data),
+  updateTheme: (data: ThemeUpdate) => 
+    userService.updateTheme(data),
 }

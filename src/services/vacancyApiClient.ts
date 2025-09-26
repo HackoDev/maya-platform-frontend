@@ -173,6 +173,17 @@ export class VacancyApiClient extends AuthApiClient {
   }
 
   /**
+   * Get random vacancies for homepage
+   */
+  async getRandomVacancies(): Promise<Vacancy[]> {
+    const response = await this.authenticatedRequest<ApiVacancy[]>('GET', '/api/web/vacancies/random')
+    
+    return response.map(apiVacancy => 
+      this.convertApiVacancyToVacancy(apiVacancy)
+    )
+  }
+
+  /**
    * Search vacancies with filters
    */
   async searchVacancies(filters: VacancySearchFilters): Promise<VacancyPaginationResponse> {
@@ -188,6 +199,7 @@ export const vacancyApi = {
   // List operations
   getVacancies: (filters?: VacancySearchFilters) => vacancyApiClient.getVacancies(filters),
   getMyVacancies: (filters?: VacancySearchFilters) => vacancyApiClient.getMyVacancies(filters),
+  getRandomVacancies: () => vacancyApiClient.getRandomVacancies(),
   searchVacancies: (filters: VacancySearchFilters) => vacancyApiClient.searchVacancies(filters),
   
   // CRUD operations

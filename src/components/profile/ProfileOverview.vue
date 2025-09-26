@@ -83,6 +83,31 @@
       </div>
     </div>
 
+    <!-- Public Links Overview -->
+    <div v-if="publicLinks && publicLinks.length" class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        Публичные ссылки
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <a
+          v-for="link in publicLinks"
+          :key="link.url + link.title"
+          :href="link.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group"
+        >
+          <div class="min-w-0 mr-3">
+            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ link.title }}</div>
+            <div class="text-xs text-blue-700 dark:text-blue-300 truncate group-hover:underline">{{ link.url }}</div>
+          </div>
+          <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -140,6 +165,7 @@ interface Props {
   specializations: ProfileOverviewProps['specializations']
   abilities: ProfileOverviewProps['abilities']
   services: ProfileOverviewProps['services']
+  publicLinks?: Array<{ title: string; url: string }>
 }
 
 const props = defineProps<Props>()
@@ -186,7 +212,8 @@ const formatPrice = (service: ServiceDetails): string => {
     return service.price
   }
 
-  const formattedPrice = service.price.toLocaleString('ru-RU')
+  const formattedPrice = service.price
+  console.log(service)
 
   switch (service.priceType) {
     case 'hourly':

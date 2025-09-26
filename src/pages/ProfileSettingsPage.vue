@@ -51,7 +51,7 @@
                   >
                     <img
                       v-if="personalInfoForm.avatarPreview || userStore.currentUser?.avatar"
-                      :src="personalInfoForm.avatarPreview || userStore.currentUser?.avatar"
+                      :src="personalInfoForm.avatarPreview || userStore.currentUser?.avatar || ''"
                       alt="Avatar"
                       class="w-full h-full object-cover"
                     />
@@ -468,12 +468,30 @@
               <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Тема интерфейса</h3>
             </div>
 
+            <!-- Success/Error Messages -->
+            <div
+              v-if="formStates.theme.successMessage"
+              class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md"
+            >
+              <p class="text-sm text-green-700 dark:text-green-300">
+                {{ formStates.theme.successMessage }}
+              </p>
+            </div>
+            <div
+              v-if="formStates.theme.errorMessage"
+              class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
+            >
+              <p class="text-sm text-red-700 dark:text-red-300">
+                {{ formStates.theme.errorMessage }}
+              </p>
+            </div>
+
             <div class="space-y-4">
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Выберите внешний вид интерфейса. Изменения применяются мгновенно.
+                Выберите внешний вид интерфейса. Изменения применяются мгновенно и сохраняются на сервере.
               </p>
               
-              <ThemeSelector />
+              <ThemeSelector @theme-changed="handleThemeChange" />
             </div>
           </div>
         </BaseCard>
@@ -495,9 +513,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import type { PersonalInfoUpdate } from '@/stores/user'
+import type { ThemeMode } from '@/types/theme'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -553,9 +571,9 @@ interface FormStates {
   contactInfo: FormState
   email: FormState
   password: FormState
+  theme: FormState
 }
 
-const router = useRouter()
 const userStore = useUserStore()
 
 // Form data
@@ -608,6 +626,13 @@ const formStates = reactive<FormStates>({
     errorMessage: '',
   },
   password: {
+    isLoading: false,
+    isValid: false,
+    errors: {},
+    successMessage: '',
+    errorMessage: '',
+  },
+  theme: {
     isLoading: false,
     isValid: false,
     errors: {},
@@ -837,6 +862,31 @@ const submitPasswordChange = async () => {
     console.error(`Failed to change password: ${JSON.stringify(formStates.password.errors)}`);
   } finally {
     formStates.password.isLoading = false
+  }
+}
+
+const handleThemeChange = async (theme: ThemeMode) => {
+  formStates.theme.isLoading = true
+  formStates.theme.errors = {}
+  formStates.theme.successMessage = 'Сохранение темы...'
+  formStates.theme.errorMessage = ''
+
+  try {
+    await userStore.updateTheme({ uiTheme: theme })
+    formStates.theme.successMessage = 'Тема успешно сохранена'
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      formStates.theme.successMessage = ''
+    }, 3000)
+  } catch (error) {
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при сохранении темы.')
+    formStates.theme.errorMessage = message
+    formStates.theme.successMessage = ''
+    formStates.theme.errors = errorsData || {}
+    console.error('Failed to update theme:', error)
+  } finally {
+    formStates.theme.isLoading = false
   }
 }
 </script>

@@ -28,6 +28,10 @@ export interface PasswordChange {
   confirmPassword: string
 }
 
+export interface ThemeUpdate {
+  uiTheme: string
+}
+
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null)
   const users = ref<User[]>([])
@@ -191,6 +195,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  const updateTheme = async (data: ThemeUpdate) => {
+    try {
+      const response = await userService.updateTheme(data)
+      // Update local state with new theme
+      if (currentUser.value) {
+        currentUser.value.uiTheme = data.uiTheme
+        // Sync with authApiClient
+        authApi.updateUserData(currentUser.value)
+      }
+      return response
+    } catch (err) {
+      throw err
+    }
+  }
+
   // Initialize with stored authentication data
   const initializeAuth = () => {
     try {
@@ -243,6 +262,7 @@ export const useUserStore = defineStore('user', () => {
     updateContactInfo,
     updateEmail,
     changePassword,
+    updateTheme,
     initializeAuth,
     syncUserData,
     updateUserData,

@@ -5,6 +5,7 @@
 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useThemeStore } from '@/stores/theme'
 import { authApi } from '@/services/authApiClient'
 
 export interface SessionState {
@@ -17,6 +18,7 @@ export interface SessionState {
 
 export function useSession() {
   const userStore = useUserStore()
+  const themeStore = useThemeStore()
   
   // Session state
   const sessionState = ref<SessionState>({
@@ -67,6 +69,9 @@ export function useSession() {
           // Force sync with user store to ensure consistency
           syncWithUserStore()
           
+          // Activate user's preferred theme
+          activateUserTheme(storedUser)
+          
           console.log('✅ Session restored successfully')
           
           // Start token validation
@@ -111,6 +116,21 @@ export function useSession() {
   }
 
   /**
+   * Activate user's preferred theme
+   */
+  const activateUserTheme = (user: any): void => {
+    try {
+      // Use the new method that handles fallback to dark theme
+      themeStore.initializeFromUserPreference(user?.uiTheme)
+      console.log(`🎨 Activated user theme: ${user?.uiTheme || 'dark (default)'}`)
+    } catch (error) {
+      console.error('❌ Error activating user theme:', error)
+      // Fallback to dark theme
+      themeStore.setTheme('dark')
+    }
+  }
+
+  /**
    * Login and establish session
    */
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -127,6 +147,9 @@ export function useSession() {
         
         // Force sync with user store to ensure consistency
         syncWithUserStore()
+        
+        // Activate user's preferred theme
+        activateUserTheme(response.user)
         
         // Start token validation
         startTokenValidation()

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { SpecialistProfileViewData } from '@/types/specialist-profile-view-simple'
-import { createTestProfileViewData, createEmptyProfileViewData, createPartialProfileViewData } from '@/utils/testProfileViewData'
+import type { NeuralNetworkProfile } from '@/types/neural-network-profile-simple'
+import { portfoliosApi } from '@/services/portfoliosApiClient'
 
 export const useSpecialistProfileViewStore = defineStore('specialistProfileView', () => {
   // State
@@ -9,6 +10,66 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const isModalOpen = ref(false)
+
+  /**
+   * Convert API NeuralNetworkProfile to SpecialistProfileViewData
+   */
+  const convertApiProfileToViewData = (apiProfile: NeuralNetworkProfile): SpecialistProfileViewData => {
+    // Формируем имя из данных пользователя
+    const displayName = apiProfile.user 
+      ? `${apiProfile.user.firstName} ${apiProfile.user.lastName}`.trim()
+      : `Специалист ${apiProfile.id}`
+
+    return {
+      basicInfo: {
+        id: apiProfile.id,
+        userId: apiProfile.userId.toString(),
+        displayName,
+        superpower: apiProfile.superpower || 'Специалист по нейросетям',
+        avatarUrl: apiProfile.user?.avatar, // Используем аватар из данных пользователя
+        status: 'available',
+        isOpenToOffers: true,
+        lastActive: apiProfile.updatedAt || apiProfile.createdAt,
+      },
+      profileData: apiProfile,
+      metadata: {
+        profileCompleted: true, // Assume completed if we have data
+        completionPercentage: calculateCompletionPercentage(apiProfile),
+        moderationStatus: 'approved',
+        lastUpdated: apiProfile.updatedAt || apiProfile.createdAt,
+        viewCount: 0,
+        rating: undefined,
+      },
+    }
+  }
+
+  /**
+   * Calculate profile completion percentage
+   */
+  const calculateCompletionPercentage = (profile: NeuralNetworkProfile): number => {
+    let completed = 0
+    let total = 0
+
+    // Check each field
+    const fields = [
+      profile.superpower,
+      profile.specializations?.length > 0,
+      profile.skills?.length > 0,
+      profile.services?.length > 0,
+      profile.portfolio?.length > 0,
+      profile.experience?.length > 0,
+      profile.testimonials?.length > 0,
+      profile.customContacts?.phone || profile.customContacts?.telegram || profile.customContacts?.whatsapp,
+    ]
+
+    fields.forEach(field => {
+      total++
+      if (field) completed++
+    })
+
+    return Math.round((completed / total) * 100)
+  }
+
 
   // Computed properties
   const hasPortfolio = computed(() => {
@@ -106,17 +167,49 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
   })
 
   const displayServices = computed(() => {
-    if (!currentProfile.value?.profileData.services) return []
+    if (!currentProfile.value?.profileData) return []
     
-    return currentProfile.value.profileData.services.map(service => ({
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      price: service.price,
-      priceType: service.priceType,
-      isCustom: false, // Add required field
-      formattedPrice: formatPrice(typeof service.price === 'number' ? service.price : 0, service.priceType)
-    }))
+    const result: any[] = []
+    const profileData = currentProfile.value.profileData
+    
+    // Add custom services
+    if (profileData.customServices) {
+      profileData.customServices.forEach(service => {
+        result.push({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          price: service.price || 0,
+          priceType: service.priceType || 'fixed',
+          isCustom: true,
+          formattedPrice: formatPrice(service.price || '0', service.priceType || 'fixed')
+        })
+      })
+    }
+    
+    // Add services from services array (now contains full service objects)
+    if (profileData.services) {
+      profileData.services.forEach(service => {
+        const serviceId = service.id.toString()
+        const serviceOption = profileData.serviceOptions?.[serviceId]
+        
+        // Use custom price and description from serviceOptions if available
+        const price = serviceOption?.customPrice || service.price
+        const description = serviceOption?.customDescription || service.description
+        
+        result.push({
+          id: service.id,
+          name: service.name,
+          description,
+          price: price.toString() || 0,
+          priceType: service.priceType || 'fixed',
+          isCustom: false,
+          formattedPrice: formatPrice(price.toString() || '0', service.priceType || 'fixed')
+        })
+      })
+    }
+    
+    return result
   })
 
   const displayPortfolio = computed(() => {
@@ -129,7 +222,7 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
       type: (item.type === 'image' ? 'visual' : item.type) as 'text' | 'link' | 'bot' | 'landing' | 'visual',
       content: item.content,
       result: item.result,
-      tools: item.tools,
+      tools: item.tools ? [item.tools] : [], // Convert string to array
       createdAt: new Date().toISOString(), // Add required field
       typeLabel: getPortfolioTypeLabel(item.type),
       typeIcon: getPortfolioTypeIcon(item.type)
@@ -144,9 +237,9 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
       client: exp.client,
       task: exp.task,
       result: exp.result,
-      tools: exp.tools || [], // Ensure tools is always an array
-      duration: exp.duration,
-      year: exp.year
+      tools: exp.tools ? [exp.tools] : [], // Convert string to array
+      duration: exp.duration || '',
+      year: exp.year || ''
     }))
   })
 
@@ -171,13 +264,17 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
   })
 
   const displayContacts = computed(() => {
-    const contacts = currentProfile.value?.profileData.customContacts
+    const profileData = currentProfile.value?.profileData
+    const userContacts = profileData?.user
+    const customContacts = profileData?.customContacts
+    
     return {
-      phone: contacts?.phone,
-      telegram: contacts?.telegram,
-      whatsapp: contacts?.whatsapp,
-      email: undefined, // Not in simplified schema
-      hasContacts: !!(contacts?.phone || contacts?.telegram || contacts?.whatsapp)
+      phone: customContacts?.phone || userContacts?.phone,
+      telegram: customContacts?.telegram || userContacts?.telegram,
+      whatsapp: customContacts?.whatsapp || userContacts?.whatsapp,
+      email: userContacts?.email, // Теперь доступен из данных пользователя
+      hasContacts: !!(customContacts?.phone || customContacts?.telegram || customContacts?.whatsapp || 
+                     userContacts?.phone || userContacts?.telegram || userContacts?.whatsapp || userContacts?.email)
     }
   })
 
@@ -187,27 +284,8 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     error.value = null
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Load test data based on specialist ID
-      switch (specialistId) {
-        case 'test-1':
-        case 'specialist-1':
-          currentProfile.value = createTestProfileViewData()
-          break
-        case 'empty-1':
-        case 'specialist-empty':
-          currentProfile.value = createEmptyProfileViewData()
-          break
-        case 'partial-1':
-        case 'specialist-partial':
-          currentProfile.value = createPartialProfileViewData()
-          break
-        default:
-          // Default to test profile
-          currentProfile.value = createTestProfileViewData()
-      }
+      const apiProfile = await portfoliosApi.getSpecialistById(specialistId)
+      currentProfile.value = convertApiProfileToViewData(apiProfile)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка загрузки профиля'
     } finally {
@@ -252,31 +330,6 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     }
   }
 
-  const loadTestData = async (type: 'empty' | 'partial' | 'full'): Promise<void> => {
-    isLoading.value = true
-    error.value = null
-    
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      switch (type) {
-        case 'empty':
-          currentProfile.value = createEmptyProfileViewData()
-          break
-        case 'partial':
-          currentProfile.value = createPartialProfileViewData()
-          break
-        case 'full':
-          currentProfile.value = createTestProfileViewData()
-          break
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Ошибка загрузки тестовых данных'
-    } finally {
-      isLoading.value = false
-    }
-  }
 
   const retryLoading = async (): Promise<void> => {
     if (currentProfile.value?.basicInfo.id) {
@@ -310,7 +363,6 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     
     // Actions
     loadProfile,
-    loadTestData,
     clearProfile,
     openModal,
     closeModal,

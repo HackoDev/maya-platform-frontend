@@ -66,6 +66,7 @@
               :specializations="profileStore.currentProfile.detailedInfo.specializations"
               :abilities="profileStore.currentProfile.detailedInfo.abilities"
               :services="profileStore.currentProfile.detailedInfo.services"
+              :public-links="profileStore.currentProfile.profileData.publicLinks || []"
             />
           </div>
 

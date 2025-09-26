@@ -11,6 +11,7 @@ export interface User {
   userType: string
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
+  uiTheme?: string | null  // User's preferred UI theme
   // Contact information
   phone: string | null
   whatsapp: string | null
@@ -63,6 +64,7 @@ export interface UserProfile {
   role: 'admin' | 'user' | 'moderator'
   isActive: boolean
   isOpenToOffers?: boolean  // New field for "Open to Offers" flag
+  uiTheme?: string | null  // User's preferred UI theme
   // Contact information
   phone?: string
   whatsapp?: string
