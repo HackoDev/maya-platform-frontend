@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useGlobalSession } from '@/composables/useSession'
+import { authApi } from '@/services/authApiClient'
+import { useUserStore } from '@/stores/user'
 
 // Lazy-loaded pages
 const HomePage = () => import('@/pages/HomePage.vue')
@@ -213,6 +215,22 @@ router.beforeEach(async (to, _from, next) => {
       } catch (error) {
         console.error('❌ Error waiting for session initialization:', error)
         // Proceed anyway to avoid blocking navigation
+      }
+    }
+
+    // If authenticated, ensure user profile freshness before proceeding
+    if (session.isAuthenticated.value) {
+      try {
+        const freshUser = await authApi.ensureFreshUser()
+        // Sync refreshed user from auth storage into the store/session
+        if (freshUser) {
+          const userStore = useUserStore()
+          // Replace current user to trigger reactivity across app
+          userStore.updateUserData(freshUser)
+        }
+        session.syncWithUserStore()
+      } catch (e) {
+        // non-fatal; proceed with navigation
       }
     }
 

@@ -52,11 +52,11 @@
           <button
             v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'specialist'"
             @click="goToSpecialistQuestionnaire"
-            class="inline-flex items-center px-4 py-1.5 border text-sm font-semibold rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
+            class="inline-flex items-center px-3 py-1 border text-xs font-medium rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
             :class="portfolioStatusButton.classes"
             title="Перейти к анкете специалиста"
           >
-            <span class="inline-block h-2 w-2 rounded-full mr-2" :class="portfolioStatusButton.dot"></span>
+            <span class="inline-block h-1.5 w-1.5 rounded-full mr-1.5" :class="portfolioStatusButton.dot"></span>
             {{ portfolioStatusButton.text }}
           </button>
           

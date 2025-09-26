@@ -27,9 +27,10 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Портфолио специалистов</h2>
             <router-link 
               to="/search/specialists"
-              class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              class="inline-flex items-center gap-2 whitespace-nowrap text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors"
             >
-              Найти специалиста ->
+              <span>Найти специалиста</span>
+              <ArrowRightIcon class="h-5 w-5" />
             </router-link>
           </div>
           
@@ -42,23 +43,46 @@
           </div>
           
           <div v-else>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <PortfolioSpecialistCard 
-                v-for="(item, index) in portfolios.slice(0, 9)" 
-                :key="index" 
-                :portfolio="item.portfolio"
-                :specialist="item.specialist"
-              />
+            <!-- Empty state for portfolios -->
+            <div v-if="portfolios.length === 0" class="text-center py-16">
+              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-200/70 dark:ring-gray-700/70">
+                <UserGroupIcon class="h-7 w-7 text-gray-400" />
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Пока нет анкет</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                Здесь скоро появятся анкеты специалистов. Загляните позже или перейдите к поиску.
+              </p>
+              <div class="mt-6">
+                <router-link 
+                  to="/search/specialists"
+                  class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800"
+                >
+                  Перейти к поиску специалистов
+                </router-link>
+              </div>
             </div>
             
-            <!-- Centered link to view all specialists -->
+            <!-- Portfolios grid -->
+            <div v-else>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <PortfolioSpecialistCard 
+                  v-for="(item, index) in portfolios.slice(0, 9)" 
+                  :key="index" 
+                  :portfolio="item.portfolio"
+                  :specialist="item.specialist"
+                />
+              </div>
+              
+              <!-- Centered link to view all specialists -->
             <div class="text-center">
               <router-link 
                 to="/search/specialists"
-                class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-lg font-medium"
+                class="inline-flex items-center gap-2 whitespace-nowrap text-lg font-medium text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors"
               >
-                Найти специалиста ->
+                <span>Найти специалиста</span>
+                <ArrowRightIcon class="h-5 w-5" />
               </router-link>
+            </div>
             </div>
           </div>
         </div>
@@ -69,9 +93,10 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Последние вакансии</h2>
             <router-link 
               to="/vacancies"
-              class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              class="inline-flex items-center gap-2 whitespace-nowrap text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors"
             >
-              Найти вакансии ->
+              <span>Найти вакансии</span>
+              <ArrowRightIcon class="h-5 w-5" />
             </router-link>
           </div>
           
@@ -84,24 +109,47 @@
           </div>
           
           <div v-else>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <VacancyCard 
-                v-for="vacancy in vacancies.slice(0, 9)" 
-                :key="vacancy.id" 
-                :vacancy="vacancy"
-                :is-owner="false"
-                @view="handleViewVacancy"
-              />
+            <!-- Empty state for vacancies -->
+            <div v-if="vacancies.length === 0" class="text-center py-16">
+              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-200/70 dark:ring-gray-700/70">
+                <BriefcaseIcon class="h-7 w-7 text-gray-400" />
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Пока нет вакансий</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                Здесь скоро появятся вакансии. Загляните позже или перейдите к поиску.
+              </p>
+              <div class="mt-6">
+                <router-link 
+                  to="/vacancies"
+                  class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800"
+                >
+                  Перейти к поиску вакансий
+                </router-link>
+              </div>
             </div>
             
-            <!-- Centered link to view all vacancies -->
+            <!-- Vacancies grid -->
+            <div v-else>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <VacancyCard 
+                  v-for="vacancy in vacancies.slice(0, 9)" 
+                  :key="vacancy.id" 
+                  :vacancy="vacancy"
+                  :is-owner="false"
+                  @view="handleViewVacancy"
+                />
+              </div>
+              
+              <!-- Centered link to view all vacancies -->
             <div class="text-center">
               <router-link 
                 to="/vacancies"
-                class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-lg font-medium"
+                class="inline-flex items-center gap-2 whitespace-nowrap text-lg font-medium text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors"
               >
-                Найти вакансии ->
+                <span>Найти вакансии</span>
+                <ArrowRightIcon class="h-5 w-5" />
               </router-link>
+            </div>
             </div>
           </div>
         </div>
@@ -123,6 +171,7 @@ import { usePlatformData } from '@/composables/usePlatformData'
 import PortfolioSpecialistCard from '@/components/ui/PortfolioSpecialistCard.vue'
 import VacancyCard from '@/components/vacancies/VacancyCard.vue'
 import type { Vacancy } from '@/types/vacancy'
+import { BriefcaseIcon, UserGroupIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
 
 // Stores
 const session = useGlobalSession()

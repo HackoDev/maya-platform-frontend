@@ -155,6 +155,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGlobalSession } from '@/composables/useSession'
+import { authApi } from '@/services/authApiClient'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import MayaLogoIcon from '@/components/icons/MayaLogoIcon.vue'
@@ -232,6 +233,15 @@ const handleSubmit = async () => {
     const success = await session.login(form.value.email, form.value.password)
     
     if (success) {
+      // Ensure we have fresh user data (re-fetch /users/me if stale)
+      try {
+        const freshUser = await authApi.ensureFreshUser()
+        if (freshUser) {
+          // session will pick up from auth storage on next sync
+        }
+      } catch (e) {
+        // non-fatal
+      }
       // Show success animation
       isLoginSuccessful.value = true
       

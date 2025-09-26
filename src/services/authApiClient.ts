@@ -18,6 +18,8 @@ export interface User {
   phone: string | null
   telegram: string | null
   isOpenToOffers?: boolean
+  uiTheme?: string | null
+  portfolioStatus?: 'published' | 'draft' | 'archived' | null
   lastLoginAt: string
   createdAt: string
   name: string
@@ -52,6 +54,10 @@ export interface TokenStorage {
   getUser(): User | null
   setUser(user: User): void
   removeUser(): void
+  // Track when user profile was last synchronized from backend
+  getUserSyncedAt?(): number | null
+  setUserSyncedAt?(timestampMs: number): void
+  removeUserSyncedAt?(): void
 }
 
 // Local storage implementation
@@ -59,6 +65,7 @@ class LocalStorageTokenStorage implements TokenStorage {
   private readonly ACCESS_TOKEN_KEY = 'auth_access_token'
   private readonly REFRESH_TOKEN_KEY = 'auth_refresh_token'
   private readonly USER_KEY = 'auth_user'
+  private readonly USER_SYNCED_AT_KEY = 'auth_user_synced_at'
 
   getToken(): string | null {
     return localStorage.getItem(this.ACCESS_TOKEN_KEY)
@@ -96,6 +103,19 @@ class LocalStorageTokenStorage implements TokenStorage {
   removeUser(): void {
     localStorage.removeItem(this.USER_KEY)
   }
+
+  getUserSyncedAt(): number | null {
+    const value = localStorage.getItem(this.USER_SYNCED_AT_KEY)
+    return value ? Number(value) : null
+  }
+
+  setUserSyncedAt(timestampMs: number): void {
+    localStorage.setItem(this.USER_SYNCED_AT_KEY, String(timestampMs))
+  }
+
+  removeUserSyncedAt(): void {
+    localStorage.removeItem(this.USER_SYNCED_AT_KEY)
+  }
 }
 
 // Memory storage implementation (for testing or when localStorage is not available)
@@ -103,6 +123,7 @@ export class MemoryTokenStorage implements TokenStorage {
   private accessToken: string | null = null
   private refreshToken: string | null = null
   private user: User | null = null
+  private userSyncedAtMs: number | null = null
 
   getToken(): string | null {
     return this.accessToken
@@ -139,6 +160,18 @@ export class MemoryTokenStorage implements TokenStorage {
   removeUser(): void {
     this.user = null
   }
+
+  getUserSyncedAt(): number | null {
+    return this.userSyncedAtMs
+  }
+
+  setUserSyncedAt(timestampMs: number): void {
+    this.userSyncedAtMs = timestampMs
+  }
+
+  removeUserSyncedAt(): void {
+    this.userSyncedAtMs = null
+  }
 }
 
 /**
@@ -151,6 +184,7 @@ export class AuthApiClient extends BaseApiClient {
   private isRefreshing: boolean = false
   private refreshPromise: Promise<OAuth2TokenResponse> | null = null
   private isLoggingOut: boolean = false
+  private readonly USER_REFRESH_TTL_MS = 20 * 1000
 
   constructor(
     baseURL?: string,
@@ -237,6 +271,8 @@ export class AuthApiClient extends BaseApiClient {
         this.tokenStorage.setRefreshToken(response.data.refresh_token)
       }
       this.tokenStorage.setUser(response.data.user)
+      // Mark user as freshly synced at login
+      this.tokenStorage.setUserSyncedAt?.(Date.now())
 
       // Update default headers with new token
       this.setDefaultHeaders({
@@ -318,6 +354,7 @@ export class AuthApiClient extends BaseApiClient {
       this.tokenStorage.removeToken()
       this.tokenStorage.removeRefreshToken()
       this.tokenStorage.removeUser()
+      this.tokenStorage.removeUserSyncedAt?.()
 
       // Remove authorization header
       const headers = this.getDefaultHeaders()
@@ -420,6 +457,8 @@ export class AuthApiClient extends BaseApiClient {
         this.tokenStorage.setUser(response.data.user)
         console.log('✅ [Token Refresh] User data updated')
       }
+      // Any successful token refresh means user data is up-to-date now
+      this.tokenStorage.setUserSyncedAt?.(Date.now())
 
       // Update default headers with new token
       this.setDefaultHeaders({
@@ -441,6 +480,7 @@ export class AuthApiClient extends BaseApiClient {
       this.tokenStorage.removeToken()
       this.tokenStorage.removeRefreshToken()
       this.tokenStorage.removeUser()
+      this.tokenStorage.removeUserSyncedAt?.()
       
       // Remove authorization header
       const headers = this.getDefaultHeaders()
@@ -654,6 +694,57 @@ export class AuthApiClient extends BaseApiClient {
    */
   updateUserData(user: User): void {
     this.tokenStorage.setUser(user)
+    // Update sync timestamp on local manual updates as well
+    this.tokenStorage.setUserSyncedAt?.(Date.now())
+  }
+
+  /**
+   * Ensure the locally stored user profile is fresh.
+   * If older than TTL, fetch /api/web/users/me and update storage.
+   */
+  async ensureFreshUser(): Promise<User | null> {
+    try {
+      const token = this.getAccessToken()
+      if (!token) return null
+
+      const lastSyncedAt = this.tokenStorage.getUserSyncedAt?.() || null
+      const now = Date.now()
+      if (lastSyncedAt && now - lastSyncedAt < this.USER_REFRESH_TTL_MS) {
+        return this.getCurrentUser()
+      }
+
+      // Fetch current user from backend
+      const meResponse = await this.authenticatedRequest<any>('GET', '/api/web/users/me')
+      const freshUser = this.transformUserFromMeResponse(meResponse)
+      this.tokenStorage.setUser(freshUser)
+      this.tokenStorage.setUserSyncedAt?.(Date.now())
+      return freshUser
+    } catch (error) {
+      console.warn('⚠️ [EnsureFreshUser] Failed to refresh user profile:', error)
+      return this.getCurrentUser()
+    }
+  }
+
+  // Map API /users/me response to AuthApiClient.User
+  private transformUserFromMeResponse(apiUser: any): User {
+    return {
+      id: apiUser.id,
+      name: apiUser.name,
+      firstName: apiUser.firstName,
+      lastName: apiUser.lastName,
+      email: apiUser.email,
+      avatar: apiUser.avatar ?? null,
+      userType: apiUser.userType,
+      isActive: apiUser.isActive,
+      isOpenToOffers: apiUser.isOpenToOffers ?? false,
+      uiTheme: apiUser.uiTheme ?? null,
+      portfolioStatus: apiUser.portfolioStatus ?? null,
+      whatsapp: apiUser.whatsapp ?? null,
+      phone: apiUser.phone ?? null,
+      telegram: apiUser.telegram ?? null,
+      lastLoginAt: apiUser.lastLoginAt,
+      createdAt: apiUser.createdAt,
+    }
   }
 }
 
@@ -670,6 +761,7 @@ export const authApi = {
   getCurrentUser: () => authApiClient.getCurrentUser(),
   updateUserData: (user: User) => authApiClient.updateUserData(user),
   initialize: () => authApiClient.initializeWithStoredToken(),
+  ensureFreshUser: () => authApiClient.ensureFreshUser(),
   
   // Authenticated requests
   get: <T = any>(url: string, params?: Record<string, any>, config?: ApiRequestConfig) =>
