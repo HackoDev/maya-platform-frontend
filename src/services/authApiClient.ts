@@ -17,6 +17,7 @@ export interface User {
   whatsapp: string | null
   phone: string | null
   telegram: string | null
+  isOpenToOffers?: boolean
   lastLoginAt: string
   createdAt: string
   name: string

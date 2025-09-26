@@ -20,6 +20,7 @@ export interface UserMeResponse {
   phone: string | null
   telegram: string | null
   uiTheme: string | null
+  isOpenToOffers?: boolean
   lastLoginAt: string
   createdAt: string
   name: string
@@ -356,7 +357,7 @@ export class UsersApiService extends BaseApiClient {
       avatar: apiUser.avatar,
       userType: apiUser.userType,
       isActive: apiUser.isActive,
-      isOpenToOffers: false, // Default value, should be included in API response
+      isOpenToOffers: apiUser.isOpenToOffers ?? false,
       uiTheme: apiUser.uiTheme,
       phone: apiUser.phone,
       whatsapp: apiUser.whatsapp,
