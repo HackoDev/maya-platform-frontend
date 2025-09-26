@@ -52,7 +52,7 @@
           <button
             v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'specialist'"
             @click="goToSpecialistQuestionnaire"
-            class="inline-flex items-center px-4 py-1.5 border text-sm font-semibold rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            class="inline-flex items-center px-4 py-1.5 border text-sm font-semibold rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
             :class="portfolioStatusButton.classes"
             title="Перейти к анкете специалиста"
           >

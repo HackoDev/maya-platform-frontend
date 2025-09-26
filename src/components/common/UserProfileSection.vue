@@ -8,7 +8,7 @@
         :aria-expanded="isDropdownOpen"
         aria-haspopup="true"
         aria-label="User profile menu"
-        class="group flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        class="group flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
       >
         <!-- User Avatar -->
         <img
