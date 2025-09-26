@@ -59,11 +59,11 @@
             class="custom-item"
           >
             <input
-              v-model="customSpecializations[index]"
+              :value="customSpecializations[index]"
               type="text"
               placeholder="Введите специализацию..."
               class="custom-input"
-              @input="updateCustomSpecializations"
+              @input="onCustomChange(index, $event)"
             />
             <button
               @click="removeCustomSpecialization(index)"
@@ -167,8 +167,12 @@ const removeCustomSpecialization = (index: number) => {
   validateStep()
 }
 
-const updateCustomSpecializations = () => {
-  // Triggered by v-model
+const onCustomChange = (index: number, event: Event) => {
+  const target = event.target as HTMLInputElement
+  const current = props.profile?.customSpecializations || []
+  const updated = [...current]
+  updated[index] = target.value
+  emit('update', { customSpecializations: updated })
   validateStep()
 }
 
