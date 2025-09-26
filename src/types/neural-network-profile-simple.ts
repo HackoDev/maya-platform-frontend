@@ -7,6 +7,7 @@ export interface NeuralNetworkProfile {
   status: 'draft' | 'published' | 'archived' | null
   createdAt: string
   updatedAt: string
+  readyForReview?: boolean
   
   // Данные пользователя
   user?: {
@@ -192,6 +193,7 @@ export const createEmptyProfile = (userId: string): NeuralNetworkProfile => ({
   status: null,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
+  readyForReview: false,
   specializations: [],
   customSpecializations: [],
   superpower: '',

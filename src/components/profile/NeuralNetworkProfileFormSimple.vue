@@ -149,17 +149,12 @@
         </button>
 
         <div class="footer-actions">
+          <div v-if="currentStep === 8 && profile?.readyForReview" class="text-sm text-blue-700 dark:text-blue-300">
+            Ваша анкета проходит модерацию, пожалуйста подождите.
+          </div>
           <button
-            @click="saveDraft"
-            :disabled="isSaving"
-            class="btn btn-secondary"
-          >
-            {{ isSaving ? 'Сохранение...' : 'Сохранить черновик' }}
-          </button>
-
-          <button
-            v-if="currentStep === 8 && canSubmit"
-            @click="submitProfile"
+            v-else-if="currentStep === 8 && canSubmit"
+            @click="markReadyForReview"
             :disabled="isSaving"
             class="btn btn-success"
           >
@@ -376,6 +371,17 @@ const submitProfile = async () => {
   } catch (error) {
     console.error('Error submitting profile:', error)
     // TODO: Show error notification
+  }
+}
+
+const markReadyForReview = async () => {
+  try {
+    isAutoSaving.value = true
+    await store.savePartial({ readyForReview: true })
+  } catch (error) {
+    console.error('Error setting readyForReview:', error)
+  } finally {
+    isAutoSaving.value = false
   }
 }
 

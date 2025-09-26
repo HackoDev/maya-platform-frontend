@@ -26,7 +26,7 @@ import type {
   Attachment,
   AttachmentUploadRequest
 } from '@/types/portfolio'
-import type { NeuralNetworkProfile } from '@/types/neural-network-profile-simple'
+import type { NeuralNetworkProfile, PublicLinkItem } from '@/types/neural-network-profile-simple'
 
 /**
  * Portfolio API Client class
@@ -274,6 +274,7 @@ export class PortfoliosApiClient extends AuthApiClient {
       id: apiData.id,
       userId: apiData.user.id,
       status: apiData.status,
+      readyForReview: apiData?.readyForReview ?? false,
       createdAt: apiData?.createdTimestamp ?? new Date().toISOString(),
       updatedAt: apiData?.updatedTimestamp ?? new Date().toISOString(),
       // Сохраняем данные пользователя
@@ -290,7 +291,11 @@ export class PortfoliosApiClient extends AuthApiClient {
       specializations: apiData.specializations.map((x: any) => x.id),
       customSpecializations: apiData.customSpecializations,
       superpower: apiData.superpower,
-      publicLinks: apiData.publicLinks || [],
+      publicLinks: (apiData.publicLinks || []).map(
+        (item: Partial<PublicLinkItem>) => {
+          return {id: item.url, title: item.title, url: item.url}
+        }
+      ),
       skills: apiData.skills.map((x: any) => x.id),
       customSkills: apiData.customSkills,
       portfolio: apiData.portfolioItems || [],
@@ -327,6 +332,7 @@ export class PortfoliosApiClient extends AuthApiClient {
     const payload: Record<string, any> = {}
     if (partial.superpower !== undefined) payload.superpower = partial.superpower
     if (partial.publicLinks !== undefined) payload.publicLinks = partial.publicLinks
+    if (partial.readyForReview !== undefined) payload.readyForReview = partial.readyForReview
     if (partial.specializations !== undefined) payload.specializations = partial.specializations
     if (partial.customSpecializations !== undefined) payload.customSpecializations = partial.customSpecializations
     if (partial.skills !== undefined) payload.skills = partial.skills
