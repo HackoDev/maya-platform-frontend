@@ -47,6 +47,18 @@
             <PlusIcon class="h-4 w-4 mr-1" />
             Создать вакансию
           </button>
+
+          <!-- Specialist Portfolio Status Button -->
+          <button
+            v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'specialist'"
+            @click="goToSpecialistQuestionnaire"
+            class="inline-flex items-center px-3 py-1.5 border text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            :class="portfolioStatusButton.classes"
+            title="Перейти к анкете специалиста"
+          >
+            <span class="inline-block h-2 w-2 rounded-full mr-2" :class="portfolioStatusButton.dot"></span>
+            {{ portfolioStatusButton.text }}
+          </button>
           
           <UserProfileSection v-if="session.isAuthenticated.value" :user="session.currentUser.value" />
           <template v-else>
@@ -83,7 +95,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Bars3Icon, XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import { useGlobalSession } from '@/composables/useSession'
 import { useNavigationStore } from '@/stores/navigation'
@@ -108,6 +120,7 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const router = useRouter()
 const session = useGlobalSession()
 const navigationStore = useNavigationStore()
 
@@ -126,6 +139,42 @@ const visibleNavigationItems = computed(() => {
 
 const isActiveRoute = (path: string) => {
   return route.path === path
+}
+
+// Portfolio status badge/button (specialists only)
+const portfolioStatus = computed(() => session.currentUser.value?.portfolioStatus ?? null)
+const portfolioStatusButton = computed(() => {
+  const status = portfolioStatus.value
+  if (status === 'published') {
+    return {
+      text: 'Анкета: опубликована',
+      classes: 'border-green-200 text-green-800 bg-green-50 hover:bg-green-100 focus:ring-green-500',
+      dot: 'bg-green-500'
+    }
+  }
+  if (status === 'draft') {
+    return {
+      text: 'Анкета: черновик',
+      classes: 'border-yellow-200 text-yellow-800 bg-yellow-50 hover:bg-yellow-100 focus:ring-yellow-500',
+      dot: 'bg-yellow-500'
+    }
+  }
+  if (status === 'archived') {
+    return {
+      text: 'Анкета: архивирована',
+      classes: 'border-red-200 text-red-800 bg-red-50 hover:bg-red-100 focus:ring-red-500',
+      dot: 'bg-red-500'
+    }
+  }
+  return {
+    text: 'Анкета: не создана',
+    classes: 'border-red-200 text-red-800 bg-red-50 hover:bg-red-100 focus:ring-red-500',
+    dot: 'bg-red-500'
+  }
+})
+
+const goToSpecialistQuestionnaire = () => {
+  router.push('/profile/neural-network')
 }
 
 // Watch route changes to update active route in store
