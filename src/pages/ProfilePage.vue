@@ -49,13 +49,6 @@
                 >
                   {{ userStore.currentUser?.userType === 'specialist' ? 'Специалист' : 'Клиент' }}
                 </span>
-                <!-- Open to Offers Badge -->
-                <span
-                  v-if="userStore.currentUser?.userType === 'specialist' && userStore.currentUser?.isOpenToOffers"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                >
-                  Открыт к предложениям
-                </span>
               </div>
             </div>
             
@@ -217,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserCircleIcon, Cog6ToothIcon, CpuChipIcon, KeyIcon, ArrowRightOnRectangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
+import { Cog6ToothIcon, CpuChipIcon, ArrowRightOnRectangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useNeuralNetworkProfileStore } from '@/stores/neural-network-profile'
@@ -332,21 +325,7 @@ const questionnaireCompletion = computed(() => {
   return neuralNetworkStore.getCompletionPercentage
 })
 
-const questionnaireActionText = computed(() => {
-  const status = questionnaireStatus.value
-  switch (status) {
-    case 'draft':
-      return questionnaireCompletion.value > 0 ? 'Продолжить заполнение' : 'Заполнить анкету'
-    case 'pending':
-      return 'Просмотреть анкету'
-    case 'approved':
-      return 'Просмотреть анкету'
-    case 'rejected':
-      return 'Исправить анкету'
-    default:
-      return 'Заполнить анкету'
-  }
-})
+// Removed unused questionnaireActionText
 
 // Moderation status styling
 const moderationStatusConfig = computed(() => {
