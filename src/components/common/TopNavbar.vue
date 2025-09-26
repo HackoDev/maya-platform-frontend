@@ -155,7 +155,7 @@ const portfolioStatusButton = computed(() => {
   if (status === 'draft') {
     return {
       text: 'Анкета: черновик',
-      classes: 'border-transparent text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-600',
+      classes: 'border-transparent text-white bg-[#FF9800] hover:bg-[#FF9800] focus:ring-[#FF9800]',
       dot: 'bg-white'
     }
   }
