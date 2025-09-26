@@ -148,28 +148,28 @@ const portfolioStatusButton = computed(() => {
   if (status === 'published') {
     return {
       text: 'Анкета: опубликована',
-      classes: 'border-green-300 text-green-900 bg-green-100 hover:bg-green-200 focus:ring-green-600',
-      dot: 'bg-green-500'
+      classes: 'border-transparent text-white bg-green-600 hover:bg-green-700 focus:ring-green-600',
+      dot: 'bg-white'
     }
   }
   if (status === 'draft') {
     return {
       text: 'Анкета: черновик',
-      classes: 'border-yellow-300 text-yellow-900 bg-yellow-100 hover:bg-yellow-200 focus:ring-yellow-600',
-      dot: 'bg-yellow-500'
+      classes: 'border-transparent text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-600',
+      dot: 'bg-white'
     }
   }
   if (status === 'archived') {
     return {
       text: 'Анкета: архивирована',
-      classes: 'border-red-300 text-red-900 bg-red-100 hover:bg-red-200 focus:ring-red-600',
-      dot: 'bg-red-500'
+      classes: 'border-transparent text-white bg-red-600 hover:bg-red-700 focus:ring-red-600',
+      dot: 'bg-white'
     }
   }
   return {
     text: 'Анкета: не создана',
-    classes: 'border-red-300 text-red-900 bg-red-100 hover:bg-red-200 focus:ring-red-600',
-    dot: 'bg-red-500'
+    classes: 'border-transparent text-white bg-red-600 hover:bg-red-700 focus:ring-red-600',
+    dot: 'bg-white'
   }
 })
 
