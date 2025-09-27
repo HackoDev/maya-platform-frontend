@@ -1,4 +1,5 @@
 import type { ServiceOption } from "./neural-network-profile"
+import type { Skill, Specialization } from "./portfolio"
 
 // Упрощенные типы для профиля нейросетевого специалиста
 export interface NeuralNetworkProfile {
@@ -19,15 +20,16 @@ export interface NeuralNetworkProfile {
     phone?: string
     telegram?: string
     whatsapp?: string
+    isOpenToOffers?: boolean
   }
   
   // Основные данные профиля
-  specializations: number[] // ID специализаций
+  specializations: Specialization[] // ID специализаций
   customSpecializations: string[] // Дополнительные специализации
   superpower: string // Описание суперспособности
   publicLinks: PublicLinkItem[] // Публичные ссылки на сервисы, сайты и т.п.
   
-  skills: number[] // ID навыков
+  skills: Skill[] // ID навыков
   customSkills: string[] // Дополнительные навыки
   
   portfolio: PortfolioItem[]

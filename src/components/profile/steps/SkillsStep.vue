@@ -156,21 +156,28 @@ const totalSelected = computed(() => {
   return selectedCount + customCount
 })
 
-const isValid = computed(() => {
-  return totalSelected.value > 0
-})
 
 const isSelected = (id: number) => {
-  return props.profile?.skills.includes(id) || false
+  if (!props.profile?.skills) return false
+  return props.profile.skills.some(skill => skill.id === id)
 }
 
 const toggleSkill = (id: number) => {
   const current = props.profile?.skills || []
-  const updated = current.includes(id)
-    ? current.filter(s => s !== id)
-    : [...current, id]
+  const isSelected = current.some(skill => skill.id === id)
   
-  emit('update', { skills: updated })
+  if (isSelected) {
+    // Remove skill object
+    const updated = current.filter(skill => skill.id !== id)
+    emit('update', { skills: updated })
+  } else {
+    // Add skill object
+    const skill = availableSkills.value.find(s => s && s.id === id)
+    if (skill) {
+      const updated = [...current, skill]
+      emit('update', { skills: updated })
+    }
+  }
   validateStep()
 }
 

@@ -170,7 +170,7 @@
             <!-- Price -->
             <div class="mt-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {{ getPriceLabel(service.priceType) }}
+                {{ getPriceLabel(service.priceType || 'fixed') }}
               </label>
               <div class="flex items-center space-x-2">
                 <input
@@ -189,7 +189,7 @@
                   class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm"
                 />
                 <span v-if="service.priceType !== 'negotiable'" class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ getPriceSuffix(service.priceType) }}
+                  {{ getPriceSuffix(service.priceType || 'fixed') }}
                 </span>
               </div>
             </div>
@@ -270,7 +270,7 @@ const totalServices = computed(() => {
 
 const isServiceSelected = (serviceId: number) => {
   if (!props.profile?.services) return false
-  return props.profile.services.includes(serviceId)
+  return props.profile.services.some(service => service.id === serviceId)
 }
 
 const toggleService = (serviceId: number) => {
@@ -279,23 +279,32 @@ const toggleService = (serviceId: number) => {
   const isSelected = isServiceSelected(serviceId)
   
   if (isSelected) {
-    // Remove service ID and its options
-    const updatedServices = props.profile.services.filter(id => id !== serviceId)
+    // Remove service object and its options
+    const updatedServices = props.profile.services.filter(service => service.id !== serviceId)
     const updatedServiceOptions = { ...props.profile.serviceOptions }
     delete updatedServiceOptions[serviceId]
     emit('update', { services: updatedServices, serviceOptions: updatedServiceOptions })
   } else {
-    // Add service ID and initialize its options
-    const updatedServices = [...(props.profile.services || []), serviceId]
+    // Add service object and initialize its options
     const service = availableServices.value.find(s => s && s.id === serviceId)
-    const updatedServiceOptions = {
-      ...props.profile.serviceOptions,
-      [serviceId]: {
-        customPrice: service?.price || '0',
-        customDescription: service?.description || ''
+    if (service) {
+      const serviceObject = {
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        priceType: service.priceType || 'fixed'
       }
+      const updatedServices = [...(props.profile.services || []), serviceObject]
+      const updatedServiceOptions = {
+        ...props.profile.serviceOptions,
+        [serviceId]: {
+          customPrice: service.price || '0',
+          customDescription: service.description || ''
+        }
+      }
+      emit('update', { services: updatedServices, serviceOptions: updatedServiceOptions })
     }
-    emit('update', { services: updatedServices, serviceOptions: updatedServiceOptions })
   }
 }
 

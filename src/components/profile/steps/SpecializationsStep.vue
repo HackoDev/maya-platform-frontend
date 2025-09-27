@@ -137,21 +137,28 @@ const totalSelected = computed(() => {
   return selectedCount + customCount
 })
 
-const isValid = computed(() => {
-  return totalSelected.value > 0
-})
 
 const isSelected = (id: number) => {
-  return props.profile?.specializations.includes(id) || false
+  if (!props.profile?.specializations) return false
+  return props.profile.specializations.some(spec => spec.id === id)
 }
 
 const toggleSpecialization = (id: number) => {
   const current = props.profile?.specializations || []
-  const updated = current.includes(id)
-    ? current.filter(s => s !== id)
-    : [...current, id]
+  const isSelected = current.some(spec => spec.id === id)
   
-  emit('update', { specializations: updated })
+  if (isSelected) {
+    // Remove specialization object
+    const updated = current.filter(spec => spec.id !== id)
+    emit('update', { specializations: updated })
+  } else {
+    // Add specialization object
+    const spec = availableSpecializations.value.find(s => s && s.id === id)
+    if (spec) {
+      const updated = [...current, spec]
+      emit('update', { specializations: updated })
+    }
+  }
   validateStep()
 }
 

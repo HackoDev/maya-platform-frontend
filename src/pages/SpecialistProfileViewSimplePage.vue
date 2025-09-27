@@ -131,6 +131,66 @@
             <div class="xl:col-span-1 order-1 xl:order-2">
               <!-- Sticky Sidebar (only sticky in non-modal mode and on larger screens) -->
               <div class="xl:sticky xl:top-8 space-y-6">
+                <!-- Admin Panel (visible only for admins) - placed first -->
+                <div v-if="isAdmin" class="rounded-lg shadow-sm border p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-l-4 border-blue-500 dark:border-blue-400">
+                  <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3 inline-flex items-center">
+                    <ShieldCheckIcon class="h-4 w-4 mr-2 text-blue-600 dark:text-blue-300" />
+                    Инструменты администратора
+                  </h3>
+
+                  <!-- Status Badge (compact, tag-like style) -->
+                  <div class="mb-3">
+                    <span class="text-xs text-gray-600 dark:text-gray-400 mr-2">Статус:</span>
+                    <span
+                      class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg"
+                      :class="{
+                        'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200': profileStatus === 'published',
+                        'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200': profileStatus === 'draft',
+                        'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200': profileStatus === 'archived',
+                        'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300': !profileStatus
+                      }"
+                    >
+                      {{ profileStatusText }}
+                    </span>
+                  </div>
+
+                  <!-- Message to owner (compact) -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Сообщение владельцу</label>
+                    <textarea
+                      v-model="adminMessage"
+                      rows="2"
+                      class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Короткое сообщение"
+                    ></textarea>
+                    <div class="mt-2 flex justify-between items-center">
+                      <button
+                        :disabled="!adminMessage.trim() || isActing"
+                        @click="openMessageOnlyConfirm"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
+                      >
+                        Отправить сообщение
+                      </button>
+                      <button
+                        v-if="profileStatus === 'draft' || profileStatus === 'archived'"
+                        @click="publishProfile"
+                        :disabled="isActing"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
+                      >
+                        Опубликовать
+                      </button>
+                      <button
+                        v-if="profileStatus === 'published'"
+                        @click="unpublishProfile"
+                        :disabled="isActing"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
+                      >
+                        Снять с публикации
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Quick Contact -->
                 <div id="contacts">
                   <ContactSection
@@ -170,6 +230,18 @@
                     </button>
                   </div>
                 </div>
+
+                <!-- Confirm Dialog -->
+                <ConfirmDialog
+                  :is-open="showConfirmModal"
+                  :title="confirmConfig.title"
+                  :message="confirmConfig.message"
+                  :confirm-text="confirmConfig.confirmText"
+                  :cancel-text="confirmConfig.cancelText"
+                  :confirm-button-type="confirmConfig.confirmButtonType"
+                  @confirm="handleConfirm"
+                  @cancel="handleCancel"
+                />
               </div>
             </div>
           </div>
@@ -200,11 +272,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSpecialistProfileViewStore } from '@/stores/specialist-profile-view-simple'
+import { useUserStore } from '@/stores/user'
+import { ShieldCheckIcon } from '@heroicons/vue/24/outline'
+import { portfoliosApi } from '@/services/portfoliosApiClient'
 // Components
 import LoadingOverlay from '@/components/ui/LoadingOverlay.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 import ProfileOverview from '@/components/profile/ProfileOverview.vue'
 import SpecializationsSection from '@/components/profile/SpecializationsSection.vue'
@@ -227,8 +303,106 @@ const props = withDefaults(defineProps<Props>(), {
 const route = useRoute()
 const router = useRouter()
 const profileStore = useSpecialistProfileViewStore()
+const userStore = useUserStore()
 
 const specialistId = computed(() => props.specialistId || (route.params.id as string))
+
+// Admin visibility and status helpers
+const isAdmin = computed(() => {
+  const user = userStore.currentUser
+  return (user?.userType === 'admin') || (user?.role === 'admin')
+})
+
+const profileStatus = computed(() => profileStore.currentProfile?.profileData.status || null)
+const profileStatusText = computed(() => {
+  const status = profileStatus.value
+  if (status === 'published') return 'Опубликована'
+  if (status === 'draft') return 'Черновик'
+  if (status === 'archived') return 'Архивирована'
+  return 'Не создана'
+})
+
+// Admin actions
+const adminMessage = ref('')
+const isActing = ref(false)
+const showConfirmModal = ref(false)
+const confirmConfig = ref({
+  title: '',
+  message: '',
+  confirmText: '',
+  cancelText: 'Отмена',
+  confirmButtonType: 'primary' as 'primary' | 'danger',
+  nextStatus: 'published' as 'published' | 'draft' | 'archived'
+})
+
+const publishProfile = () => {
+  if (isActing.value) return
+  confirmConfig.value = {
+    title: 'Подтверждение публикации',
+    message: 'Опубликовать анкету? Сообщение (если указано) будет отправлено владельцу.',
+    confirmText: 'Опубликовать',
+    cancelText: 'Отмена',
+    confirmButtonType: 'primary',
+    nextStatus: 'published'
+  }
+  showConfirmModal.value = true
+}
+
+const unpublishProfile = () => {
+  if (isActing.value) return
+  confirmConfig.value = {
+    title: 'Подтверждение снятия с публикации',
+    message: 'Сохранить анкету как Черновик и отправить сообщение (опционально)?',
+    confirmText: 'Отправить и снять',
+    cancelText: 'Отмена',
+    confirmButtonType: 'danger',
+    nextStatus: 'draft'
+  }
+  showConfirmModal.value = true
+}
+
+const handleConfirm = async () => {
+  const id = profileStore.currentProfile?.basicInfo.id
+  if (!id) return
+  try {
+    isActing.value = true
+    await portfoliosApi.reviewPortfolio(id, { status: confirmConfig.value.nextStatus, message: adminMessage.value })
+    if (confirmConfig.value.nextStatus) {
+      await profileStore.loadProfile(id)
+    }
+    adminMessage.value = ''
+    showConfirmModal.value = false
+  } catch (e) {
+    console.error(e)
+    alert('Действие не удалось')
+  } finally {
+    isActing.value = false
+  }
+}
+
+const handleCancel = () => {
+  showConfirmModal.value = false
+}
+
+const openMessageOnlyConfirm = () => {
+  if (!adminMessage.value.trim() || isActing.value) return
+  confirmConfig.value = {
+    title: 'Отправить сообщение владельцу',
+    message: 'Отправить сообщение без изменения статуса?',
+    confirmText: 'Отправить',
+    cancelText: 'Отмена',
+    confirmButtonType: 'primary',
+    nextStatus: null as any
+  }
+  showConfirmModal.value = true
+}
+
+// Kept for future integration if we split message sending from status action
+// const sendAdminMessage = async () => {
+//   if (!adminMessage.value.trim()) return
+//   console.log('Admin message sent:', adminMessage.value)
+//   adminMessage.value = ''
+// }
 
 const goBack = () => {
   if (props.modalMode) {

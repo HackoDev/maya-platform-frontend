@@ -179,10 +179,6 @@
             </div>
 
             <div class="flex space-x-3">
-              <BaseButton type="button" variant="secondary" @click="saveDraft" :disabled="isSaving">
-                Сохранить черновик
-              </BaseButton>
-
               <BaseButton type="submit" :disabled="!isFormValid || isSaving" :loading="isSaving">
                 {{ isFormValid ? 'Отправить на модерацию' : 'Заполните обязательные поля' }}
               </BaseButton>

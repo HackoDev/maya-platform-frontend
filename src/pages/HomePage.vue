@@ -164,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGlobalSession } from '@/composables/useSession'
 import { usePlatformData } from '@/composables/usePlatformData'
@@ -175,7 +175,7 @@ import { BriefcaseIcon, UserGroupIcon, ArrowRightIcon } from '@heroicons/vue/24/
 
 // Stores
 const session = useGlobalSession()
-const { portfolios, vacancies, loading, error, fetchPlatformData } = usePlatformData()
+const { portfolios, vacancies, loading, error, fetchPlatformData } = usePlatformData(computed(() => session.currentUser.value?.userType))
 
 // Router
 const router = useRouter()
@@ -187,6 +187,9 @@ const handleViewVacancy = (vacancy: Vacancy): void => {
 
 // Initialize
 onMounted(() => {
-  fetchPlatformData()
+  // Only fetch data if user is authenticated and has a user type
+  if (session.isAuthenticated.value && session.currentUser.value?.userType) {
+    fetchPlatformData()
+  }
 })
 </script>

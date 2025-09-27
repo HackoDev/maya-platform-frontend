@@ -38,6 +38,15 @@ export const useNavigationStore = defineStore(
         userType: 'specialist',
       },
       {
+        id: 'vacancies',
+        label: 'Вакансии',
+        route: '/vacancies',
+        icon: 'briefcase',
+        requiresAuth: true,
+        visible: true,
+        userType: 'admin',
+      },
+      {
         id: 'specialists',
         label: 'Специалисты',
         route: '/search/specialists',
@@ -45,6 +54,15 @@ export const useNavigationStore = defineStore(
         requiresAuth: true,
         visible: true,
         userType: 'client'
+      },
+      {
+        id: 'specialists',
+        label: 'Специалисты',
+        route: '/search/specialists',
+        icon: 'magnifying-glass',
+        requiresAuth: true,
+        visible: true,
+        userType: 'admin'
       },
       {
         id: 'support',

@@ -149,7 +149,10 @@
         </button>
 
         <div class="footer-actions">
-          <div v-if="currentStep === 8 && profile?.readyForReview" class="text-sm text-blue-700 dark:text-blue-300">
+          <div v-if="currentStep === 8 && profile?.status === 'published'" class="text-sm text-green-700 dark:text-green-300">
+            Ваша анкета опубликована, вы также можете вносить изменения.
+          </div>
+          <div v-else-if="currentStep === 8 && profile?.readyForReview" class="text-sm text-blue-700 dark:text-blue-300">
             Ваша анкета проходит модерацию, пожалуйста подождите.
           </div>
           <button

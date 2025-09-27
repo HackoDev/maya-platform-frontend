@@ -259,6 +259,19 @@ export class PortfoliosApiClient extends AuthApiClient {
   }
 
   /**
+   * Review (moderate) a specialist portfolio by ID
+   * PATCH /api/web/portfolios/{id}/review
+   */
+  async reviewPortfolio(id: string, payload: { status: 'published' | 'draft' | 'archived' | null; message?: string }): Promise<any> {
+    const body = {
+      status: payload.status,
+      message: payload.message ?? ''
+    }
+    const response = await this.authenticatedRequest<any>('PATCH', `/api/web/portfolios/${id}/review`, body)
+    return response;
+  }
+
+  /**
    * Get random specialists for homepage
    */
   async getRandomSpecialists(): Promise<SpecialistSearchProfile[]> {
@@ -287,8 +300,9 @@ export class PortfoliosApiClient extends AuthApiClient {
         phone: apiData.user.phone,
         telegram: apiData.user.telegram,
         whatsapp: apiData.user.whatsapp,
+        isOpenToOffers: apiData.user.isOpenToOffers,
       },
-      specializations: apiData.specializations.map((x: any) => x.id),
+      specializations: apiData.specializations,
       customSpecializations: apiData.customSpecializations,
       superpower: apiData.superpower,
       publicLinks: (apiData.publicLinks || []).map(
@@ -296,7 +310,7 @@ export class PortfoliosApiClient extends AuthApiClient {
           return {id: item.url, title: item.title, url: item.url}
         }
       ),
-      skills: apiData.skills.map((x: any) => x.id),
+      skills: apiData.skills,
       customSkills: apiData.customSkills,
       portfolio: apiData.portfolioItems || [],
       services: apiData.services || [], // Сохраняем полные данные услуг
@@ -333,12 +347,12 @@ export class PortfoliosApiClient extends AuthApiClient {
     if (partial.superpower !== undefined) payload.superpower = partial.superpower
     if (partial.publicLinks !== undefined) payload.publicLinks = partial.publicLinks
     if (partial.readyForReview !== undefined) payload.readyForReview = partial.readyForReview
-    if (partial.specializations !== undefined) payload.specializations = partial.specializations
+    if (partial.specializations !== undefined) payload.specializations = partial.specializations.map(spec => spec.id)
     if (partial.customSpecializations !== undefined) payload.customSpecializations = partial.customSpecializations
-    if (partial.skills !== undefined) payload.skills = partial.skills
+    if (partial.skills !== undefined) payload.skills = partial.skills.map(skill => skill.id)
     if (partial.customSkills !== undefined) payload.customSkills = partial.customSkills
     if (partial.portfolio !== undefined) payload.portfolioItems = partial.portfolio
-    if (partial.services !== undefined) payload.services = partial.services
+    if (partial.services !== undefined) payload.services = partial.services.map(service => service.id)
     if (partial.customServices !== undefined) payload.customServices = partial.customServices
     if (partial.serviceOptions !== undefined) payload.serviceOptions = partial.serviceOptions
     if (partial.experience !== undefined) payload.experience = partial.experience
@@ -391,6 +405,7 @@ export const portfoliosApi = {
   // Specialist search operations
   searchSpecialists: (filters?: PortfolioSearchFilters) => portfoliosApiClient.searchSpecialists(filters),
   getSpecialistById: (id: string) => portfoliosApiClient.getSpecialistById(id),
+  reviewPortfolio: (id: string, payload: { status: 'published' | 'draft' | 'archived' | null; message?: string }) => portfoliosApiClient.reviewPortfolio(id, payload),
   getRandomSpecialists: () => portfoliosApiClient.getRandomSpecialists(),
   
   // Simplified Profile operations

@@ -28,7 +28,7 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
         superpower: apiProfile.superpower || 'Специалист по нейросетям',
         avatarUrl: apiProfile.user?.avatar, // Используем аватар из данных пользователя
         status: 'available',
-        isOpenToOffers: true,
+        isOpenToOffers: apiProfile.user?.isOpenToOffers ?? false,
         lastActive: apiProfile.updatedAt || apiProfile.createdAt,
       },
       profileData: apiProfile,
@@ -129,11 +129,8 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     const result: string[] = []
     
     // Add predefined specializations
-    specializations.forEach(id => {
-      const name = getSpecializationName(id)
-      if (name) {
-        result.push(name)
-      }
+    specializations.forEach(item => {
+      result.push(item.name)
     })
     
     // Add custom specializations
@@ -149,13 +146,12 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     
     const { skills, customSkills } = currentProfile.value.profileData
     const result: string[] = []
+    console.log('skills', skills)
+    console.log('customSkills', customSkills)
     
     // Add predefined skills
-    skills.forEach(id => {
-      const name = getSkillName(id)
-      if (name) {
-        result.push(name)
-      }
+    skills.forEach(skill => {
+      result.push(skill.name)
     })
     
     // Add custom skills
@@ -286,6 +282,7 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     try {
       const apiProfile = await portfoliosApi.getSpecialistById(specialistId)
       currentProfile.value = convertApiProfileToViewData(apiProfile)
+      console.log('currentProfile', currentProfile.value)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка загрузки профиля'
     } finally {

@@ -10,10 +10,10 @@
             <MayaLogoIcon class="h-8 w-8" />
             <div class="flex flex-col ml-2">
               <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight"
-                >База</span
+                >Maya</span
               >
               <span class="text-xs font-bold text-gray-900 dark:text-white leading-tight"
-                >Вакансий</span
+                >Work</span
               >
             </div>
           </router-link>
@@ -111,7 +111,7 @@ interface Props extends TopNavbarProps {
 }
 
 withDefaults(defineProps<Props>(), {
-  serviceName: 'Maya Platform',
+  serviceName: 'MayaWork',
   theme: 'light',
 })
 

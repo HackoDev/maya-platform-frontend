@@ -95,14 +95,14 @@
               </label>
             </div>
 
-            <div class="text-sm">
+            <!-- <div class="text-sm">
               <a
                 href="#"
                 class="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 Забыли пароль?
               </a>
-            </div>
+            </div> -->
           </div>
 
           <BaseButton type="submit" class="w-full" :disabled="session.isLoading.value">

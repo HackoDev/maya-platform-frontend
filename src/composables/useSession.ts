@@ -107,7 +107,7 @@ export function useSession() {
   const validateStoredToken = async (): Promise<boolean> => {
     try {
       // Make a simple authenticated request to validate the token
-      await authApi.get('/user/profile')
+      await authApi.get('/api/web/users/me')
       return true
     } catch (error: any) {
       console.log('Token validation failed:', error.status, error.message)
