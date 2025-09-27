@@ -66,20 +66,35 @@
 
         <!-- Status -->
         <div>
-          <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Статус
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Статус публикации
           </label>
-          <select
-            id="status"
-            v-model="form.isActive"
-            :class="[
-              'block w-full rounded-md border shadow-sm focus:ring focus:outline-none sm:text-sm',
-              'border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:border-gray-600 dark:focus:ring-purple-500 dark:focus:border-purple-500 dark:bg-gray-700 dark:text-white'
-            ]"
-          >
-            <option value="false">Черновик</option>
-            <option value="true">Опубликовано</option>
-          </select>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-600 dark:text-gray-400" :class="{ 'font-medium text-gray-900 dark:text-white': !form.isActive }">
+              Черновик
+            </span>
+            <button
+              type="button"
+              @click="form.isActive = !form.isActive"
+              :class="[
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+                form.isActive ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-600'
+              ]"
+            >
+              <span
+                :class="[
+                  'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                  form.isActive ? 'translate-x-6' : 'translate-x-1'
+                ]"
+              />
+            </button>
+            <span class="text-sm text-gray-600 dark:text-gray-400" :class="{ 'font-medium text-gray-900 dark:text-white': form.isActive }">
+              Опубликовано
+            </span>
+          </div>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {{ form.isActive ? 'Вакансия будет видна всем пользователям' : 'Вакансия будет скрыта от других пользователей' }}
+          </p>
         </div>
 
         <!-- Error Message -->

@@ -2,15 +2,15 @@
   <div
     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
   >
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white pr-2">
           {{ vacancy.title }}
         </h2>
         <div v-if="props.showActions" class="flex space-x-2">
           <button
             @click="$emit('edit')"
-            class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 w-full sm:w-auto justify-center"
           >
             <PencilIcon class="-ml-1 mr-1 h-4 w-4" />
             Редактировать
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       <div class="flex flex-wrap gap-2 mb-6">
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -30,13 +30,13 @@
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
         >
-          Создано: {{ formatDate(vacancy.createdAt) }}
+          <span class="hidden sm:inline">Создано: </span>{{ formatDate(vacancy.createdAt) }}
         </span>
         <span
           v-if="vacancy.updatedAt !== vacancy.createdAt"
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
         >
-          Обновлено: {{ formatDate(vacancy.updatedAt) }}
+          <span class="hidden sm:inline">Обновлено: </span>{{ formatDate(vacancy.updatedAt) }}
         </span>
       </div>
 
@@ -50,7 +50,7 @@
       <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Информация о клиенте</h3>
         <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div class="flex items-center">
               <UserCircleIcon class="h-10 w-10 text-gray-400" />
               <div class="ml-3">
@@ -62,7 +62,7 @@
             </div>
             <button
               @click="$emit('contact')"
-              class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 w-full sm:w-auto"
             >
               Связаться
             </button>
@@ -70,25 +70,25 @@
         </div>
       </div>
 
-      <div v-if="props.showActions" class="mt-8 flex justify-end space-x-3">
+      <div v-if="props.showActions" class="mt-8 flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3">
         <button
           v-if="vacancy.isActive"
           @click="showConfirmation('close')"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900"
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900 w-full sm:w-auto"
         >
           Закрыть вакансию
         </button>
         <button
           v-else-if="vacancy.isActive === false"
           @click="showConfirmation('publish')"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900"
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-900 w-full sm:w-auto"
         >
           Опубликовать
         </button>
         <button
           v-else-if="vacancy.isActive === false"
           @click="showConfirmation('reopen')"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 w-full sm:w-auto"
         >
           Открыть повторно
         </button>

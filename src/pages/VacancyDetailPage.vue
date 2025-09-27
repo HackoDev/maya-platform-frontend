@@ -3,17 +3,18 @@
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumbs -->
       <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3 flex-wrap">
           <li class="inline-flex items-center">
             <router-link :to="breadcrumbRoute" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 dark:text-gray-400 dark:hover:text-white">
-              <HomeIcon class="w-4 h-4 mr-2" />
-              {{ breadcrumbText }}
+              <HomeIcon class="w-4 h-4 mr-1 sm:mr-2" />
+              <span class="hidden sm:inline">{{ breadcrumbText }}</span>
+              <span class="sm:hidden">Назад</span>
             </router-link>
           </li>
           <li aria-current="page">
             <div class="flex items-center">
               <ChevronRightIcon class="w-4 h-4 text-gray-400" />
-              <span class="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+              <span class="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-none">
                 {{ vacancy?.title || 'Загрузка...' }}
               </span>
             </div>
@@ -51,7 +52,7 @@
       <div v-else-if="vacancy">
         <VacancyDetail 
           :vacancy="vacancy" 
-          :show-actions="isVacancyAuthor ?? false"
+          :show-actions="canManageVacancy"
           @edit="handleEdit"
           @close="handleClose"
           @publish="handlePublish"
@@ -194,6 +195,12 @@ const vacancy = ref<Vacancy | null>(null)
 const isVacancyAuthor = computed(() => {
   return vacancy.value && userStore.currentUser && 
          vacancy.value.author?.id.toString() === userStore.currentUser.id.toString()
+})
+
+// Check if current user can manage the vacancy (author or admin)
+const canManageVacancy = computed(() => {
+  return isVacancyAuthor.value || 
+         (userStore.currentUser?.userType === 'admin') || false
 })
 
 // Get breadcrumb text based on user type

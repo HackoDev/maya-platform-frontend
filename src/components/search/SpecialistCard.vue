@@ -111,9 +111,9 @@
         <button
           @click.stop="viewProfile"
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 
-                 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 
-                 rounded-md transition-colors focus:outline-none focus:ring-2 
-                 focus:ring-blue-500 focus:ring-offset-2"
+                 bg-blue-50 hover:bg-blue-100 dark:text-blue-300 dark:bg-blue-900/40 
+                 dark:hover:bg-blue-900/60 rounded-md transition-colors focus:outline-none 
+                 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -125,9 +125,9 @@
         <button
           @click.stop="viewProfileModal"
           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 
-                 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 
-                 rounded-md transition-colors focus:outline-none focus:ring-2 
-                 focus:ring-gray-500 focus:ring-offset-2"
+                 bg-gray-50 hover:bg-gray-100 dark:text-gray-200 dark:bg-gray-600 
+                 dark:hover:bg-gray-500 rounded-md transition-colors focus:outline-none 
+                 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
         >
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import type { SpecialistCardProps, SpecialistProfile } from '@/types/specialist-search'
+import type { SpecialistProfile } from '@/types/specialist-search'
 import ContactButtons from './ContactButtons.vue'
 
 interface Props {
@@ -270,6 +270,7 @@ const viewProfileModal = (): void => {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
