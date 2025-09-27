@@ -77,7 +77,7 @@ const profileStore = useSpecialistProfileViewStore()
 // Computed properties
 const modalTitle = computed(() => {
   if (profileStore.currentProfile) {
-    return `Профиль: ${profileStore.currentProfile.basicInfo.displayName}`
+    return profileStore.currentProfile.basicInfo.displayName
   }
   return 'Профиль специалиста'
 })
@@ -137,11 +137,6 @@ watch(
 </script>
 
 <style scoped>
-/* Additional modal-specific styles */
-.specialist-profile-modal {
-  /* Ensure proper modal behavior */
-}
-
 /* Loading spinner animation */
 @keyframes spin {
   from {

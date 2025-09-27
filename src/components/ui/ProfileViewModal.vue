@@ -22,11 +22,11 @@
         >
           <!-- Modal Header -->
           <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-            <div class="flex items-center space-x-3">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-1 sm:space-y-0 min-w-0 flex-1">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
                 {{ title }}
               </h2>
-              <span v-if="subtitle" class="text-sm text-gray-600 dark:text-gray-400">
+              <span v-if="subtitle" class="text-sm text-gray-600 dark:text-gray-400 truncate">
                 {{ subtitle }}
               </span>
             </div>
