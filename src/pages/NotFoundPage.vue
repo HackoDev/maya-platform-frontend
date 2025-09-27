@@ -5,23 +5,23 @@
 404
 </h1>
       <h2 class="text-2xl font-bold text-center text-gray-700 mb-8">
-Page Not Found
-</h2>
+        Страница не найдена
+      </h2>
       <p class="text-center text-gray-600 mb-8">
-        The page you're looking for doesn't exist or has been moved.
+        Страница, которую вы ищете, не существует или была перемещена.
       </p>
       <div class="flex justify-center space-x-4">
         <router-link
           to="/"
           class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-md font-medium"
         >
-          Go Home
+          На главную
         </router-link>
         <button
           class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-md font-medium"
           @click="$router.back()"
         >
-          Go Back
+          Назад
         </button>
       </div>
     </div>

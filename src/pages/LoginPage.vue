@@ -77,9 +77,9 @@
           :class="isLoginSuccessful ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'"
           @submit.prevent="handleSubmit"
         >
-          <BaseInput v-model="form.email" type="email" label="Email address" required />
+          <BaseInput v-model="form.email" type="email" label="Адрес электронной почты" required />
 
-          <BaseInput v-model="form.password" type="password" label="Password" required />
+          <BaseInput v-model="form.password" type="password" label="Пароль" required />
 
           <div class="flex items-center justify-between">
             <div class="flex items-center">
