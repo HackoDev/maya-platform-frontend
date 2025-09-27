@@ -1,33 +1,33 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8">
       <!-- Page Header -->
-      <div class="mb-8">
-        <div class="flex items-center space-x-3 mb-4">
+      <div class="mb-4 sm:mb-6 lg:mb-8">
+        <div class="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
           <UserCircleIcon class="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             Настройки профиля
           </h1>
         </div>
-        <p class="text-lg text-gray-600 dark:text-gray-400">
+        <p class="text-base sm:text-lg text-gray-600 dark:text-gray-400">
           Управляйте вашими личными данными и настройками аккаунта
         </p>
       </div>
 
       <!-- Single Content Block with Sequential Forms -->
-      <div class="mt-8">
-        <BaseCard class="p-8 space-y-12">
+      <div class="mt-4 sm:mt-6 lg:mt-8">
+        <BaseCard class="p-4 sm:p-6 lg:p-8 space-y-8 sm:space-y-10 lg:space-y-12">
           <!-- Personal Information Section -->
           <div>
-            <div class="flex items-center space-x-3 mb-6">
+            <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <UserCircleIcon class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Личная информация</h3>
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Личная информация</h3>
             </div>
 
             <!-- Success/Error Messages -->
             <div
               v-if="formStates.personalInfo.successMessage"
-              class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md"
+              class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md"
             >
               <p class="text-sm text-green-700 dark:text-green-300">
                 {{ formStates.personalInfo.successMessage }}
@@ -35,19 +35,20 @@
             </div>
             <div
               v-if="formStates.personalInfo.errorMessage"
-              class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
+              class="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
             >
               <p class="text-sm text-red-700 dark:text-red-300">
                 {{ formStates.personalInfo.errorMessage }}
               </p>
             </div>
 
-            <form @submit.prevent="submitPersonalInfo" class="space-y-6">
-              <div class="flex flex-col md:flex-row gap-8 items-start">
+            <form @submit.prevent="submitPersonalInfo" class="space-y-4 sm:space-y-6">
+              <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-start w-full">
                 <!-- Avatar Upload - Left Side -->
-                <div class="flex flex-col items-center space-y-6 md:w-96 flex-shrink-0">
+                <div v-if="userStore.currentUser?.userType !== 'admin'"
+                     class="flex flex-col items-center space-y-4 sm:space-y-6 md:w-96 flex-shrink-0">
                   <div
-                    class="w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden border-4 border-gray-300 dark:border-gray-600 shadow-lg transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-500"
+                    class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden border-4 border-gray-300 dark:border-gray-600 shadow-lg transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-500"
                   >
                     <img
                       v-if="personalInfoForm.avatarPreview || userStore.currentUser?.avatar"
@@ -55,7 +56,7 @@
                       alt="Avatar"
                       class="w-full h-full object-cover"
                     />
-                    <span v-else class="text-6xl font-bold text-gray-500 dark:text-gray-400">
+                    <span class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-500 dark:text-gray-400">
                       {{ userInitials }}
                     </span>
                   </div>
@@ -78,8 +79,8 @@
                 </div>
 
                 <!-- Name Fields - Right Side -->
-                <div class="flex-1 space-y-6">
-                  <div>
+                <div class="flex-1 w-full space-y-4 sm:space-y-6">
+                  <div class="w-full">
                     <label
                       for="firstName"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -93,10 +94,11 @@
                       placeholder="Введите ваше имя"
                       :error="formStates.personalInfo.errors.firstName"
                       required
+                      class="w-full"
                     />
                   </div>
 
-                  <div>
+                  <div class="w-full">
                     <label
                       for="lastName"
                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -110,6 +112,7 @@
                       placeholder="Введите вашу фамилию"
                       :error="formStates.personalInfo.errors.lastName"
                       required
+                      class="w-full"
                     />
                   </div>
                 </div>
@@ -129,10 +132,10 @@
           </div>
 
           <!-- Contact Information Section -->
-          <div class="pt-8">
-            <div class="flex items-center space-x-3 mb-6">
+          <div v-if="userStore.currentUser?.userType !== 'admin'" class="pt-6 sm:pt-8">
+            <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <PhoneIcon class="h-6 w-6 text-green-600 dark:text-green-400" />
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                 Контактная информация
               </h3>
             </div>
@@ -155,8 +158,8 @@
               </p>
             </div>
 
-            <form @submit.prevent="submitContactInfo" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <form @submit.prevent="submitContactInfo" class="space-y-4 sm:space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <label
                     for="phone"
@@ -220,10 +223,10 @@
           </div>
 
           <!-- Email Section -->
-          <div class="pt-8">
-            <div class="flex items-center space-x-3 mb-6">
+          <div class="pt-6 sm:pt-8">
+            <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <EnvelopeIcon class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Электронная почта</h3>
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Электронная почта</h3>
             </div>
 
             <!-- Success/Error Messages -->
@@ -244,17 +247,19 @@
               </p>
             </div>
 
-            <form @submit.prevent="submitEmail" class="space-y-6">
+            <form @submit.prevent="submitEmail" class="space-y-4 sm:space-y-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Текущий email
                 </label>
-                <div class="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-md">
-                  <p class="text-gray-900 dark:text-white">{{ userStore.currentUser?.email }}</p>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-md overflow-x-auto">
+                  <p class="text-gray-900 dark:text-white whitespace-nowrap min-w-0">
+                    {{ userStore.currentUser?.email }}
+                  </p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label
                     for="newEmail"
@@ -328,10 +333,10 @@
           </div>
 
           <!-- Password Change Section -->
-          <div class="pt-8">
-            <div class="flex items-center space-x-3 mb-6">
+          <div class="pt-6 sm:pt-8">
+            <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <KeyIcon class="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Смена пароля</h3>
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Смена пароля</h3>
             </div>
 
             <!-- Success/Error Messages -->
@@ -352,7 +357,7 @@
               </p>
             </div>
 
-            <form @submit.prevent="submitPasswordChange" class="space-y-6">
+            <form @submit.prevent="submitPasswordChange" class="space-y-4 sm:space-y-6">
               <div>
                 <label
                   for="currentPassword"
@@ -370,7 +375,7 @@
                 />
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label
                     for="password1"
@@ -462,10 +467,10 @@
           </div>
 
           <!-- Theme Settings Section -->
-          <div class="pt-8">
-            <div class="flex items-center space-x-3 mb-6">
+          <div class="pt-6 sm:pt-8">
+            <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <SwatchIcon class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Тема интерфейса</h3>
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Тема интерфейса</h3>
             </div>
 
             <!-- Success/Error Messages -->
@@ -486,7 +491,7 @@
               </p>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <p class="text-sm text-gray-600 dark:text-gray-400">
                 Выберите внешний вид интерфейса. Изменения применяются мгновенно и сохраняются на сервере.
               </p>
@@ -498,7 +503,7 @@
       </div>
 
       <!-- Back to Profile Link -->
-      <div class="mt-8 text-center">
+      <div class="mt-4 sm:mt-6 lg:mt-8 text-center">
         <router-link
           to="/profile"
           class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md px-3 py-2"

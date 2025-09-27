@@ -90,6 +90,7 @@ export interface PortfolioSearchFilters {
   limit?: number
   offset?: number
   search?: string
+  status?: string
 }
 
 // Attachment interfaces

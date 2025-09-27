@@ -252,14 +252,10 @@ const formatPrice = (service: SpecialistProfile['services'][0]): string => {
 
 const viewProfile = (): void => {
   // Navigate to profile view page
-  router.push({
-    name: 'SpecialistProfile',
-    params: { id: props.specialist.id },
-    query: { from: 'search' }
-  })
+  router.push(`/specialist/${props.specialist.id}`)
   
   // Also emit event for parent components
-  emit('view-profile', props.specialist)
+  // emit('view-profile', props.specialist)
 }
 
 const viewProfileModal = (): void => {

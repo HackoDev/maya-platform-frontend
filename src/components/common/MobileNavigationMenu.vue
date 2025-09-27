@@ -44,6 +44,43 @@
         </button>
       </div>
 
+      <!-- User Status Badges (Mobile) -->
+      <div v-if="user" class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <!-- Specialist Portfolio Status -->
+        <div
+          v-if="user.userType === 'specialist'"
+          class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 mb-3"
+        >
+          <div class="flex items-center">
+            <span class="inline-block h-2 w-2 rounded-full mr-2" :class="portfolioStatusButton.dot"></span>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Статус анкеты:</span>
+          </div>
+          <span class="text-xs font-medium px-2 py-1 rounded-full" :class="portfolioStatusButton.classes">
+            {{ portfolioStatusButton.text }}
+          </span>
+        </div>
+
+        <!-- Admin Status -->
+        <div
+          v-if="user.userType === 'admin'"
+          class="text-left"
+        >
+          <span class="text-xs font-medium px-2 py-1 rounded-full" :class="adminStatusButton.classes">
+            {{ adminStatusButton.text }}
+          </span>
+        </div>
+
+        <!-- Create Vacancy Button for Clients -->
+        <button
+          v-if="user.userType === 'client'"
+          @click="handleCreateVacancy"
+          class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+        >
+          <PlusIcon class="h-4 w-4 mr-2" />
+          Создать вакансию
+        </button>
+      </div>
+
       <!-- Navigation Items -->
       <div class="py-4">
         <router-link
@@ -89,7 +126,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { XMarkIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, ArrowRightOnRectangleIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import { useUserStore } from '@/stores/user'
 import type { NavigationItem, User } from '@/types'
 
@@ -101,6 +138,7 @@ interface Props {
 
 interface Emits {
   close: []
+  'create-vacancy': []
 }
 
 const props = defineProps<Props>()
@@ -114,8 +152,54 @@ const isActiveRoute = (path: string) => {
   return route.path === path
 }
 
+// Portfolio status badge/button (specialists only)
+const portfolioStatus = computed(() => props.user?.portfolioStatus ?? null)
+const portfolioStatusButton = computed(() => {
+  const status = portfolioStatus.value
+  if (status === 'published') {
+    return {
+      text: 'Опубликована',
+      classes: 'text-white bg-green-600',
+      dot: 'bg-white'
+    }
+  }
+  if (status === 'draft') {
+    return {
+      text: 'Черновик',
+      classes: 'text-white bg-[#FF9800]',
+      dot: 'bg-white'
+    }
+  }
+  if (status === 'archived') {
+    return {
+      text: 'Архивирована',
+      classes: 'text-white bg-red-600',
+      dot: 'bg-white'
+    }
+  }
+  return {
+    text: 'Не создана',
+    classes: 'text-white bg-red-600',
+    dot: 'bg-white'
+  }
+})
+
+// Admin status badge/button (admins only)
+const adminStatusButton = computed(() => {
+  return {
+    text: 'Администратор',
+    classes: 'text-white bg-purple-600',
+    dot: 'bg-white'
+  }
+})
+
 const handleLogout = async () => {
   emit('close')
   await userStore.logoutWithRedirect('/login')
+}
+
+const handleCreateVacancy = () => {
+  emit('create-vacancy')
+  emit('close')
 }
 </script>

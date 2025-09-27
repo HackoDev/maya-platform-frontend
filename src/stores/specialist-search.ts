@@ -8,12 +8,14 @@ import type {
   InfiniteScrollState,
 } from '@/types/specialist-search'
 import { SpecialistSearchService } from '@/services/specialist-search'
+import { usePortfolioCatalogStore } from '@/stores/portfolio-catalog'
 
 export const useSpecialistSearchStore = defineStore('specialistSearch', () => {
   // State
   const searchFilters = ref<SearchFilters>({
     query: '',
     skills: [],
+    status: undefined,
     page: 1,
     limit: 5,
   })
@@ -38,6 +40,9 @@ export const useSpecialistSearchStore = defineStore('specialistSearch', () => {
 
   // Service instance
   const searchService = new SpecialistSearchService()
+  
+  // Global portfolio catalog
+  const portfolioCatalog = usePortfolioCatalogStore()
 
   // Getters
   const hasResults = computed(() => {
@@ -159,8 +164,28 @@ export const useSpecialistSearchStore = defineStore('specialistSearch', () => {
     skillsLoading.value = true
 
     try {
-      const skills = await searchService.getAvailableSkills()
-      availableSkills.value = skills
+      // Ensure portfolio catalog is initialized
+      if (!portfolioCatalog.isInitialized) {
+        await portfolioCatalog.initialize()
+      }
+
+      // Convert global skills to SkillOption format
+      const skills: SkillOption[] = portfolioCatalog.skills.map(skill => ({
+        key: skill.id.toString(),
+        label: skill.name,
+        category: 'ability' as const,
+        description: skill.description,
+      }))
+
+      // Add specializations as well
+      const specializations: SkillOption[] = portfolioCatalog.specializations.map(spec => ({
+        key: `spec_${spec.id}`,
+        label: spec.name,
+        category: 'specialization' as const,
+        description: spec.description,
+      }))
+
+      availableSkills.value = [...skills, ...specializations]
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка загрузки навыков'
     } finally {
@@ -176,6 +201,7 @@ export const useSpecialistSearchStore = defineStore('specialistSearch', () => {
     searchFilters.value = {
       query: '',
       skills: [],
+      status: undefined,
       page: 1,
       limit: 5,
     }

@@ -228,6 +228,7 @@ export class PortfoliosApiClient extends AuthApiClient {
     if (filters?.limit) params.limit = filters.limit
     if (filters?.offset !== undefined) params.offset = filters.offset
     if (filters?.search) params.search = filters.search
+    if (filters?.status) params.status = filters.status
 
     const response = await this.authenticatedRequest<ApiSpecialistSearchResponse>('GET', '/api/web/portfolios/search', params)
     

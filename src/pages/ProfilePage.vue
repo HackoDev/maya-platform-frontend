@@ -47,7 +47,7 @@
                       : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
                   "
                 >
-                  {{ userStore.currentUser?.userType === 'specialist' ? 'Специалист' : 'Клиент' }}
+                  {{ userTypeLabel }}
                 </span>
               </div>
             </div>
@@ -320,6 +320,19 @@ const userInitials = computed(() => {
 const portfolioStatus = computed(() => {
   if (userStore.currentUser?.userType !== 'specialist') return null
   return userStore.currentUser?.portfolioStatus ?? null
+})
+
+const userTypeLabel = computed(() => {
+  switch (userStore.currentUser?.userType) {
+    case 'admin':
+      return 'Администратор'
+    case 'specialist':
+      return 'Специалист'
+    case 'client':
+      return 'Клиент'
+    default:
+      return ''
+  }
 })
 
 const portfolioStatusBadge = computed(() => {

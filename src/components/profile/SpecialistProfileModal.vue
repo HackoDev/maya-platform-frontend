@@ -54,9 +54,9 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useSpecialistProfileViewStore } from '@/stores/specialist-profile-view'
+import { useSpecialistProfileViewStore } from '@/stores/specialist-profile-view-simple'
 import ProfileViewModal from '@/components/ui/ProfileViewModal.vue'
-import SpecialistProfileViewPage from '@/pages/SpecialistProfileViewPage.vue'
+import SpecialistProfileViewPage from '@/pages/SpecialistProfileViewSimplePage.vue'
 
 interface Props {
   specialistId?: string

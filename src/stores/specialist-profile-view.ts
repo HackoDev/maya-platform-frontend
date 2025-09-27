@@ -3,9 +3,7 @@ import { ref, computed } from 'vue'
 import type {
   ProfileViewData,
   ProfileSection,
-  SpecialistProfileViewStore as StoreInterface
 } from '@/types/specialist-profile-view'
-import { SpecialistProfileViewService } from '@/services/specialist-profile-view'
 
 export const useSpecialistProfileViewStore = defineStore('specialistProfileView', () => {
   // State
@@ -13,9 +11,6 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const isModalOpen = ref(false)
-
-  // Service instance
-  const profileService = new SpecialistProfileViewService()
 
   // Profile sections configuration
   const defaultSections: ProfileSection[] = [
@@ -90,76 +85,7 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     return currentProfile.value !== null
   })
 
-  const profileSections = computed(() => {
-    if (!currentProfile.value) {
-      return defaultSections.filter(section => section.required)
-    }
-
-    return defaultSections
-      .filter(section => {
-        if (!section.visible) return false
-        
-        // Hide sections that have no data (for optional sections)
-        if (!section.required) {
-          switch (section.id) {
-            case 'portfolio':
-              return currentProfile.value?.detailedInfo.portfolio.length > 0
-            case 'experience':
-              return currentProfile.value?.detailedInfo.experience.length > 0
-            case 'testimonials':
-              return currentProfile.value?.detailedInfo.testimonials.totalCount > 0
-            default:
-              return true
-          }
-        }
-        
-        return true
-      })
-      .sort((a, b) => a.order - b.order)
-  })
-
-  const hasPortfolio = computed(() => {
-    return currentProfile.value?.detailedInfo.portfolio.length > 0
-  })
-
-  const hasExperience = computed(() => {
-    return currentProfile.value?.detailedInfo.experience.length > 0
-  })
-
-  const hasTestimonials = computed(() => {
-    return currentProfile.value?.detailedInfo.testimonials.totalCount > 0
-  })
-
-  const averageRating = computed(() => {
-    return currentProfile.value?.detailedInfo.testimonials.averageRating
-  })
-
-  const isProfileApproved = computed(() => {
-    return currentProfile.value?.metadata.moderationStatus === 'approved'
-  })
-
-  const profileCompletionPercentage = computed(() => {
-    return currentProfile.value?.metadata.completionPercentage || 0
-  })
-
   // Actions
-  const loadProfile = async (id: string): Promise<void> => {
-    if (isLoading.value) return
-
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const profileData = await profileService.getProfileById(id)
-      currentProfile.value = profileData
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Ошибка загрузки профиля'
-      currentProfile.value = null
-    } finally {
-      isLoading.value = false
-    }
-  }
-
   const clearProfile = (): void => {
     currentProfile.value = null
     error.value = null
@@ -179,12 +105,6 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     // Restore body scroll when modal is closed
     if (typeof document !== 'undefined') {
       document.body.style.overflow = 'auto'
-    }
-  }
-
-  const refreshProfile = async (): Promise<void> => {
-    if (currentProfile.value) {
-      await loadProfile(currentProfile.value.basicInfo.id)
     }
   }
 
@@ -245,40 +165,6 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
     }
   }
 
-  // Helper methods for contact actions
-  const initiateContact = (method: 'telegram' | 'email' | 'website' | 'phone' | 'whatsapp'): void => {
-    if (!currentProfile.value) return
-
-    const contacts = currentProfile.value.detailedInfo.contacts
-    const contact = contacts[method]
-
-    if (!contact) return
-
-    let url = ''
-    switch (method) {
-      case 'telegram':
-        url = contact.startsWith('@') ? `https://t.me/${contact.slice(1)}` : `https://t.me/${contact}`
-        break
-      case 'email':
-        url = `mailto:${contact}?subject=Запрос по услугам от ${currentProfile.value.basicInfo.displayName}`
-        break
-      case 'website':
-        url = contact.startsWith('http') ? contact : `https://${contact}`
-        break
-      case 'phone':
-        url = `tel:${contact}`
-        break
-      case 'whatsapp':
-        const cleanPhone = contact.replace(/\D/g, '')
-        url = `https://wa.me/${cleanPhone}?text=Здравствуйте! Интересуют ваши услуги`
-        break
-    }
-
-    if (url && typeof window !== 'undefined') {
-      window.open(url, '_blank', 'noopener,noreferrer')
-    }
-  }
-
   const shareProfile = async (): Promise<void> => {
     if (!currentProfile.value) return
 
@@ -320,25 +206,15 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
 
     // Getters
     isProfileLoaded,
-    profileSections,
-    hasPortfolio,
-    hasExperience,
-    hasTestimonials,
-    averageRating,
-    isProfileApproved,
-    profileCompletionPercentage,
 
     // Actions
-    loadProfile,
     clearProfile,
     openModal,
     closeModal,
-    refreshProfile,
     updateSectionVisibility,
     getSectionData,
 
     // Helper methods
-    initiateContact,
     shareProfile,
     copyProfileLink
   }

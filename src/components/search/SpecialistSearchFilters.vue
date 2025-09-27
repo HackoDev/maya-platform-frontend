@@ -36,6 +36,37 @@
         />
       </div>
 
+      <!-- Status Filter (Admin Only) -->
+      <div v-if="isAdmin" data-testid="status-filter" class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          Статус резюме
+        </label>
+        <div class="flex space-x-4">
+          <label class="flex items-center">
+            <input
+              v-model="localFilters.status"
+              type="radio"
+              value="published"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+              Опубликованные
+            </span>
+          </label>
+          <label class="flex items-center">
+            <input
+              v-model="localFilters.status"
+              type="radio"
+              value="waiting"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+              На модерации
+            </span>
+          </label>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex space-x-3">
@@ -128,6 +159,21 @@
             ×
           </button>
         </span>
+
+        <!-- Status filter -->
+        <span
+          v-if="localFilters.status"
+          class="inline-flex items-center px-2 py-1 text-xs font-medium 
+                 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded"
+        >
+          Статус: {{ getStatusLabel(localFilters.status) }}
+          <button
+            @click="localFilters.status = undefined"
+            class="ml-1 text-green-600 dark:text-green-300 hover:text-green-800 dark:hover:text-green-100"
+          >
+            ×
+          </button>
+        </span>
       </div>
     </div>
   </div>
@@ -138,7 +184,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import MultiSkillSelector from './MultiSkillSelector.vue'
 import { useSpecialistSearchStore } from '@/stores/specialist-search'
-import type { SearchFilters, SkillOption } from '@/types/specialist-search'
+import { useUserStore } from '@/stores/user'
+import type { SearchFilters } from '@/types/specialist-search'
 
 interface Props {
   loading?: boolean
@@ -149,19 +196,19 @@ interface Emits {
   (e: 'clear'): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  loading: false,
-})
+defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
 // Store
 const searchStore = useSpecialistSearchStore()
+const userStore = useUserStore()
 
 // Local state for form
 const localFilters = ref<SearchFilters>({
   query: '',
   skills: [],
+  status: 'published',
   page: 1,
   limit: 5,
 })
@@ -171,10 +218,15 @@ const availableSkills = computed(() => searchStore.availableSkills)
 
 const searchSummary = computed(() => searchStore.searchSummary)
 
+const isAdmin = computed(() => {
+  return userStore.currentUser?.userType === 'admin'
+})
+
 const hasActiveFilters = computed(() => {
   return !!(
     localFilters.value.query ||
-    localFilters.value.skills.length > 0
+    localFilters.value.skills.length > 0 ||
+    localFilters.value.status
   )
 })
 
@@ -191,6 +243,17 @@ const removeSkillFilter = (skillKey: string): void => {
   }
 }
 
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'published':
+      return 'Опубликованные'
+    case 'waiting':
+      return 'На модерации'
+    default:
+      return status
+  }
+}
+
 const handleSearch = (): void => {
   emit('search', { ...localFilters.value })
 }
@@ -199,6 +262,7 @@ const handleClear = (): void => {
   localFilters.value = {
     query: '',
     skills: [],
+    status: 'published',
     page: 1,
     limit: 5,
   }
@@ -211,6 +275,7 @@ const initializeFilters = (): void => {
   localFilters.value = {
     query: storeFilters.query || '',
     skills: [...(storeFilters.skills || [])],
+    status: storeFilters.status || 'published',
     page: 1,
     limit: 5,
   }

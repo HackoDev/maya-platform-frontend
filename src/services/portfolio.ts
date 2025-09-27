@@ -1,5 +1,4 @@
 import type { PortfolioCase } from '@/types/specialist-profile-view'
-import { SpecialistProfileViewService } from '@/services/specialist-profile-view'
 
 // Extend the PortfolioCase type to include specialistId
 interface PortfolioCaseWithSpecialist extends PortfolioCase {
@@ -7,8 +6,6 @@ interface PortfolioCaseWithSpecialist extends PortfolioCase {
 }
 
 export class PortfolioService {
-  private specialistProfileService = new SpecialistProfileViewService()
-
   // Get portfolio statistics (count of all portfolios)
   async getPortfolioStatistics(): Promise<number> {
     try {

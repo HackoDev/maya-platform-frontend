@@ -13,6 +13,9 @@
           <span v-else-if="session.currentUser.value?.userType === 'specialist'">
             Здесь вы можете находить интересные вакансии для работы.
           </span>
+          <span v-else-if="session.currentUser.value?.userType === 'admin'">
+            Здесь вы можете увидеть отображение вакансий и анкет специалистов.
+          </span>
           <span v-else>
             Здесь вы можете находить специалистов или вакансии.
           </span>
@@ -22,7 +25,7 @@
       <!-- Dynamic Content Based on User Type -->
       <div class="w-full">
         <!-- For Clients: Show Portfolios -->
-        <div v-if="session.currentUser.value?.userType === 'client'">
+        <div v-if="session.currentUser.value?.userType === 'client' || session.currentUser.value?.userType === 'admin'">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Портфолио специалистов</h2>
             <router-link 
@@ -88,7 +91,7 @@
         </div>
 
         <!-- For Specialists: Show Vacancies -->
-        <div v-else-if="session.currentUser.value?.userType === 'specialist'">
+        <div v-if="session.currentUser.value?.userType === 'specialist' || session.currentUser.value?.userType === 'admin'">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Последние вакансии</h2>
             <router-link 
@@ -152,11 +155,6 @@
             </div>
             </div>
           </div>
-        </div>
-
-        <!-- Fallback for unknown user types -->
-        <div v-else class="text-center py-12">
-          <p class="text-gray-500 dark:text-gray-400">Не удалось определить тип пользователя</p>
         </div>
       </div>
     </main>

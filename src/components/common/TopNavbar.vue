@@ -38,26 +38,37 @@
 
         <!-- User Section -->
         <div class="flex items-center space-x-4">
-          <!-- Create Vacancy Button (only visible for clients) -->
+          <!-- Create Vacancy Button (only visible for clients) - Hidden on mobile -->
           <button
             v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'client'"
             @click="$emit('create-vacancy')"
-            class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
+            class="hidden lg:inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900"
           >
             <PlusIcon class="h-4 w-4 mr-1" />
             Создать вакансию
           </button>
 
-          <!-- Specialist Portfolio Status Button -->
+          <!-- Specialist Portfolio Status Button - Hidden on mobile -->
           <button
             v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'specialist'"
             @click="goToSpecialistQuestionnaire"
-            class="inline-flex items-center px-3 py-1 border text-xs font-medium rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
+            class="hidden lg:inline-flex items-center px-3 py-1 border text-xs font-medium rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
             :class="portfolioStatusButton.classes"
             title="Перейти к анкете специалиста"
           >
             <span class="inline-block h-1.5 w-1.5 rounded-full mr-1.5" :class="portfolioStatusButton.dot"></span>
             {{ portfolioStatusButton.text }}
+          </button>
+
+          <!-- Admin Status Button - Hidden on mobile -->
+          <button
+            v-if="session.isAuthenticated.value && session.currentUser.value?.userType === 'admin'"
+            class="hidden lg:inline-flex items-center px-3 py-1 border text-xs font-medium rounded-full shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-0 ring-0"
+            :class="adminStatusButton.classes"
+            title="Администратор системы"
+          >
+            <span class="inline-block h-1.5 w-1.5 rounded-full mr-1.5" :class="adminStatusButton.dot"></span>
+            {{ adminStatusButton.text }}
           </button>
           
           <UserProfileSection v-if="session.isAuthenticated.value" :user="session.currentUser.value" />
@@ -89,6 +100,7 @@
       :navigation-items="visibleNavigationItems"
       :user="session.currentUser.value"
       @close="navigationStore.closeMobileMenu"
+      @create-vacancy="$emit('create-vacancy')"
     />
   </nav>
 </template>
@@ -169,6 +181,15 @@ const portfolioStatusButton = computed(() => {
   return {
     text: 'Анкета: не создана',
     classes: 'border-transparent text-white bg-red-600 hover:bg-red-700 focus:ring-red-600',
+    dot: 'bg-white'
+  }
+})
+
+// Admin status badge/button (admins only)
+const adminStatusButton = computed(() => {
+  return {
+    text: 'Администратор',
+    classes: 'border-transparent text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-600',
     dot: 'bg-white'
   }
 })

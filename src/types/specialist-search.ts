@@ -44,10 +44,8 @@ export interface SkillOption {
 export interface SearchFilters {
   query?: string
   skills: string[]
-  priceRange?: {
-    min?: number
-    max?: number
-  }
+  // Status filter for admin users
+  status?: 'published' | 'waiting'
   // Pagination parameters
   page?: number
   limit?: number
@@ -59,10 +57,6 @@ export interface SearchResults {
   currentPage: number
   totalPages: number
   hasMore: boolean
-  facets: {
-    skills: { key: string; count: number }[]
-    specializations: { key: string; count: number }[]
-  }
 }
 
 // Infinite scroll state management
