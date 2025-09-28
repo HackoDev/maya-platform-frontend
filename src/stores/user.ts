@@ -4,6 +4,7 @@ import type { User } from '@/types'
 import { UserService } from '@/services/user'
 import { authApi, type LoginCredentials } from '@/services/authApiClient'
 import { emailChangeApiClient } from '@/services/emailChangeApiClient'
+import { resetPasswordApiClient } from '@/services/resetPasswordApiClient'
 
 // Profile update interfaces
 export interface PersonalInfoUpdate {
@@ -236,6 +237,37 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // Password reset methods
+  const sendResetPasswordOTP = async (email: string) => {
+    try {
+      const response = await resetPasswordApiClient.sendResetOTP(email)
+      return response
+    } catch (error) {
+      console.error('Failed to send reset password OTP:', error)
+      throw error
+    }
+  }
+
+  const verifyResetPasswordOTP = async (token: string, code: string) => {
+    try {
+      const response = await resetPasswordApiClient.verifyOTP(token, code)
+      return response
+    } catch (error) {
+      console.error('Failed to verify reset password OTP:', error)
+      throw error
+    }
+  }
+
+  const resetPassword = async (otpToken: string, newPassword: string, confirmPassword: string) => {
+    try {
+      const response = await resetPasswordApiClient.resetPassword(otpToken, newPassword, confirmPassword)
+      return response
+    } catch (error) {
+      console.error('Failed to reset password:', error)
+      throw error
+    }
+  }
+
   const updateTheme = async (data: ThemeUpdate) => {
     try {
       const response = await userService.updateTheme(data)
@@ -306,6 +338,9 @@ export const useUserStore = defineStore('user', () => {
     verifyEmailChangeOTP,
     changeEmailWithOTP,
     changePassword,
+    sendResetPasswordOTP,
+    verifyResetPasswordOTP,
+    resetPassword,
     updateTheme,
     initializeAuth,
     syncUserData,

@@ -8,6 +8,7 @@ import { useUserStore } from '@/stores/user'
 const HomePage = () => import('@/pages/HomePage.vue')
 // DashboardPage removed as part of Home page enhancement
 const LoginPage = () => import('@/pages/LoginPage.vue')
+const ResetPasswordPage = () => import('@/pages/ResetPasswordPage.vue')
 const ProfilePage = () => import('@/pages/ProfilePage.vue')
 const ProfileSettingsPage = () => import('@/pages/ProfileSettingsPage.vue')
 const SearchSpecialistsPage = () => import('@/pages/SearchSpecialistsPage.vue')
@@ -35,6 +36,16 @@ const routes: RouteRecordRaw[] = [
     component: LoginPage,
     meta: {
       title: 'Login',
+      requiresAuth: false,
+      hideForAuth: true,
+    },
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPasswordPage,
+    meta: {
+      title: 'Сброс пароля',
       requiresAuth: false,
       hideForAuth: true,
     },

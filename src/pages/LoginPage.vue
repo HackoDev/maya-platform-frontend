@@ -95,14 +95,14 @@
               </label>
             </div>
 
-            <!-- <div class="text-sm">
-              <a
-                href="#"
+            <div class="text-sm">
+              <router-link
+                to="/reset-password"
                 class="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 Забыли пароль?
-              </a>
-            </div> -->
+              </router-link>
+            </div>
           </div>
 
           <BaseButton type="submit" class="w-full" :disabled="session.isLoading.value">
@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGlobalSession } from '@/composables/useSession'
 import { authApi } from '@/services/authApiClient'
@@ -172,6 +172,9 @@ const form = ref({
 // Animation state
 const isAnimationComplete = ref(false)
 const isLoginSuccessful = ref(false)
+
+// Timeout reference for cleanup
+let redirectTimeout: number | null = null
 
 // Generate rays data
 const rays = computed(() => {
@@ -223,9 +226,20 @@ onMounted(() => {
   }, 2000)
 })
 
+// Cleanup timeout when component is unmounted
+onUnmounted(() => {
+  if (redirectTimeout) {
+    clearTimeout(redirectTimeout)
+    redirectTimeout = null
+  }
+})
+
 const handleRedirect = () => {
-  const redirect = router.currentRoute.value.query.redirect as string
-  router.push(redirect || '/')
+  // Check if we're still on the login page before redirecting
+  if (router.currentRoute.value.name === 'Login') {
+    const redirect = router.currentRoute.value.query.redirect as string
+    router.push(redirect || '/')
+  }
 }
 
 const handleSubmit = async () => {
@@ -246,7 +260,7 @@ const handleSubmit = async () => {
       isLoginSuccessful.value = true
       
       // Redirect after showing welcome message
-      setTimeout(() => {
+      redirectTimeout = setTimeout(() => {
         handleRedirect()
       }, 2500) // Show welcome for 2.5 seconds
     }

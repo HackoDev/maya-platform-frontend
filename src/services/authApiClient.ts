@@ -667,6 +667,68 @@ export class AuthApiClient extends BaseApiClient {
   }
 
   /**
+   * Make non-authenticated request (does not include token)
+   */
+  async nonAuthenticatedRequest<T = any>(
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    url: string,
+    data?: any,
+    config?: ApiRequestConfig
+  ): Promise<T> {
+    console.log(`🔐 [Auth Request] ${method} ${url}`)
+    console.log('🔐 [Auth Request] Has access token:', false)
+    console.log('🔐 [Auth Request] Token (first 10 chars):', 'none')
+    
+    // Use the appropriate method based on the HTTP method
+    let response: any
+    switch (method) {
+      case 'GET':
+        response = await this.get<T>(url, data, {
+          ...config,
+          headers: {
+            ...config?.headers,
+          },
+        })
+        break
+      case 'POST':
+        response = await this.post<T>(url, data, {
+          ...config,
+          headers: {
+            ...config?.headers,
+          },
+        })
+        break
+      case 'PUT':
+        response = await this.put<T>(url, data, {
+          ...config,
+          headers: {
+            ...config?.headers,
+          },
+        })
+        break
+      case 'PATCH':
+        response = await this.patch<T>(url, data, {
+          ...config,
+          headers: {
+            ...config?.headers,
+          },
+        })
+        break
+      case 'DELETE':
+        response = await this.delete<T>(url, {
+          ...config,
+          headers: {
+            ...config?.headers,
+          },
+        })
+        break
+    }
+
+    console.log(`✅ [Auth Request] ${method} ${url} completed successfully`)
+    return response.data
+  }
+
+  /**
    * Initialize with stored token (for app startup)
    */
   initializeWithStoredToken(): boolean {
