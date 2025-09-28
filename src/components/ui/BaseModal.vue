@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
+  <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto isolate">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
       <!-- Background overlay -->
       <div
@@ -60,7 +60,7 @@ import { computed, watch } from 'vue'
 interface Props {
   show: boolean
   title?: string
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl'
   closable?: boolean
 }
 
@@ -81,6 +81,10 @@ const sizeClasses = computed(() => {
     xl: 'sm:max-w-xl',
     '2xl': 'sm:max-w-2xl',
     '3xl': 'sm:max-w-3xl',
+    '4xl': 'sm:max-w-4xl',
+    '5xl': 'sm:max-w-5xl',
+    '6xl': 'sm:max-w-6xl',
+    '7xl': 'sm:max-w-7xl',
   }
   return sizes[props.size]
 })

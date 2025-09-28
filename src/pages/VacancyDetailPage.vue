@@ -80,13 +80,6 @@
       </div>
     </div>
 
-    <!-- Vacancy Form Modal -->
-    <VacancyForm 
-      :is-open="showVacancyForm"
-      :vacancy="vacancy"
-      @close="handleCloseForm"
-      @save="handleSaveVacancy"
-    />
 
     <!-- Contact Modal -->
     <BaseModal :show="showContactModal" @close="handleCloseContactModal">
@@ -169,7 +162,6 @@ import { useUserStore } from '@/stores/user'
 import { vacancyApiClient } from '@/services/vacancyApiClient'
 import { HomeIcon, ChevronRightIcon, ExclamationTriangleIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
 import VacancyDetail from '@/components/vacancies/VacancyDetail.vue'
-import VacancyForm from '@/components/vacancies/VacancyForm.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import type { Vacancy } from '@/types/vacancy'
 
@@ -184,7 +176,6 @@ const router = useRouter()
 // State
 const loading = ref(false)
 const error = ref<string | null>(null)
-const showVacancyForm = ref(false)
 const showContactModal = ref(false)
 const showPhoneNumber = ref(false)
 
@@ -234,7 +225,7 @@ const loadVacancy = async () => {
 }
 
 const handleEdit = () => {
-  showVacancyForm.value = true
+  vacancyStore.openVacancyForm(vacancy.value!)
 }
 
 const handleClose = () => {
@@ -283,26 +274,6 @@ const handleReopen = async () => {
   }
 }
 
-const handleCloseForm = () => {
-  showVacancyForm.value = false
-}
-
-const handleSaveVacancy = async (vacancyData: Partial<Vacancy>) => {
-  try {
-    if (vacancy.value) {
-      // Update existing vacancy
-      const updatedVacancy = await vacancyStore.updateVacancy(vacancy.value.id, vacancyData)
-      vacancy.value = updatedVacancy
-    } else {
-      // Create new vacancy
-      const newVacancy = await vacancyStore.createVacancy(vacancyData)
-      vacancy.value = newVacancy
-    }
-    showVacancyForm.value = false
-  } catch (err) {
-    throw err
-  }
-}
 
 const handleContactClick = () => {
   showContactModal.value = true

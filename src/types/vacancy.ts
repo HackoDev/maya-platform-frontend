@@ -85,3 +85,13 @@ export interface VacancyStoreState {
   error: string | null
   searchQuery: string
 }
+
+// AI Helper types
+export interface AiHelperRequest {
+  userInput: string
+}
+
+export interface AiHelperResponse {
+  title: string
+  description: string
+}

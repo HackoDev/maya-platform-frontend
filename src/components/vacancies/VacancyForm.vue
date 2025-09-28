@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :show="isOpen" @close="handleClose" size="3xl">
+  <BaseModal :show="isOpen" @close="handleClose" size="5xl">
     <template #header>
       <h3 class="text-lg font-medium text-gray-900 dark:text-white">
         {{ isEditing ? 'Редактировать вакансию' : 'Создать вакансию' }}
@@ -65,7 +65,7 @@
         </div>
 
         <!-- AI Assistant -->
-        <div v-if="isAdmin" class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+        <div class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
           <div class="flex items-start space-x-3">
             <div class="flex-shrink-0">
               <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
@@ -79,8 +79,8 @@
                 AI Помощник
               </h4>
               <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                Сгенерируйте описание и название вакансии на основе уже заполненных данных. 
-                Дайте тезисное описание и помощник все сделает за вас!
+                AI помощник проанализирует введенные вами базовые требования и создаст профессиональное описание вашей вакансии. 
+                Просто нажмите кнопку и получите улучшенную версию!
               </p>
               <button
                 type="button"
@@ -176,7 +176,7 @@
   </BaseModal>
 
   <!-- AI Preview Modal -->
-  <BaseModal :show="showAiPreview" @close="handleCloseAiPreview" size="3xl">
+  <BaseModal :show="showAiPreview" @close="handleCloseAiPreview" size="5xl">
     <template #header>
       <div class="flex items-center space-x-2">
         <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
@@ -262,7 +262,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import type { Vacancy } from '@/types/vacancy'
 import BaseModal from '@/components/ui/BaseModal.vue'
-import { useUserStore } from '@/stores/user'
+import { vacancyApi } from '@/services/vacancyApiClient'
 
 interface Props {
   isOpen: boolean
@@ -279,9 +279,6 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
-
-// Stores
-const userStore = useUserStore()
 
 // Form state
 const form = reactive({
@@ -308,7 +305,6 @@ const aiImprovedData = reactive({
 
 // Computed properties
 const isEditing = computed(() => !!props.vacancy?.id)
-const isAdmin = computed(() => userStore.currentUser?.userType === 'admin')
 
 // Methods
 const validateForm = () => {
@@ -357,18 +353,36 @@ const handleSubmit = () => {
 
 const handleClose = () => {
   clearErrors()
+  // Close AI preview if it's open
+  if (showAiPreview.value) {
+    handleCloseAiPreview()
+  }
   emit('close')
 }
 
 // AI Assistant methods
 const handleImproveDescription = async () => {
+  // Don't open AI preview if main modal is not open
+  if (!props.isOpen) return
+  
   isImproving.value = true
   
   try {
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Prepare user input from current form data
+    const userInput = form.title && form.description 
+      ? `${form.title}. ${form.description}`
+      : form.title || form.description || 'Создать вакансию'
     
-    // Generate improved content based on current form data
+    // Call AI helper API
+    const response = await vacancyApi.aiHelper({ userInput })
+    
+    aiImprovedData.title = response.title
+    aiImprovedData.description = response.description
+    
+    showAiPreview.value = true
+  } catch (error) {
+    console.error('AI improvement error:', error)
+    // Fallback to mock data if API fails
     const improvedTitle = generateImprovedTitle(form.title)
     const improvedDescription = generateImprovedDescription(form.description)
     
@@ -376,8 +390,6 @@ const handleImproveDescription = async () => {
     aiImprovedData.description = improvedDescription
     
     showAiPreview.value = true
-  } catch (error) {
-    console.error('AI improvement error:', error)
   } finally {
     isImproving.value = false
   }
@@ -479,5 +491,15 @@ watch(
     clearErrors()
   },
   { immediate: true }
+)
+
+// Watch for modal close to close AI preview
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (!isOpen && showAiPreview.value) {
+      handleCloseAiPreview()
+    }
+  }
 )
 </script>

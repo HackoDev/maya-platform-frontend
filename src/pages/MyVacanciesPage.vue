@@ -82,13 +82,6 @@
       </div>
     </div>
 
-    <!-- Vacancy Form Modal -->
-    <VacancyForm 
-      :is-open="vacancyStore.showVacancyForm"
-      :vacancy="vacancyStore.selectedVacancy"
-      @close="vacancyStore.closeVacancyForm"
-      @save="handleSaveVacancy"
-    />
 
     <!-- Confirm Dialog -->
     <ConfirmDialog
@@ -110,7 +103,6 @@ import { useVacancyStore } from '@/stores/vacancy'
 import { PlusIcon, ExclamationTriangleIcon, BriefcaseIcon } from '@heroicons/vue/24/outline'
 import VacancySearch from '@/components/vacancies/VacancySearch.vue'
 import VacancyList from '@/components/vacancies/VacancyList.vue'
-import VacancyForm from '@/components/vacancies/VacancyForm.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import type { Vacancy } from '@/types/vacancy'
 
@@ -168,23 +160,6 @@ const handleCancelDelete = () => {
   pendingDeleteId.value = null
 }
 
-const handleSaveVacancy = async (vacancyData: Partial<Vacancy>) => {
-  try {
-    if (vacancyStore.selectedVacancy) {
-      // Update existing vacancy
-      await vacancyStore.updateVacancy(vacancyStore.selectedVacancy.id, vacancyData)
-    } else {
-      // Create new vacancy
-      const newVacancy = await vacancyStore.createVacancy(vacancyData)
-      // Redirect to the newly created vacancy details page
-      router.push(`/profile/vacancies/${newVacancy.id}`)
-    }
-    vacancyStore.closeVacancyForm()
-  } catch (err) {
-    // Error is handled in the form component
-    throw err
-  }
-}
 
 // Lifecycle
 onMounted(() => {

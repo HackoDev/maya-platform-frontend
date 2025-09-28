@@ -12,7 +12,9 @@ import type {
   CreateVacancyRequest, 
   UpdateVacancyRequest,
   VacancySearchFilters,
-  VacancyPaginationResponse
+  VacancyPaginationResponse,
+  AiHelperRequest,
+  AiHelperResponse
 } from '@/types/vacancy'
 
 /**
@@ -189,6 +191,19 @@ export class VacancyApiClient extends AuthApiClient {
   async searchVacancies(filters: VacancySearchFilters): Promise<VacancyPaginationResponse> {
     return this.getVacancies(filters)
   }
+
+  /**
+   * AI Helper - Generate vacancy title and description from user input
+   */
+  async aiHelper(request: AiHelperRequest): Promise<AiHelperResponse> {
+    const response = await this.authenticatedRequest<AiHelperResponse>('POST', '/api/web/vacancies/ai-helper', request, {
+      headers: {
+        'Content-Type': CONTENT_TYPES.JSON,
+      },
+    })
+    
+    return response
+  }
 }
 
 // Create default instance
@@ -207,6 +222,9 @@ export const vacancyApi = {
   createVacancy: (vacancyData: Partial<Vacancy>) => vacancyApiClient.createVacancy(vacancyData),
   updateVacancy: (id: string, vacancyData: Partial<Vacancy>) => vacancyApiClient.updateVacancy(id, vacancyData),
   deleteVacancy: (id: string) => vacancyApiClient.deleteVacancy(id),
+  
+  // AI Helper
+  aiHelper: (request: AiHelperRequest) => vacancyApiClient.aiHelper(request),
 }
 
 // Export types
@@ -217,5 +235,7 @@ export type {
   CreateVacancyRequest, 
   UpdateVacancyRequest,
   VacancySearchFilters,
-  VacancyPaginationResponse
+  VacancyPaginationResponse,
+  AiHelperRequest,
+  AiHelperResponse
 }
