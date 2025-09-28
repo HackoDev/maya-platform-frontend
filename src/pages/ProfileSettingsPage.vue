@@ -56,7 +56,10 @@
                       alt="Avatar"
                       class="w-full h-full object-cover"
                     />
-                    <span class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-500 dark:text-gray-400">
+                    <span 
+                      v-else
+                      class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-500 dark:text-gray-400"
+                    >
                       {{ userInitials }}
                     </span>
                   </div>

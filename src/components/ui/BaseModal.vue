@@ -60,7 +60,7 @@ import { computed, watch } from 'vue'
 interface Props {
   show: boolean
   title?: string
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
   closable?: boolean
 }
 
@@ -79,6 +79,8 @@ const sizeClasses = computed(() => {
     md: 'sm:max-w-md',
     lg: 'sm:max-w-lg',
     xl: 'sm:max-w-xl',
+    '2xl': 'sm:max-w-2xl',
+    '3xl': 'sm:max-w-3xl',
   }
   return sizes[props.size]
 })
