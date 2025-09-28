@@ -49,12 +49,8 @@
         <!-- Specialist Portfolio Status -->
         <div
           v-if="user.userType === 'specialist'"
-          class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 mb-3"
+          class="text-left"
         >
-          <div class="flex items-center">
-            <span class="inline-block h-2 w-2 rounded-full mr-2" :class="portfolioStatusButton.dot"></span>
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Статус анкеты:</span>
-          </div>
           <span class="text-xs font-medium px-2 py-1 rounded-full" :class="portfolioStatusButton.classes">
             {{ portfolioStatusButton.text }}
           </span>
@@ -158,21 +154,21 @@ const portfolioStatusButton = computed(() => {
   const status = portfolioStatus.value
   if (status === 'published') {
     return {
-      text: 'Опубликована',
+      text: 'Анкета: опубликована',
       classes: 'text-white bg-green-600',
       dot: 'bg-white'
     }
   }
   if (status === 'draft') {
     return {
-      text: 'Черновик',
+      text: 'Анкета: черновик',
       classes: 'text-white bg-[#FF9800]',
       dot: 'bg-white'
     }
   }
   if (status === 'archived') {
     return {
-      text: 'Архивирована',
+      text: 'Анкета: архивирована',
       classes: 'text-white bg-red-600',
       dot: 'bg-white'
     }
