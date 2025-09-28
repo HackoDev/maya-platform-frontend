@@ -21,6 +21,7 @@ export interface UserMeResponse {
   telegram: string | null
   uiTheme: string | null
   isOpenToOffers?: boolean
+  portfolioStatus?: 'published' | 'draft' | 'archived' | null
   lastLoginAt: string
   createdAt: string
   name: string
@@ -358,6 +359,7 @@ export class UsersApiService extends BaseApiClient {
       userType: apiUser.userType,
       isActive: apiUser.isActive,
       isOpenToOffers: apiUser.isOpenToOffers ?? false,
+      portfolioStatus: apiUser.portfolioStatus,
       uiTheme: apiUser.uiTheme,
       phone: apiUser.phone,
       whatsapp: apiUser.whatsapp,

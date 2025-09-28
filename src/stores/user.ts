@@ -155,6 +155,7 @@ export const useUserStore = defineStore('user', () => {
         currentUser.value.firstName = response.firstName
         currentUser.value.lastName = response.lastName
         currentUser.value.avatar = response.avatar
+        currentUser.value.portfolioStatus = response.portfolioStatus
         // Update name field
         currentUser.value.name = `${response.firstName} ${response.lastName}`
         // Sync with authApiClient
