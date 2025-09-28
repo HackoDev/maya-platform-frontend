@@ -225,114 +225,104 @@
             </form>
           </div>
 
-          <!-- Email Section -->
+          <!-- Email Change with OTP Section -->
           <div class="pt-6 sm:pt-8">
             <div class="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
               <EnvelopeIcon class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Электронная почта</h3>
+              <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Смена электронной почты</h3>
+            </div>
+
+            <!-- Current Email Display -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Текущий email
+              </label>
+              <div class="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-md overflow-x-auto">
+                <p class="text-gray-900 dark:text-white whitespace-nowrap min-w-0">
+                  {{ userStore.currentUser?.email }}
+                </p>
+              </div>
             </div>
 
             <!-- Success/Error Messages -->
             <div
-              v-if="formStates.email.successMessage"
+              v-if="formStates.emailChangeOTP.successMessage"
               class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md"
             >
               <p class="text-sm text-green-700 dark:text-green-300">
-                {{ formStates.email.successMessage }}
+                {{ formStates.emailChangeOTP.successMessage }}
               </p>
             </div>
             <div
-              v-if="formStates.email.errorMessage"
+              v-if="formStates.emailChangeOTP.errorMessage"
               class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
             >
               <p class="text-sm text-red-700 dark:text-red-300">
-                {{ formStates.email.errorMessage }}
+                {{ formStates.emailChangeOTP.errorMessage }}
               </p>
             </div>
 
-            <form @submit.prevent="submitEmail" class="space-y-4 sm:space-y-6">
+            <!-- Step 1: Enter New Email -->
+            <div v-if="emailChangeOTPForm.step === 'email'" class="space-y-4 sm:space-y-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Текущий email
+                <label
+                  for="newEmailOTP"
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Новый email адрес
                 </label>
-                <div class="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-md overflow-x-auto">
-                  <p class="text-gray-900 dark:text-white whitespace-nowrap min-w-0">
-                    {{ userStore.currentUser?.email }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <label
-                    for="newEmail"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Новый email
-                  </label>
-                  <BaseInput
-                    id="newEmail"
-                    v-model="emailForm.newEmail"
-                    type="email"
-                    placeholder="new.email@example.com"
-                    :error="formStates.email.errors.newEmail"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label
-                    for="confirmEmail"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Подтвердите новый email
-                  </label>
-                  <BaseInput
-                    id="confirmEmail"
-                    v-model="emailForm.confirmEmail"
-                    type="email"
-                    placeholder="new.email@example.com"
-                    :error="formStates.email.errors.confirmEmail"
-                    required
-                  />
-                  <!-- Email Match Indicator -->
-                  <div v-if="emailForm.confirmEmail && emailForm.newEmail" class="mt-2">
-                    <div class="flex items-center space-x-2">
-                      <CheckCircleIcon
-                        v-if="emailForm.newEmail === emailForm.confirmEmail"
-                        class="h-4 w-4 text-green-500 dark:text-green-400"
-                      />
-                      <XCircleIcon v-else class="h-4 w-4 text-red-500 dark:text-red-400" />
-                      <span
-                        class="text-xs"
-                        :class="
-                          emailForm.newEmail === emailForm.confirmEmail
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-red-600 dark:text-red-400'
-                        "
-                      >
-                        {{
-                          emailForm.newEmail === emailForm.confirmEmail
-                            ? 'Email адреса совпадают'
-                            : 'Email адреса не совпадают'
-                        }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <BaseInput
+                  id="newEmailOTP"
+                  v-model="emailChangeOTPForm.newEmail"
+                  type="email"
+                  placeholder="new.email@example.com"
+                  :error="formStates.emailChangeOTP.errors.newEmail"
+                  required
+                />
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  На этот адрес будет отправлен код подтверждения
+                </p>
               </div>
 
               <div class="flex justify-end">
                 <BaseButton
-                  type="submit"
+                  type="button"
                   variant="primary"
-                  :loading="formStates.email.isLoading"
-                  :disabled="!isEmailFormValid"
+                  :loading="formStates.emailChangeOTP.isLoading"
+                  :disabled="!isEmailChangeOTPFormValid"
+                  @click="startEmailChangeOTP"
                 >
-                  {{ formStates.email.isLoading ? 'Обновление...' : 'Обновить email' }}
+                  {{ formStates.emailChangeOTP.isLoading ? 'Отправка...' : 'Отправить код' }}
                 </BaseButton>
               </div>
-            </form>
+            </div>
+
+            <!-- Step 2: Enter OTP Code -->
+            <div v-if="emailChangeOTPForm.step === 'otp'" class="space-y-4 sm:space-y-6">
+              <OTPInput
+                :email="emailChangeOTPForm.newEmail"
+                v-model="emailChangeOTPForm.otpCode"
+                :error-message="formStates.emailChangeOTP.errors.otpCode?.[0]"
+                :success-message="formStates.emailChangeOTP.successMessage"
+                :is-resending="formStates.emailChangeOTP.isLoading"
+                @complete="verifyOTPCode"
+                @resend="resendOTPCode"
+                @cancel="cancelEmailChangeOTP"
+              />
+            </div>
+
+            <!-- Step 3: Success -->
+            <div v-if="emailChangeOTPForm.step === 'complete'" class="text-center space-y-4">
+              <div class="flex justify-center">
+                <CheckCircleIcon class="h-16 w-16 text-green-500 dark:text-green-400" />
+              </div>
+              <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                Email успешно изменен!
+              </h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Ваш новый email: <strong>{{ emailChangeOTPForm.newEmail }}</strong>
+              </p>
+            </div>
           </div>
 
           <!-- Password Change Section -->
@@ -528,6 +518,7 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ThemeSelector from '@/components/ui/ThemeSelector.vue'
+import OTPInput from '@/components/ui/OTPInput.vue'
 import {
   UserCircleIcon,
   PhoneIcon,
@@ -554,10 +545,12 @@ interface ContactInfoForm {
   telegram: string
 }
 
-interface EmailForm {
-  currentEmail: string
+
+interface EmailChangeOTPForm {
   newEmail: string
-  confirmEmail: string
+  otpToken: string
+  otpCode: string
+  step: 'email' | 'otp' | 'complete'
 }
 
 interface PasswordForm {
@@ -577,7 +570,7 @@ interface FormState {
 interface FormStates {
   personalInfo: FormState
   contactInfo: FormState
-  email: FormState
+  emailChangeOTP: FormState
   password: FormState
   theme: FormState
 }
@@ -598,10 +591,12 @@ const contactInfoForm = reactive<ContactInfoForm>({
   telegram: userStore.currentUser?.telegram || '',
 })
 
-const emailForm = reactive<EmailForm>({
-  currentEmail: userStore.currentUser?.email || '',
+
+const emailChangeOTPForm = reactive<EmailChangeOTPForm>({
   newEmail: '',
-  confirmEmail: '',
+  otpToken: '',
+  otpCode: '',
+  step: 'email'
 })
 
 const passwordForm = reactive<PasswordForm>({
@@ -626,7 +621,7 @@ const formStates = reactive<FormStates>({
     successMessage: '',
     errorMessage: '',
   },
-  email: {
+  emailChangeOTP: {
     isLoading: false,
     isValid: false,
     errors: {},
@@ -708,14 +703,17 @@ const isContactInfoFormValid = computed(() => {
   return true
 })
 
-const isEmailFormValid = computed(() => {
-  return (
-    emailForm.newEmail &&
-    emailForm.confirmEmail &&
-    emailForm.newEmail === emailForm.confirmEmail &&
-    emailForm.newEmail !== emailForm.currentEmail &&
-    /\S+@\S+\.\S+/.test(emailForm.newEmail)
-  )
+
+const isEmailChangeOTPFormValid = computed(() => {
+  if (emailChangeOTPForm.step === 'email') {
+    return emailChangeOTPForm.newEmail && 
+           emailChangeOTPForm.newEmail !== userStore.currentUser?.email &&
+           /\S+@\S+\.\S+/.test(emailChangeOTPForm.newEmail)
+  }
+  if (emailChangeOTPForm.step === 'otp') {
+    return emailChangeOTPForm.otpCode && emailChangeOTPForm.otpCode.length === 6
+  }
+  return false
 })
 
 const isPasswordFormValid = computed(() => {
@@ -807,38 +805,111 @@ const submitContactInfo = async () => {
   }
 }
 
-const submitEmail = async () => {
-  if (!isEmailFormValid.value) return
 
-  formStates.email.isLoading = true
-  formStates.email.errors = {}
-  formStates.email.successMessage = 'Идет сохранение...'
-  formStates.email.errorMessage = ''
+// OTP-based email change methods
+const startEmailChangeOTP = async () => {
+  if (!isEmailChangeOTPFormValid.value) return
+
+  formStates.emailChangeOTP.isLoading = true
+  formStates.emailChangeOTP.errors = {}
+  formStates.emailChangeOTP.successMessage = 'Отправка кода...'
+  formStates.emailChangeOTP.errorMessage = ''
 
   try {
-    const result = await userStore.updateEmail({
-      newEmail: emailForm.newEmail,
-      confirmEmail: emailForm.confirmEmail,
-    })
-
-    if (result.verificationRequired) {
-      formStates.email.successMessage = 'Письмо с подтверждением отправлено на новый email адрес'
-    } else {
-      formStates.email.successMessage = 'Email адрес успешно обновлен'
-    }
-
-    // Reset form
-    emailForm.newEmail = ''
-    emailForm.confirmEmail = ''
+    const response = await userStore.sendEmailChangeOTP(emailChangeOTPForm.newEmail)
+    
+    emailChangeOTPForm.otpToken = response.token
+    emailChangeOTPForm.step = 'otp'
+    formStates.emailChangeOTP.successMessage = response.message
   } catch (error) {
-    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при обновлении email адреса.')
-    formStates.email.errorMessage = message
-    formStates.email.successMessage = ''
-    formStates.email.errors = errorsData || {}
-    console.error('Failed to update email:', error)
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при отправке OTP кода.')
+    formStates.emailChangeOTP.errorMessage = message
+    formStates.emailChangeOTP.successMessage = ''
+    formStates.emailChangeOTP.errors = errorsData || {}
+    console.error('Failed to send OTP:', error)
   } finally {
-    formStates.email.isLoading = false
+    formStates.emailChangeOTP.isLoading = false
   }
+}
+
+const verifyOTPCode = async () => {
+  if (!isEmailChangeOTPFormValid.value) return
+
+  formStates.emailChangeOTP.isLoading = true
+  formStates.emailChangeOTP.errors = {}
+  formStates.emailChangeOTP.successMessage = 'Проверка кода...'
+  formStates.emailChangeOTP.errorMessage = ''
+
+  try {
+    const response = await userStore.verifyEmailChangeOTP(emailChangeOTPForm.otpToken, emailChangeOTPForm.otpCode)
+    
+    if (response.verified) {
+      // Proceed to change email
+      await changeEmailWithOTP()
+    } else {
+      formStates.emailChangeOTP.errorMessage = response.message
+      formStates.emailChangeOTP.successMessage = ''
+    }
+  } catch (error) {
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при проверке OTP кода.')
+    formStates.emailChangeOTP.errorMessage = message
+    formStates.emailChangeOTP.successMessage = ''
+    formStates.emailChangeOTP.errors = errorsData || {}
+    console.error('Failed to verify OTP:', error)
+  } finally {
+    formStates.emailChangeOTP.isLoading = false
+  }
+}
+
+const changeEmailWithOTP = async () => {
+  try {
+    const response = await userStore.changeEmailWithOTP(emailChangeOTPForm.otpToken, emailChangeOTPForm.newEmail)
+    
+    emailChangeOTPForm.step = 'complete'
+    formStates.emailChangeOTP.successMessage = response.message
+    
+    // Reset form after success
+    setTimeout(() => {
+      resetEmailChangeOTPForm()
+    }, 3000)
+  } catch (error) {
+    const {message, data: errorsData} = prepareErrorResponse(error, 'Ошибка при смене email.')
+    formStates.emailChangeOTP.errorMessage = message
+    formStates.emailChangeOTP.successMessage = ''
+    formStates.emailChangeOTP.errors = errorsData || {}
+    console.error('Failed to change email:', error)
+  }
+}
+
+const resendOTPCode = async () => {
+  formStates.emailChangeOTP.isLoading = true
+  formStates.emailChangeOTP.errorMessage = ''
+
+  try {
+    const response = await userStore.sendEmailChangeOTP(emailChangeOTPForm.newEmail)
+    emailChangeOTPForm.otpToken = response.token
+    formStates.emailChangeOTP.successMessage = 'Код отправлен повторно'
+  } catch (error) {
+    const {message} = prepareErrorResponse(error, 'Ошибка при повторной отправке кода.')
+    formStates.emailChangeOTP.errorMessage = message
+    console.error('Failed to resend OTP:', error)
+  } finally {
+    formStates.emailChangeOTP.isLoading = false
+  }
+}
+
+const resetEmailChangeOTPForm = () => {
+  emailChangeOTPForm.newEmail = ''
+  emailChangeOTPForm.otpToken = ''
+  emailChangeOTPForm.otpCode = ''
+  emailChangeOTPForm.step = 'email'
+  formStates.emailChangeOTP.successMessage = ''
+  formStates.emailChangeOTP.errorMessage = ''
+  formStates.emailChangeOTP.errors = {}
+}
+
+const cancelEmailChangeOTP = () => {
+  resetEmailChangeOTPForm()
 }
 
 const submitPasswordChange = async () => {

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { User } from '@/types'
 import { UserService } from '@/services/user'
 import { authApi, type LoginCredentials } from '@/services/authApiClient'
+import { emailChangeApiClient } from '@/services/emailChangeApiClient'
 
 // Profile update interfaces
 export interface PersonalInfoUpdate {
@@ -20,6 +21,11 @@ export interface ContactInfoUpdate {
 export interface EmailUpdate {
   newEmail: string
   confirmEmail: string
+}
+
+export interface EmailChangeOTP {
+  newEmail: string
+  otpToken: string
 }
 
 export interface PasswordChange {
@@ -186,6 +192,41 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // New methods for OTP-based email change
+  const sendEmailChangeOTP = async (newEmail: string) => {
+    try {
+      const response = await emailChangeApiClient.sendChangeEmailOTP(newEmail)
+      return response
+    } catch (err) {
+      throw err
+    }
+  }
+
+  const verifyEmailChangeOTP = async (token: string, code: string) => {
+    try {
+      const response = await emailChangeApiClient.verifyOTP(token, code)
+      return response
+    } catch (err) {
+      throw err
+    }
+  }
+
+  const changeEmailWithOTP = async (otpToken: string, newEmail: string) => {
+    try {
+      const response = await emailChangeApiClient.changeEmail(otpToken, newEmail)
+      
+      // Update local user data
+      if (currentUser.value) {
+        currentUser.value.email = response.new_email
+        authApi.updateUserData(currentUser.value)
+      }
+      
+      return response
+    } catch (err) {
+      throw err
+    }
+  }
+
   const changePassword = async (data: PasswordChange) => {
     try {
       const response = await userService.changePassword(data)
@@ -261,6 +302,9 @@ export const useUserStore = defineStore('user', () => {
     updatePersonalInfo,
     updateContactInfo,
     updateEmail,
+    sendEmailChangeOTP,
+    verifyEmailChangeOTP,
+    changeEmailWithOTP,
     changePassword,
     updateTheme,
     initializeAuth,
