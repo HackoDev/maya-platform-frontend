@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the JSON schema structure for a specialized neural network/AI specialist user profile questionnaire for the Maya Platform. The schema supports a comprehensive 8-block questionnaire format specifically designed for AI and neural network specialists.
+This document defines the JSON schema structure for a specialized neural network/AI specialist user profile questionnaire for the MayaWork. The schema supports a comprehensive 8-block questionnaire format specifically designed for AI and neural network specialists.
 
 ## Technology Stack & Dependencies
 

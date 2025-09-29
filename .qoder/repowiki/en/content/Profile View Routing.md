@@ -350,7 +350,7 @@ Additionally, the `afterEach` guard updates the document title based on the rout
 router.afterEach(to => {
   const title = to.meta.title as string
   if (title) {
-    document.title = `${title} | ${import.meta.env.VITE_APP_TITLE || 'Maya Platform'}`
+    document.title = `${title} | ${import.meta.env.VITE_APP_TITLE || 'MayaWork'}`
   }
 })
 ```

@@ -52,7 +52,7 @@
 
 ## Introduction
 
-This document provides comprehensive documentation for the Support Styling system in the Maya Platform frontend application. It covers the Tailwind CSS configuration, design tokens, styling patterns, and component architecture used across support-related components. The goal is to ensure visual consistency, accessibility, and maintainability while providing guidance for extending the styling system.
+This document provides comprehensive documentation for the Support Styling system in the MayaWork frontend application. It covers the Tailwind CSS configuration, design tokens, styling patterns, and component architecture used across support-related components. The goal is to ensure visual consistency, accessibility, and maintainability while providing guidance for extending the styling system.
 
 The support components include FAQ sections, support ticket items, and contact forms, all styled using a combination of Tailwind CSS utility classes and custom CSS variables. This documentation analyzes the implementation details and provides recommendations for maintaining and extending the styling system.
 
@@ -811,7 +811,7 @@ When implementing refresh functionality in new components, follow the pattern es
 
 ## Conclusion
 
-The Support Styling system in the Maya Platform frontend application provides a comprehensive and consistent approach to UI design. By leveraging Tailwind CSS with custom configuration and CSS variables, the system ensures visual consistency across support components while remaining flexible and maintainable.
+The Support Styling system in the MayaWork frontend application provides a comprehensive and consistent approach to UI design. By leveraging Tailwind CSS with custom configuration and CSS variables, the system ensures visual consistency across support components while remaining flexible and maintainable.
 
 Key strengths of the styling system include:
 - Consistent use of design tokens and color semantics

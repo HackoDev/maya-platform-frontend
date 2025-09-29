@@ -156,7 +156,7 @@
             Ваша анкета проходит модерацию, пожалуйста подождите.
           </div>
           <button
-            v-else-if="currentStep === 8 && canSubmit"
+            v-else-if="canSubmit"
             @click="markReadyForReview"
             :disabled="isSaving"
             class="btn btn-success"
@@ -165,7 +165,6 @@
           </button>
 
           <button
-            v-else
             @click="nextStep"
             :disabled="currentStep === 8"
             class="btn btn-primary"

@@ -25,7 +25,7 @@
 
 ## Introduction
 
-This document provides a comprehensive analysis of the lazy loading strategy implemented in the Maya Platform frontend application. The application leverages Vue 3, Vue Router, and Vite to achieve efficient code splitting and on-demand component loading. Although direct access to certain route configuration files was limited during analysis, the overall architecture and implementation patterns can be inferred from the available codebase structure, build configuration, and standard Vue/Vite practices.
+This document provides a comprehensive analysis of the lazy loading strategy implemented in the MayaWork frontend application. The application leverages Vue 3, Vue Router, and Vite to achieve efficient code splitting and on-demand component loading. Although direct access to certain route configuration files was limited during analysis, the overall architecture and implementation patterns can be inferred from the available codebase structure, build configuration, and standard Vue/Vite practices.
 
 The primary goal of lazy loading in this context is to improve initial page load performance by splitting the application bundle into smaller chunks that are loaded only when needed—specifically when navigating to a particular route.
 
@@ -267,7 +267,7 @@ These optimizations work together to minimize initial load while ensuring smooth
 
 ## Conclusion
 
-The Maya Platform frontend implements a robust lazy loading strategy using Vue Router's dynamic import syntax and Vite's built-in code splitting capabilities. Despite limited access to specific route configuration files, the project structure and build configuration confirm a modular, feature-based architecture optimized for performance.
+The MayaWork frontend implements a robust lazy loading strategy using Vue Router's dynamic import syntax and Vite's built-in code splitting capabilities. Despite limited access to specific route configuration files, the project structure and build configuration confirm a modular, feature-based architecture optimized for performance.
 
 Key takeaways:
 - Route components are loaded on-demand using `() => import()`

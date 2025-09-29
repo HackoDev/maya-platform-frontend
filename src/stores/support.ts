@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { FAQ, SupportTicket, SupportStoreState, SupportMessage } from '@/types'
+import type { FAQ, SupportTicket, SupportMessage } from '@/types'
 import { supportApi } from '@/services/supportApiClient'
 // Legacy mocks kept for reference; replaced by real API calls
 // import { 
@@ -77,7 +77,7 @@ export const useSupportStore = defineStore('support', () => {
     }
   }
 
-  const submitSupportRequest = async (message: string): Promise<void> => {
+  const submitSupportRequest = async (message: string): Promise<SupportTicket> => {
     try {
       loading.value.submission = true
       error.value = null
@@ -89,6 +89,7 @@ export const useSupportStore = defineStore('support', () => {
       
       // Update current ticket
       currentTicket.value = newTicket
+      return newTicket
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to submit support request'
       console.error('Error submitting support request:', err)

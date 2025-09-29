@@ -33,7 +33,7 @@
 10. [Component Composition and Integration](#component-composition-and-integration)
 
 ## Introduction
-The Profile View Components form the core UI structure for displaying specialist profiles within the Maya Platform. These components are designed to present comprehensive information about specialists in a structured, visually appealing, and user-friendly manner. The system follows a modular architecture where each component handles a specific aspect of the profile, allowing for flexible composition and reuse across different views.
+The Profile View Components form the core UI structure for displaying specialist profiles within the MayaWork. These components are designed to present comprehensive information about specialists in a structured, visually appealing, and user-friendly manner. The system follows a modular architecture where each component handles a specific aspect of the profile, allowing for flexible composition and reuse across different views.
 
 The components leverage Vue 3's Composition API with TypeScript support, ensuring type safety and maintainable code. They are styled using Tailwind CSS with dark mode support and responsive design principles. The components work together to create a cohesive profile experience that includes basic information, skills overview, contact details, services, experience, and portfolio.
 

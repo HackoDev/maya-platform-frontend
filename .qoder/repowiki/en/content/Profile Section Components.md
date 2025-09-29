@@ -34,7 +34,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive documentation for the profile section components in the Maya Platform frontend application. It details the purpose, props, usage patterns, and composition of components that form the complete profile view. The documentation includes implementation examples and styling customization options, making it accessible to both technical and non-technical users.
+This document provides comprehensive documentation for the profile section components in the MayaWork frontend application. It details the purpose, props, usage patterns, and composition of components that form the complete profile view. The documentation includes implementation examples and styling customization options, making it accessible to both technical and non-technical users.
 
 ## Project Structure
 The profile section components are organized within the `src/components/profile` directory, with a clear separation between high-level sections and specialized blocks. The structure follows a feature-based organization pattern, grouping related components together.
@@ -311,4 +311,4 @@ Common issues and solutions for the profile section components:
 - [ContactSection.vue](file://src/components/profile/ContactSection.vue#L1-L185)
 
 ## Conclusion
-The profile section components in the Maya Platform frontend application provide a comprehensive and modular system for displaying specialist profiles. The components are well-structured, reusable, and follow Vue.js best practices. They offer a rich user experience with interactive elements, responsive design, and clear information architecture. The separation of concerns between components makes the codebase maintainable and extensible for future enhancements.
+The profile section components in the MayaWork frontend application provide a comprehensive and modular system for displaying specialist profiles. The components are well-structured, reusable, and follow Vue.js best practices. They offer a rich user experience with interactive elements, responsive design, and clear information architecture. The separation of concerns between components makes the codebase maintainable and extensible for future enhancements.

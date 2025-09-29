@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-This document outlines the design for replacing the "Maya Platform" text in the site header with a custom SVG icon. The change will be implemented in the TopNavbar component.
+This document outlines the design for replacing the "MayaWork" text in the site header with a custom SVG icon. The change will be implemented in the TopNavbar component.
 
 ## 2. Current Implementation
 

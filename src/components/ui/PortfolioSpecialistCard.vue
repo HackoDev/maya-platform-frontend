@@ -45,19 +45,19 @@
       
       <div v-if="portfolio.tools && portfolio.tools.length" class="mt-2">
         <div class="flex flex-wrap gap-1">
-          <span 
+          <!-- <span 
             v-for="(tool, index) in portfolio.tools.slice(0, 3)" 
             :key="index"
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
           >
             {{ tool }}
-          </span>
-          <span 
+          </span> -->
+          <!-- <span 
             v-if="portfolio.tools.length > 3"
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
           >
             +{{ portfolio.tools.length - 3 }}
-          </span>
+          </span> -->
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
       <div class="flex flex-wrap gap-2">
         <!-- Specializations -->
         <span
-          v-for="specialization in specialist.specializations"
+          v-for="specialization in limitedSpecializations"
           :key="`spec-${specialization}`"
           class="inline-flex items-center px-2 py-1 text-xs font-medium 
                  bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md"
@@ -95,26 +95,6 @@
         </span>
       </div>
     </div>
-
-    <!-- Action Buttons -->
-    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
-      <div class="flex items-center space-x-2">
-        <button
-          @click.stop="viewProfile"
-          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 
-                 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 
-                 rounded-md transition-colors focus:outline-none focus:ring-2 
-                 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          Профиль
-        </button>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -150,6 +130,10 @@ const limitedAbilities = computed(() => {
   return props.specialist.abilities.slice(0, 2)
 })
 
+const limitedSpecializations = computed(() => {
+  return props.specialist.specializations.slice(0, 2)
+})
+
 const hasMoreSkills = computed(() => {
   const totalSkills = props.specialist.specializations.length + props.specialist.abilities.length
   const shownSkills = props.specialist.specializations.length + limitedAbilities.value.length
@@ -158,7 +142,7 @@ const hasMoreSkills = computed(() => {
 
 const remainingSkillsCount = computed(() => {
   const totalSkills = props.specialist.specializations.length + props.specialist.abilities.length
-  const shownSkills = props.specialist.specializations.length + limitedAbilities.value.length
+  const shownSkills = limitedSpecializations.value.length + limitedAbilities.value.length
   return totalSkills - shownSkills
 })
 

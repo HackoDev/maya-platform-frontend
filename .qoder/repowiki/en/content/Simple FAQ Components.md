@@ -22,7 +22,7 @@
 10. [Troubleshooting Guide](#troubleshooting-guide)
 
 ## Introduction
-This document provides comprehensive documentation for the SimpleFAQSection and CompactFAQItem components in the Maya Platform frontend application. These components form a modern, accessible FAQ system designed to display frequently asked questions with smooth animations and responsive interactions. The documentation covers implementation details, props, events, accessibility features, and integration patterns.
+This document provides comprehensive documentation for the SimpleFAQSection and CompactFAQItem components in the MayaWork frontend application. These components form a modern, accessible FAQ system designed to display frequently asked questions with smooth animations and responsive interactions. The documentation covers implementation details, props, events, accessibility features, and integration patterns.
 
 ## Project Structure
 The FAQ components are located within the support module of the components directory, following a feature-based organization pattern. This structure groups related components together based on their functional domain.

@@ -19,7 +19,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The User Service is a core component of the Maya Platform frontend application, responsible for managing user-related operations such as authentication, profile retrieval, and status updates. This document provides a comprehensive overview of its implementation, including API interfaces, integration patterns, and usage examples. The service is designed with modularity and testability in mind, using TypeScript for type safety and Pinia for state management.
+The User Service is a core component of the MayaWork frontend application, responsible for managing user-related operations such as authentication, profile retrieval, and status updates. This document provides a comprehensive overview of its implementation, including API interfaces, integration patterns, and usage examples. The service is designed with modularity and testability in mind, using TypeScript for type safety and Pinia for state management.
 
 ## Project Structure
 The project follows a feature-based organization with clearly separated concerns:
@@ -232,4 +232,4 @@ Common issues and their solutions when working with the User Service:
 - [src/stores/user.ts](file://src/stores/user.ts#L1-L103)
 
 ## Conclusion
-The User Service provides a well-structured implementation for managing user data in the Maya Platform frontend. Its clean separation of concerns between service, store, and type definitions makes it maintainable and testable. The use of TypeScript ensures type safety, while Pinia provides efficient state management. The current implementation uses mocked data for development purposes, with clear pathways for integrating with a real backend API. Future enhancements could include caching, improved error handling, and additional user management features.
+The User Service provides a well-structured implementation for managing user data in the MayaWork frontend. Its clean separation of concerns between service, store, and type definitions makes it maintainable and testable. The use of TypeScript ensures type safety, while Pinia provides efficient state management. The current implementation uses mocked data for development purposes, with clear pathways for integrating with a real backend API. Future enhancements could include caching, improved error handling, and additional user management features.

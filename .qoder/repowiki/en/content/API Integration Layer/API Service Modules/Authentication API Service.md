@@ -24,7 +24,7 @@
 11. [Security Considerations](#security-considerations)
 
 ## Introduction
-The Authentication API Service is a core component of the Maya Platform frontend application, responsible for managing user authentication, session state, and secure token handling. This documentation provides a comprehensive overview of the authentication system, including its architecture, implementation details, and integration patterns. The service enables users to securely log in, maintain authenticated sessions, and log out, while synchronizing state across the application through a centralized store.
+The Authentication API Service is a core component of the MayaWork frontend application, responsible for managing user authentication, session state, and secure token handling. This documentation provides a comprehensive overview of the authentication system, including its architecture, implementation details, and integration patterns. The service enables users to securely log in, maintain authenticated sessions, and log out, while synchronizing state across the application through a centralized store.
 
 **Section sources**
 - [authStore.ts](file://src/root/auth/store/authStore.ts#L1-L154)

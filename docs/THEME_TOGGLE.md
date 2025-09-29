@@ -2,7 +2,7 @@
 
 ## Overview
 
-The theme toggle feature allows users to manually switch between light, dark, and system themes in the Maya Platform frontend application. The implementation provides a comprehensive theming system with persistent storage and smooth transitions.
+The theme toggle feature allows users to manually switch between light, dark, and system themes in the MayaWork frontend application. The implementation provides a comprehensive theming system with persistent storage and smooth transitions.
 
 ## Features
 
@@ -347,4 +347,4 @@ When contributing to the theme system:
 
 ## License
 
-This theme system is part of the Maya Platform frontend application and follows the project's license terms.
+This theme system is part of the MayaWork frontend application and follows the project's license terms.

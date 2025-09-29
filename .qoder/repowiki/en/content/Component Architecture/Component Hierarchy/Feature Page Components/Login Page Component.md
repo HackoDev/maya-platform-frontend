@@ -21,7 +21,7 @@
 9. [Sequence Diagram: Login Process](#sequence-diagram-login-process)
 
 ## Introduction
-The LoginPage.vue component serves as the primary authentication entry point for the Maya Platform frontend application. It provides a clean, user-friendly interface for users to authenticate using their email and password credentials. The component integrates with the global Pinia store (authStore) to manage authentication state and communicates with backend services through the authApi service. This document details the implementation, architecture, and security aspects of the login functionality.
+The LoginPage.vue component serves as the primary authentication entry point for the MayaWork frontend application. It provides a clean, user-friendly interface for users to authenticate using their email and password credentials. The component integrates with the global Pinia store (authStore) to manage authentication state and communicates with backend services through the authApi service. This document details the implementation, architecture, and security aspects of the login functionality.
 
 ## Core Components
 

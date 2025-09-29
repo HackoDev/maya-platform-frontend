@@ -18,6 +18,7 @@ export interface User {
   phone: string | null
   telegram: string | null
   isOpenToOffers?: boolean
+  generalConsentAccepted?: boolean
   uiTheme?: string | null
   portfolioStatus?: 'published' | 'draft' | 'archived' | null
   lastLoginAt: string
@@ -799,6 +800,7 @@ export class AuthApiClient extends BaseApiClient {
       userType: apiUser.userType,
       isActive: apiUser.isActive,
       isOpenToOffers: apiUser.isOpenToOffers ?? false,
+      generalConsentAccepted: apiUser.termsAccepted ?? false,
       uiTheme: apiUser.uiTheme ?? null,
       portfolioStatus: apiUser.portfolioStatus ?? null,
       whatsapp: apiUser.whatsapp ?? null,

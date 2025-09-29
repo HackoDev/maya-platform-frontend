@@ -30,7 +30,7 @@
 10. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive documentation for the Change Password feature in the Maya Platform frontend application. The feature allows authenticated users to update their account password with real-time validation, password strength assessment, and confirmation matching. The implementation includes client-side validation, user experience considerations, accessibility features, and integration with the application's routing and state management systems.
+This document provides comprehensive documentation for the Change Password feature in the MayaWork frontend application. The feature allows authenticated users to update their account password with real-time validation, password strength assessment, and confirmation matching. The implementation includes client-side validation, user experience considerations, accessibility features, and integration with the application's routing and state management systems.
 
 ## Project Structure
 The Change Password feature is implemented as a dedicated page component within the Vue.js application structure. The project follows a component-based architecture with clear separation of concerns between UI components, business logic, and state management.

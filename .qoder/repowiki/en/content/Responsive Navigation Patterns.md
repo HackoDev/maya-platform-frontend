@@ -35,7 +35,7 @@
 10. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides a comprehensive analysis of the responsive navigation implementation in the Maya Platform frontend application. The system leverages Vue.js, Vue Router, Pinia for state management, and Tailwind CSS for styling and responsive design. The navigation adapts seamlessly between mobile and desktop layouts using Tailwind's breakpoint system, with smooth transitions and dark mode support. Recent updates have enhanced the functionality with a client-specific "Create Vacancy" button and improved user type detection.
+This document provides a comprehensive analysis of the responsive navigation implementation in the MayaWork frontend application. The system leverages Vue.js, Vue Router, Pinia for state management, and Tailwind CSS for styling and responsive design. The navigation adapts seamlessly between mobile and desktop layouts using Tailwind's breakpoint system, with smooth transitions and dark mode support. Recent updates have enhanced the functionality with a client-specific "Create Vacancy" button and improved user type detection.
 
 ## Project Structure
 The navigation system is composed of several key components organized under the `src/components/common` directory. The main navigation logic is coordinated through the `TopNavbar.vue` component, which conditionally renders desktop navigation or a mobile hamburger menu based on screen size.
@@ -68,7 +68,7 @@ The responsive navigation system consists of three primary components working in
 - **MobileNavigationMenu.vue**: Slide-in panel that appears on mobile devices when the hamburger menu is activated
 - **UserProfileSection.vue**: User profile display with dropdown menu on desktop and simplified display on mobile
 - **navigation.ts**: Pinia store that manages navigation state including mobile menu visibility and active route
-- **MayaLogoIcon.vue**: SVG component for the Maya Platform logo, recently implemented to replace text-based branding
+- **MayaLogoIcon.vue**: SVG component for the MayaWork logo, recently implemented to replace text-based branding
 - **user.ts**: Pinia store that manages user authentication state and user type (specialist or client)
 
 These components use Vue's composition API and leverage Tailwind CSS utility classes for responsive behavior and visual styling.
@@ -318,7 +318,7 @@ The implementation balances aesthetic design with functional usability, ensuring
 - [user.ts](file://src/stores/user.ts#L1-L103)
 
 ## Conclusion
-The responsive navigation system in the Maya Platform frontend demonstrates a robust implementation of modern web development practices. By leveraging Tailwind CSS's utility-first approach, the system achieves responsive behavior through strategic use of breakpoint prefixes like `lg:` and `sm:`. The mobile/desktop layout switching is seamless, with the hamburger menu providing an intuitive interface for smaller screens.
+The responsive navigation system in the MayaWork frontend demonstrates a robust implementation of modern web development practices. By leveraging Tailwind CSS's utility-first approach, the system achieves responsive behavior through strategic use of breakpoint prefixes like `lg:` and `sm:`. The mobile/desktop layout switching is seamless, with the hamburger menu providing an intuitive interface for smaller screens.
 
 Key strengths of the implementation include:
 - Clean separation of concerns between components

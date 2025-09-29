@@ -18,7 +18,7 @@ This document defines the backend specification for the Specialist Portfolio, al
 ```yaml
 openapi: 3.0.3
 info:
-  title: Maya Platform - Specialist Portfolio API
+  title: MayaWork - Specialist Portfolio API
   version: 1.0.0
 servers:
   - url: /api

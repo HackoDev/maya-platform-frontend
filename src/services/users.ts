@@ -21,6 +21,7 @@ export interface UserMeResponse {
   telegram: string | null
   uiTheme: string | null
   isOpenToOffers?: boolean
+  termsAccepted?: boolean
   portfolioStatus?: 'published' | 'draft' | 'archived' | null
   lastLoginAt: string
   createdAt: string
@@ -161,6 +162,24 @@ export class UsersApiService extends BaseApiClient {
     } catch (error) {
       console.error('Failed to update user open to offers status:', error)
       throw new Error('Failed to update user status. Please try again.')
+    }
+  }
+
+  /**
+   * Update user's general consent acceptance flag
+   * @param accepted - Whether general personal data processing consent is accepted
+   * @returns Promise resolving to the updated user object
+   */
+  async updateGeneralConsent(): Promise<User> {
+    try {
+      this.ensureAuthenticated()
+      const response = await this.patch<UserMeResponse>(`/api/web/users/me`, {
+        termsAccepted: true
+      })
+      return this.transformUserResponse(response.data)
+    } catch (error) {
+      console.error('Failed to update general consent flag:', error)
+      throw new Error('Failed to update consent. Please try again.')
     }
   }
 
@@ -359,6 +378,7 @@ export class UsersApiService extends BaseApiClient {
       userType: apiUser.userType,
       isActive: apiUser.isActive,
       isOpenToOffers: apiUser.isOpenToOffers ?? false,
+      generalConsentAccepted: apiUser.termsAccepted ?? false,
       portfolioStatus: apiUser.portfolioStatus,
       uiTheme: apiUser.uiTheme,
       phone: apiUser.phone,

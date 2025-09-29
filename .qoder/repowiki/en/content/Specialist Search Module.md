@@ -22,7 +22,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Specialist Search Module is a core feature of the Maya Platform frontend application, enabling users to discover and connect with AI specialists based on skills, specializations, and search criteria. This module implements a comprehensive search interface with filtering, infinite scrolling, and responsive card-based results display. The implementation follows Vue 3 Composition API patterns with Pinia for state management and TypeScript for type safety.
+The Specialist Search Module is a core feature of the MayaWork frontend application, enabling users to discover and connect with AI specialists based on skills, specializations, and search criteria. This module implements a comprehensive search interface with filtering, infinite scrolling, and responsive card-based results display. The implementation follows Vue 3 Composition API patterns with Pinia for state management and TypeScript for type safety.
 
 ## Project Structure
 The Specialist Search Module is organized across multiple directories following a feature-based component architecture. The core functionality is distributed between pages, components, stores, and services, with clear separation of concerns.
@@ -385,4 +385,4 @@ style F fill:#FFC107,stroke:#333
 - [useInfiniteScroll.ts](file://src/composables/useInfiniteScroll.ts)
 
 ## Conclusion
-The Specialist Search Module provides a robust and user-friendly interface for discovering AI specialists within the Maya Platform. The implementation demonstrates effective use of Vue 3's Composition API, Pinia for state management, and TypeScript for type safety. Key strengths include the clean separation of concerns, efficient infinite scrolling implementation, and comprehensive error handling. The module is well-structured for maintainability and could be extended with additional filtering options, saved searches, or advanced sorting capabilities. The current implementation effectively balances functionality with performance, providing a smooth user experience even with larger result sets.
+The Specialist Search Module provides a robust and user-friendly interface for discovering AI specialists within the MayaWork. The implementation demonstrates effective use of Vue 3's Composition API, Pinia for state management, and TypeScript for type safety. Key strengths include the clean separation of concerns, efficient infinite scrolling implementation, and comprehensive error handling. The module is well-structured for maintainability and could be extended with additional filtering options, saved searches, or advanced sorting capabilities. The current implementation effectively balances functionality with performance, providing a smooth user experience even with larger result sets.

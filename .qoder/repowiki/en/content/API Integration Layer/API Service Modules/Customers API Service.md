@@ -21,7 +21,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Customers API Service is responsible for managing customer data within the Maya Platform frontend application. It provides a comprehensive set of operations for retrieving, creating, updating, and deleting customer records through a well-defined interface. This documentation details the service's functionality, integration points, and usage patterns across the application, focusing on its implementation in the Pinia store, interaction with UI components, and adherence to query parameter standards.
+The Customers API Service is responsible for managing customer data within the MayaWork frontend application. It provides a comprehensive set of operations for retrieving, creating, updating, and deleting customer records through a well-defined interface. This documentation details the service's functionality, integration points, and usage patterns across the application, focusing on its implementation in the Pinia store, interaction with UI components, and adherence to query parameter standards.
 
 ## Project Structure
 The customer management module is organized under the `refs` (references) feature domain, which handles master data entities. The key components are located in the following directories:
@@ -234,4 +234,4 @@ Common issues and their solutions when working with the Customers API Service:
 - **Solution**: Verify the `QueryParams` interface matches backend requirements and check API response format
 
 ## Conclusion
-The Customers API Service provides a robust and well-structured solution for customer data management in the Maya Platform. By following the repository's established patterns for state management, API interaction, and component design, it ensures consistency and maintainability. The service effectively handles all CRUD operations with proper error handling, loading states, and integration with UI components. Its adherence to standardized query parameters enables consistent filtering, sorting, and pagination across the application.
+The Customers API Service provides a robust and well-structured solution for customer data management in the MayaWork. By following the repository's established patterns for state management, API interaction, and component design, it ensures consistency and maintainability. The service effectively handles all CRUD operations with proper error handling, loading states, and integration with UI components. Its adherence to standardized query parameters enables consistent filtering, sorting, and pagination across the application.

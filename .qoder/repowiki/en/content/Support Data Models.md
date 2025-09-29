@@ -34,7 +34,7 @@
 8. [Extension Guidelines](#extension-guidelines)
 
 ## Introduction
-This document provides comprehensive documentation for the Support Data Models in the Maya Platform frontend application. It details the structure, relationships, and usage patterns of the FAQ, SupportTicket, and related interfaces that power the support functionality. The analysis covers type definitions, store implementation, service layer, and component integration to provide a complete understanding of the support system architecture.
+This document provides comprehensive documentation for the Support Data Models in the MayaWork frontend application. It details the structure, relationships, and usage patterns of the FAQ, SupportTicket, and related interfaces that power the support functionality. The analysis covers type definitions, store implementation, service layer, and component integration to provide a complete understanding of the support system architecture.
 
 ## Core Data Models
 

@@ -56,6 +56,14 @@
           class="absolute top-full right-0 min-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 mt-1 py-1"
         >
           <button
+            @click="handleServiceInfo"
+            role="menuitem"
+            class="flex items-center w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
+          >
+            <InformationCircleIcon class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" />
+            О сервисе
+          </button>
+          <button
             @click="handleSettings"
             role="menuitem"
             class="flex items-center w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
@@ -102,6 +110,7 @@ import {
   UserIcon,
   ChevronDownIcon,
   CogIcon,
+  InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { useUserStore } from '@/stores/user'
 import type { User } from '@/types'
@@ -144,6 +153,11 @@ const closeDropdown = () => {
 const handleSettings = () => {
   closeDropdown()
   router.push('/profile/settings')
+}
+
+const handleServiceInfo = () => {
+  closeDropdown()
+  router.push('/service-info')
 }
 
 const handleLogout = async () => {

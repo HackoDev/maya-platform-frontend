@@ -26,7 +26,7 @@
 10. [Troubleshooting Guide](#troubleshooting-guide)
 
 ## Introduction
-The Users API Service provides a comprehensive interface for managing user accounts within the Maya Platform. This documentation details the available endpoints, data structures, authentication mechanisms, and integration patterns for user management operations. The service supports core functionalities including user authentication, profile management, preferences configuration, and account security features.
+The Users API Service provides a comprehensive interface for managing user accounts within the MayaWork. This documentation details the available endpoints, data structures, authentication mechanisms, and integration patterns for user management operations. The service supports core functionalities including user authentication, profile management, preferences configuration, and account security features.
 
 **Section sources**
 - [authApi.ts](file://src/root/shared/services/authApi.ts#L0-L82)

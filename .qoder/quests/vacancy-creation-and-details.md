@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the implementation plan for enhancing the vacancy functionality in the Maya Platform. The enhancements include:
+This document outlines the implementation plan for enhancing the vacancy functionality in the MayaWork. The enhancements include:
 
 1. Creating and editing vacancies for clients
 2. Detailed vacancy view with client contact information

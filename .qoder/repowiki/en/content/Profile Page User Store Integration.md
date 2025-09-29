@@ -30,7 +30,7 @@
 10. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides a comprehensive analysis of the Profile Page User Store Integration within the Maya Platform frontend application. It focuses on the logout implementation, state management patterns, navigation flow, error handling, session termination, and redirection mechanisms. The documentation is designed to be accessible to both technical and non-technical stakeholders while providing in-depth insights into the codebase.
+This document provides a comprehensive analysis of the Profile Page User Store Integration within the MayaWork frontend application. It focuses on the logout implementation, state management patterns, navigation flow, error handling, session termination, and redirection mechanisms. The documentation is designed to be accessible to both technical and non-technical stakeholders while providing in-depth insights into the codebase.
 
 ## Project Structure
 The project follows a feature-based organization with clearly defined directories for components, pages, stores, and services. The key directories relevant to this documentation are:

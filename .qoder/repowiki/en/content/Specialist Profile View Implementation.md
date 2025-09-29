@@ -22,7 +22,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Specialist Profile View Implementation provides a comprehensive solution for displaying detailed specialist profiles within the Maya Platform. This documentation covers the implementation of the SpecialistProfileViewPage and related components, detailing their purpose, architecture, and integration patterns. The system enables users to view comprehensive specialist information including specializations, services, portfolio, experience, and testimonials, with support for both standalone page views and modal presentations.
+The Specialist Profile View Implementation provides a comprehensive solution for displaying detailed specialist profiles within the MayaWork. This documentation covers the implementation of the SpecialistProfileViewPage and related components, detailing their purpose, architecture, and integration patterns. The system enables users to view comprehensive specialist information including specializations, services, portfolio, experience, and testimonials, with support for both standalone page views and modal presentations.
 
 ## Project Structure
 The Specialist Profile View functionality is organized within the Vue.js application structure following a feature-based organization pattern. The core components are located in specific directories based on their functionality, with clear separation between pages, components, services, stores, and types.
@@ -480,7 +480,7 @@ This section addresses common issues encountered when working with the Specialis
 - [ProfileHeader.vue](file://src/components/profile/ProfileHeader.vue#L200-L250)
 
 ## Conclusion
-The Specialist Profile View implementation provides a robust and flexible solution for displaying specialist profiles within the Maya Platform. The architecture follows modern Vue.js patterns with clear separation of concerns between presentation, state management, and data services. The system supports both standalone page views and modal presentations, with responsive design that adapts to different screen sizes.
+The Specialist Profile View implementation provides a robust and flexible solution for displaying specialist profiles within the MayaWork. The architecture follows modern Vue.js patterns with clear separation of concerns between presentation, state management, and data services. The system supports both standalone page views and modal presentations, with responsive design that adapts to different screen sizes.
 
 Key strengths of the implementation include:
 - Comprehensive state management with Pinia store

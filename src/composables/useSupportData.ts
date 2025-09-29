@@ -29,7 +29,7 @@ export interface UseSupportDataReturn {
   // Actions
   refreshFAQs: () => Promise<void>
   refreshTickets: () => Promise<void>
-  submitTicket: (message: string) => Promise<void>
+  submitTicket: (message: string) => Promise<SupportTicket>
   toggleFAQ: (faqId: string) => void
   isFAQExpanded: (faqId: string) => boolean
   searchFAQs: (query: string) => FAQ[]
@@ -81,7 +81,7 @@ export function useSupportData(): UseSupportDataReturn {
     }
   }
 
-  const submitTicket = async (message: string): Promise<void> => {
+  const submitTicket = async (message: string): Promise<SupportTicket> => {
     if (!message?.trim()) {
       throw new Error('Message is required')
     }
@@ -95,7 +95,8 @@ export function useSupportData(): UseSupportDataReturn {
     }
 
     try {
-      await supportStore.submitSupportRequest(message.trim())
+      const ticket = await supportStore.submitSupportRequest(message.trim())
+      return ticket
     } catch (err) {
       console.error('Failed to submit ticket:', err)
       throw err

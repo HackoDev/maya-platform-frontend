@@ -68,7 +68,7 @@
 13. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive documentation for user profile integration within navigation components in the Maya Platform frontend application. It details the data flow from the user store, display logic for authenticated versus unauthenticated states, logout functionality, avatar handling, and user type labeling. The analysis is based on actual source code files and their interactions, with updates reflecting recent enhancements to the user profile menu with accessible dropdown and keyboard support.
+This document provides comprehensive documentation for user profile integration within navigation components in the MayaWork frontend application. It details the data flow from the user store, display logic for authenticated versus unauthenticated states, logout functionality, avatar handling, and user type labeling. The analysis is based on actual source code files and their interactions, with updates reflecting recent enhancements to the user profile menu with accessible dropdown and keyboard support.
 
 The documentation has been updated to include the new Specialist Profile View feature, which provides a comprehensive view of specialist profiles with multiple sections including specializations, services, portfolio, experience, and testimonials. This feature includes a responsive layout with a two-column design on larger screens and a single column on mobile devices.
 
@@ -922,7 +922,7 @@ The VacancyDetailPage component provides a detailed view of a single vacancy. It
 - [VacancyDetailPage.vue](file://src/pages/VacancyDetailPage.vue#L1-L280)
 
 ## Conclusion
-The user profile integration in the Maya Platform frontend application demonstrates a well-structured approach to authentication state management and user interface presentation. By leveraging Vue 3's Composition API and Pinia for state management, the system provides a reactive and maintainable solution for displaying user information across different navigation components.
+The user profile integration in the MayaWork frontend application demonstrates a well-structured approach to authentication state management and user interface presentation. By leveraging Vue 3's Composition API and Pinia for state management, the system provides a reactive and maintainable solution for displaying user information across different navigation components.
 
 Key strengths of the implementation include:
 - Clear separation of concerns between state management and presentation

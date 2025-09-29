@@ -19,6 +19,7 @@ const SpecialistProfileViewSimplePage = () => import('@/pages/SpecialistProfileV
 const MyVacanciesPage = () => import('@/pages/MyVacanciesPage.vue')
 const AllVacanciesPage = () => import('@/pages/AllVacanciesPage.vue')
 const VacancyDetailPage = () => import('@/pages/VacancyDetailPage.vue')
+const ServiceInfoPage = () => import('@/pages/ServiceInfoPage.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -27,6 +28,15 @@ const routes: RouteRecordRaw[] = [
     component: HomePage,
     meta: {
       title: 'Home',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/service-info',
+    name: 'ServiceInfo',
+    component: ServiceInfoPage,
+    meta: {
+      title: 'О сервисе и согласия',
       requiresAuth: true,
     },
   },
@@ -109,7 +119,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Детали вакансии',
       requiresAuth: true,
-      specialistDenied: true,
+      specialistDenied: false,
       fallbackRedirect: 'MyVacancies'
     },
   },
@@ -265,6 +275,14 @@ function handleNavigation(to: any, next: any, session: any) {
       return
     }
 
+    // Redirect specialist to home page if they are trying to access a specialist denied pages
+    if (to.fullPath !== '/service-info' && session.currentUser.value?.termsAccepted === false) {
+      console.log('🚫 Terms not accepted, redirecting - ')
+      console.log(to)
+      next({ name: 'ServiceInfo' })
+      return
+    }
+
     // Redirect client to home page if they are trying to access a client denied pages
     if (to.meta.clientDenied && session.currentUser.value?.userType === 'client') {
       console.log('🚫 Client denied access, redirecting')
@@ -285,7 +303,7 @@ function handleNavigation(to: any, next: any, session: any) {
 router.afterEach(to => {
   const title = to.meta.title as string
   if (title) {
-    document.title = `${title} | ${import.meta.env.VITE_APP_TITLE || 'Maya Platform'}`
+    document.title = `${title} | ${import.meta.env.VITE_APP_TITLE || 'MayaWork'}`
   }
 })
 

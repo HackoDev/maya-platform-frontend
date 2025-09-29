@@ -22,7 +22,7 @@
 9. [Type Definitions](#type-definitions)
 
 ## Introduction
-The Specialist Search Store is a Pinia store responsible for managing the state of the specialist search functionality in the Maya Platform frontend application. It handles search operations, filters, results, and infinite scroll behavior for finding AI specialists. The store integrates with the SpecialistSearchService to fetch data and provides a reactive interface for components to interact with search functionality.
+The Specialist Search Store is a Pinia store responsible for managing the state of the specialist search functionality in the MayaWork frontend application. It handles search operations, filters, results, and infinite scroll behavior for finding AI specialists. The store integrates with the SpecialistSearchService to fetch data and provides a reactive interface for components to interact with search functionality.
 
 **Section sources**
 - [specialist-search.ts](file://src/stores/specialist-search.ts#L1-L245)

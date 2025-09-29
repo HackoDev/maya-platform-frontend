@@ -26,13 +26,6 @@
       </div>
     </div>
 
-    <!-- Ticket Message -->
-    <div class="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-      <p class="text-gray-700 dark:text-gray-300">
-        {{ ticket.message }}
-      </p>
-    </div>
-
     <!-- Metadata with Action Buttons (only for open/in-progress tickets) -->
     <div 
       v-if="ticket.status === 'open' || ticket.status === 'in-progress'"
@@ -59,7 +52,7 @@
       <div class="flex space-x-3">
         <!-- Resolve Button (only for open/in-progress tickets) -->
         <button
-          v-if="(ticket.status === 'open' || ticket.status === 'in-progress') && !ticket.resolvedAt"
+          v-if="(ticket.status === 'open' || ticket.status === 'in-progress')"
           @click="handleResolve"
           type="button"
           class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"

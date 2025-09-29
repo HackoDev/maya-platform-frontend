@@ -153,7 +153,7 @@ const whatsappUrl = computed(() => {
   if (!props.contacts.whatsapp) return ''
   const cleanPhone = props.contacts.whatsapp.replace(/\D/g, '')
   const message = encodeURIComponent(
-    `Здравствуйте! Интересуют ваши услуги. Увидел ваш профиль на Maya Platform.`
+    `Здравствуйте! Интересуют ваши услуги. Увидел ваш профиль на MayaWork.`
   )
   return `https://wa.me/${cleanPhone}?text=${message}`
 })

@@ -28,7 +28,7 @@
 
 ## Introduction
 
-The Neural Network Profile Store is a Pinia-based state management system designed to handle the creation and management of specialized profiles for AI and neural network experts within the Maya Platform. This store provides a comprehensive solution for form state management, validation, auto-save functionality, completion tracking, and submission workflows.
+The Neural Network Profile Store is a Pinia-based state management system designed to handle the creation and management of specialized profiles for AI and neural network experts within the MayaWork. This store provides a comprehensive solution for form state management, validation, auto-save functionality, completion tracking, and submission workflows.
 
 The system is specifically tailored for specialists in artificial intelligence, machine learning, and neural network technologies, offering a structured questionnaire with eight distinct blocks that capture expertise, services, portfolio, and contact information. The store manages both the data model and user interaction state, ensuring a seamless experience for profile creation and editing.
 
@@ -724,7 +724,7 @@ This troubleshooting guide addresses common issues encountered when working with
 
 ## Conclusion
 
-The Neural Network Profile Store provides a robust and comprehensive solution for managing profiles of AI and neural network specialists within the Maya Platform. The store's architecture effectively separates concerns between state management, business logic, and UI presentation, following Vue 3 and Pinia best practices.
+The Neural Network Profile Store provides a robust and comprehensive solution for managing profiles of AI and neural network specialists within the MayaWork. The store's architecture effectively separates concerns between state management, business logic, and UI presentation, following Vue 3 and Pinia best practices.
 
 Key strengths of the implementation include its comprehensive form state management, real-time validation system, auto-save functionality, and completion tracking. The store provides a seamless user experience by automatically saving changes, providing immediate feedback on validation, and guiding users through the profile creation process with clear progress indicators.
 

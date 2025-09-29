@@ -182,7 +182,7 @@ Tailwind's utility classes are organized into categories that correspond to CSS 
     <header class="flex items-center justify-between p-4 bg-white shadow-sm">
       <div class="flex items-center space-x-2">
         <Logo class="w-8 h-8" />
-        <span class="text-xl font-semibold">Maya Platform</span>
+        <span class="text-xl font-semibold">MayaWork</span>
       </div>
       <nav class="hidden md:flex space-x-6">
         <a href="#" class="text-gray-700 hover:text-primary-600 transition-colors">Home</a>

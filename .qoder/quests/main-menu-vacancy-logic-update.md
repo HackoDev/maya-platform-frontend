@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the design for updating the main menu and vacancy logic in the Maya Platform frontend application. The changes involve:
+This document outlines the design for updating the main menu and vacancy logic in the MayaWork frontend application. The changes involve:
 
 1. Modifying the main navigation menu labels
 2. Restructuring the vacancy functionality to separate published vacancies (accessible to all users) from personal vacancies (client-specific)

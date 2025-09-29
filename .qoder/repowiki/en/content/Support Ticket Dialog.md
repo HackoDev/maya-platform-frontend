@@ -32,7 +32,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Support Ticket Dialog is a key user interface component within the Maya Platform frontend application, designed to allow users to view, interact with, and manage their support tickets. This feature enables users to read ticket details, view message history, add new messages, and resolve tickets when appropriate. The dialog is implemented as a dedicated page that loads a specific ticket by ID from the route parameters and displays its full conversation history.
+The Support Ticket Dialog is a key user interface component within the MayaWork frontend application, designed to allow users to view, interact with, and manage their support tickets. This feature enables users to read ticket details, view message history, add new messages, and resolve tickets when appropriate. The dialog is implemented as a dedicated page that loads a specific ticket by ID from the route parameters and displays its full conversation history.
 
 The component leverages a composable pattern for state management and API interaction, using Pinia for global state and Vue 3's Composition API for reactivity. It supports multiple states including loading, error, not found, and normal operation. The design follows accessibility best practices and provides clear feedback for user actions.
 

@@ -147,6 +147,18 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // Update general consent acceptance flag
+  const updateGeneralConsentAccepted = async () => {
+    if (!currentUser.value) return
+    try {
+      const updatedUser = await userService.updateGeneralConsent()
+      currentUser.value = updatedUser
+      authApi.updateUserData(currentUser.value)
+    } catch (err) {
+      throw err
+    }
+  }
+
   // New methods for profile settings
   const updatePersonalInfo = async (data: PersonalInfoUpdate) => {
     try {
@@ -332,6 +344,7 @@ export const useUserStore = defineStore('user', () => {
     logout,
     logoutWithRedirect,
     updateOpenToOffers,
+    updateGeneralConsentAccepted,
     updatePersonalInfo,
     updateContactInfo,
     updateEmail,

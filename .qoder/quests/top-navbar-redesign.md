@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines the redesign of the top navigation bar for the Maya Platform frontend application. The new navbar will provide improved user experience with updated navigation structure, enhanced user information display, and responsive design for all screen sizes.
+This design document outlines the redesign of the top navigation bar for the MayaWork frontend application. The new navbar will provide improved user experience with updated navigation structure, enhanced user information display, and responsive design for all screen sizes.
 
 ## Current State Analysis
 
@@ -239,7 +239,7 @@ Instead of custom CSS variables, we'll use Tailwind's built-in design tokens:
     </button>
 
     <!-- Service name -->
-    <span class="text-lg font-semibold text-gray-900 dark:text-white"> Maya Platform </span>
+    <span class="text-lg font-semibold text-gray-900 dark:text-white"> MayaWork </span>
 
     <!-- Mobile user section -->
     <div class="flex items-center space-x-2">
@@ -363,7 +363,7 @@ interface BreadcrumbItem {
         <!-- Logo/Brand -->
         <div class="flex items-center">
           <router-link to="/" class="flex items-center space-x-2">
-            <span class="text-xl font-bold text-blue-600 dark:text-blue-400"> Maya Platform </span>
+            <span class="text-xl font-bold text-blue-600 dark:text-blue-400"> MayaWork </span>
           </router-link>
         </div>
 

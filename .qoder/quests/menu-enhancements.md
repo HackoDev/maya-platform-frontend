@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines enhancements to the Maya Platform navigation menu system to improve user experience by implementing a dropdown menu for user profile actions and optimizing mobile navigation display.
+This design document outlines enhancements to the MayaWork navigation menu system to improve user experience by implementing a dropdown menu for user profile actions and optimizing mobile navigation display.
 
 ### Key Objectives
 

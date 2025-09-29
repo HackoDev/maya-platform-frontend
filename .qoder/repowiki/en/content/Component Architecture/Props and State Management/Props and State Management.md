@@ -103,7 +103,7 @@ interface Props extends TopNavbarProps {
 }
 
 withDefaults(defineProps<Props>(), {
-  serviceName: 'Maya Platform',
+  serviceName: 'MayaWork',
   theme: 'light',
 })
 </script>

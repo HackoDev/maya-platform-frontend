@@ -19,15 +19,15 @@
 9. [Best Practices](#best-practices)
 
 ## Introduction
-The Maya Logo Icon component is a Vue.js component that renders the Maya Platform logo as an SVG icon. This documentation provides comprehensive details about its implementation, structure, theming support, accessibility features, and integration patterns within the application's navigation system. The component is designed to be reusable across different parts of the application while maintaining consistent visual representation of the brand.
+The Maya Logo Icon component is a Vue.js component that renders the MayaWork logo as an SVG icon. This documentation provides comprehensive details about its implementation, structure, theming support, accessibility features, and integration patterns within the application's navigation system. The component is designed to be reusable across different parts of the application while maintaining consistent visual representation of the brand.
 
 **Section sources**
 - [MayaLogoIcon.vue](file://src/components/icons/MayaLogoIcon.vue#L1-L28)
 
 ## Component Overview
-The MayaLogoIcon component is a simple yet essential branding element in the Maya Platform frontend application. It encapsulates the platform's logo as an SVG graphic, making it scalable and resolution-independent. The component is implemented using Vue 3's Composition API with TypeScript support, ensuring type safety and modern development practices.
+The MayaLogoIcon component is a simple yet essential branding element in the MayaWork frontend application. It encapsulates the platform's logo as an SVG graphic, making it scalable and resolution-independent. The component is implemented using Vue 3's Composition API with TypeScript support, ensuring type safety and modern development practices.
 
-The component serves as a visual identifier for the Maya Platform and is primarily used in navigation components such as the TopNavbar. Its implementation focuses on delivering a crisp, recognizable logo that maintains brand consistency across different application views.
+The component serves as a visual identifier for the MayaWork and is primarily used in navigation components such as the TopNavbar. Its implementation focuses on delivering a crisp, recognizable logo that maintains brand consistency across different application views.
 
 ```mermaid
 flowchart TD
@@ -46,7 +46,7 @@ F --> G[Component Documentation]
 - [MayaLogoIcon.vue](file://src/components/icons/MayaLogoIcon.vue#L1-L28)
 
 ## SVG Structure Analysis
-The MayaLogoIcon component contains a detailed SVG structure that defines the visual appearance of the Maya Platform logo. The SVG has a viewBox of "0 0 100 100" with dimensions of 100x100 pixels, providing a consistent coordinate system for the logo elements.
+The MayaLogoIcon component contains a detailed SVG structure that defines the visual appearance of the MayaWork logo. The SVG has a viewBox of "0 0 100 100" with dimensions of 100x100 pixels, providing a consistent coordinate system for the logo elements.
 
 The SVG structure consists of several key elements:
 

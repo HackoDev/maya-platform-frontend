@@ -16,7 +16,7 @@
 6. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides a comprehensive analysis of the reference data state management system in the Maya Platform frontend application. The focus is on the implementation status and integration of Pinia for managing reference data such as customer records and category definitions. Despite the documented objective to analyze `refsStore` and `customersStore`, the investigation reveals important insights about the current state of the codebase and its state management architecture.
+This document provides a comprehensive analysis of the reference data state management system in the MayaWork frontend application. The focus is on the implementation status and integration of Pinia for managing reference data such as customer records and category definitions. Despite the documented objective to analyze `refsStore` and `customersStore`, the investigation reveals important insights about the current state of the codebase and its state management architecture.
 
 ## Project Structure
 The project follows a modular structure with a clear separation of concerns. The application is organized under the `src` directory with a feature-based architecture. Key modules include `auth`, `core`, `main`, `objects`, `users`, and `refs`, each containing their respective components, pages, routing, and store directories.
@@ -139,7 +139,7 @@ ImplementationMissing --> [*]
 - [package-lock.json](file://package-lock.json#L6467-L6509)
 
 ## Conclusion
-The Maya Platform frontend application has successfully integrated Pinia as its state management solution, with proper initialization in the main application file and the necessary dependencies installed. However, the specific reference data stores mentioned in the documentation objective (`refsStore` and `customersStore`) do not exist in the current codebase.
+The MayaWork frontend application has successfully integrated Pinia as its state management solution, with proper initialization in the main application file and the necessary dependencies installed. However, the specific reference data stores mentioned in the documentation objective (`refsStore` and `customersStore`) do not exist in the current codebase.
 
 This discrepancy suggests several possibilities:
 1. The stores may be planned but not yet implemented

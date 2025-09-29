@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the design for implementing a theme toggle feature that allows users to manually switch between light and dark themes in the Maya Platform frontend application. The feature will be integrated into the TopNavbar component and provide persistent theme preference storage.
+This document outlines the design for implementing a theme toggle feature that allows users to manually switch between light and dark themes in the MayaWork frontend application. The feature will be integrated into the TopNavbar component and provide persistent theme preference storage.
 
 ## Current Architecture Analysis
 

@@ -33,7 +33,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-The Profile Page Redesign initiative aims to enhance user experience, improve visual hierarchy, and implement modern UI patterns across the Maya Platform. This comprehensive documentation details the transformation of the profile page, focusing on layout improvements, flexbox implementation, avatar enhancement, and overall visual hierarchy. The redesign introduces a more professional appearance, better information organization, and improved user engagement through interactive elements and responsive design.
+The Profile Page Redesign initiative aims to enhance user experience, improve visual hierarchy, and implement modern UI patterns across the MayaWork. This comprehensive documentation details the transformation of the profile page, focusing on layout improvements, flexbox implementation, avatar enhancement, and overall visual hierarchy. The redesign introduces a more professional appearance, better information organization, and improved user engagement through interactive elements and responsive design.
 
 ## Project Structure
 The profile page components are organized within the `src/components/profile` directory, following a modular architecture that separates concerns between different aspects of the profile interface. The structure includes dedicated components for various profile sections and specialized questionnaire blocks for neural network specialists.

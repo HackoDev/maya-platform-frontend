@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center">
         <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-About Maya Platform
+About MayaWork
 </h1>
         <p class="mt-4 text-xl text-gray-600">
           Built with modern Vue.js and industry best practices

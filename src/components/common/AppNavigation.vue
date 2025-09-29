@@ -4,7 +4,7 @@
       <div class="flex justify-between h-16">
         <div class="flex items-center">
           <router-link to="/" class="flex-shrink-0 flex items-center">
-            <span class="text-xl font-bold text-primary-600">Maya Platform</span>
+            <span class="text-xl font-bold text-primary-600">MayaWork</span>
           </router-link>
 
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">

@@ -402,7 +402,7 @@ The main navigation component that adapts to different screen sizes:
         <div class="flex items-center">
           <router-link to="/" class="flex items-center space-x-2">
             <span class="text-xl font-bold text-blue-600 dark:text-blue-400"> 
-              Maya Platform
+              MayaWork
             </span>
           </router-link>
         </div>

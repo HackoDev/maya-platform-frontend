@@ -27,7 +27,7 @@
 13. [Conclusion](#conclusion)
 
 ## Introduction
-The **Objects Store** is a central state management module built using **Pinia**, designed to manage the lifecycle, state, and interactions of object entities within the Maya Platform frontend application. This document provides a comprehensive analysis of the store’s architecture, state structure, actions, getters, and integration patterns. Despite incomplete file access in the current context, the documented structure is inferred from the project layout, naming conventions, and standard Vue 3 + Pinia implementation patterns.
+The **Objects Store** is a central state management module built using **Pinia**, designed to manage the lifecycle, state, and interactions of object entities within the MayaWork frontend application. This document provides a comprehensive analysis of the store’s architecture, state structure, actions, getters, and integration patterns. Despite incomplete file access in the current context, the documented structure is inferred from the project layout, naming conventions, and standard Vue 3 + Pinia implementation patterns.
 
 The store manages object data including lists, filters, pagination, loading states, and error handling, enabling consistent and reactive behavior across components such as **ObjectList** and **ObjectCard**. It integrates with backend APIs through a centralized HTTP service and supports scalable data handling for large datasets.
 

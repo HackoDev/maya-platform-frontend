@@ -174,6 +174,20 @@ export class UserService {
       throw error
     }
   }
+
+  /**
+   * Update user's general consent acceptance flag
+   * @param accepted - Whether general personal data processing consent is accepted
+   * @returns Promise resolving to the updated user object
+   */
+  async updateGeneralConsent(): Promise<User> {
+    try {
+      return await usersApiService.updateGeneralConsent()
+    } catch (error) {
+      console.error('Failed to update general consent flag:', error)
+      throw error
+    }
+  }
 }
 
 // Create and export default instance
@@ -199,4 +213,6 @@ export const userApi = {
     userService.changePassword(data),
   updateTheme: (data: ThemeUpdate) => 
     userService.updateTheme(data),
+  updateGeneralConsent: () =>
+    userService.updateGeneralConsent(),
 }

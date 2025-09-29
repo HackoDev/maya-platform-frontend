@@ -25,5 +25,5 @@
 </template>
 
 <script setup lang="ts">
-// This component represents the Maya Platform logo as an SVG icon
+// This component represents the MayaWork logo as an SVG icon
 </script>

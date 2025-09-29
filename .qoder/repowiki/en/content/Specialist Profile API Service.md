@@ -21,7 +21,7 @@
 
 ## Introduction
 
-The Specialist Profile API Service is a frontend implementation responsible for retrieving, aggregating, and displaying comprehensive specialist profile information in the Maya Platform. This service integrates data from multiple sources to provide a unified view of specialist profiles, combining basic search data with detailed neural network profile information. The service supports both direct profile viewing and modal-based interactions, with robust error handling and state management.
+The Specialist Profile API Service is a frontend implementation responsible for retrieving, aggregating, and displaying comprehensive specialist profile information in the MayaWork. This service integrates data from multiple sources to provide a unified view of specialist profiles, combining basic search data with detailed neural network profile information. The service supports both direct profile viewing and modal-based interactions, with robust error handling and state management.
 
 ## Project Structure
 
@@ -477,4 +477,4 @@ The service currently uses mock data with artificial delays to simulate API call
 
 ## Conclusion
 
-The Specialist Profile API Service provides a robust and scalable solution for displaying specialist profiles in the Maya Platform. By combining data from multiple sources and using a clean architecture with proper separation of concerns, the service delivers a rich user experience with comprehensive profile information. The implementation follows best practices for state management, error handling, and performance optimization, making it maintainable and extensible. The service could be further enhanced with features like data caching, pagination for large datasets, and improved loading states for better user experience.
+The Specialist Profile API Service provides a robust and scalable solution for displaying specialist profiles in the MayaWork. By combining data from multiple sources and using a clean architecture with proper separation of concerns, the service delivers a rich user experience with comprehensive profile information. The implementation follows best practices for state management, error handling, and performance optimization, making it maintainable and extensible. The service could be further enhanced with features like data caching, pagination for large datasets, and improved loading states for better user experience.

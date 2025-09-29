@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines enhancements to the Maya Platform profile page to improve user experience and visual clarity. The improvements focus on modernizing the personal information display, reducing visual clutter, and highlighting important contact information.
+This design document outlines enhancements to the MayaWork profile page to improve user experience and visual clarity. The improvements focus on modernizing the personal information display, reducing visual clutter, and highlighting important contact information.
 
 ## Current State Analysis
 

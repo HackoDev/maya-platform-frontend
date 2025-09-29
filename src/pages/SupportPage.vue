@@ -10,9 +10,18 @@
               Центр поддержки
             </h1>
           </div>
-          <p class="text-lg text-gray-600 dark:text-gray-400">
-            Найдите ответы на вопросы или свяжитесь с нашей командой поддержки
-          </p>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+              Найдите ответы на вопросы или свяжитесь с нашей командой поддержки
+            </p>
+            <button
+              type="button"
+              @click="handleToggleSupportForm"
+              class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 dark:focus:ring-offset-gray-900"
+            >
+              Задать вопрос
+            </button>
+          </div>
         </div>
 
         <!-- FAQ Section -->
@@ -78,7 +87,6 @@ const {
   refreshTickets,
   submitTicket,
   toggleFAQ,
-  isFAQExpanded,
   clearErrors,
   setCurrentTicket,
 } = useSupportData()
@@ -95,8 +103,6 @@ const simplifiedFAQs = computed((): SimplifiedFAQ[] => {
     id: faq.id,
     question: faq.question,
     answer: faq.answer,
-    priority: faq.priority,
-    isPopular: faq.isPopular
   }))
 })
 
@@ -146,13 +152,14 @@ const handleToggleSupportForm = (): void => {
 
 const handleSubmitSupportRequest = async (message: string): Promise<void> => {
   try {
-    await submitTicket(message)
+    const ticket = await submitTicket(message)
     
     // Hide form after successful submission
     showSupportForm.value = false
     
-    // Refresh tickets to show the new one
-    await refreshTickets()
+    // Navigate to the created ticket detail page
+    setCurrentTicket(ticket)
+    router.push({ name: 'SupportTicketDialog', params: { id: ticket.id } })
     
     console.log('Support request submitted successfully')
   } catch (err) {
