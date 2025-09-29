@@ -27,11 +27,11 @@ const initializeApp = async () => {
   try {
     console.log('🚀 Initializing app...')
     
-    // Initialize session (includes authentication restoration)
+    // Initialize session (restores token, fetches fresh user via API)
     const hasAuth = await session.initializeSession()
     
     if (hasAuth) {
-      console.log('✅ User session restored from localStorage')
+      console.log('✅ User session restored (fresh user fetched)')
       console.log('👤 Current user:', session.currentUser.value?.name)
     } else {
       console.log('ℹ️ No stored session found, user needs to login')

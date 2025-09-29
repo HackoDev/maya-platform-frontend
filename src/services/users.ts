@@ -174,7 +174,7 @@ export class UsersApiService extends BaseApiClient {
     try {
       this.ensureAuthenticated()
       const response = await this.patch<UserMeResponse>(`/api/web/users/me`, {
-        termsAccepted: true
+        generalConsentAccepted: true
       })
       return this.transformUserResponse(response.data)
     } catch (error) {
@@ -221,11 +221,6 @@ export class UsersApiService extends BaseApiClient {
         // Return the updated user data from avatar response (which should include the new avatar)
         return avatarResponse
       }
-      // For text-only updates, use JSON
-      const response = await this.patch<UserMeResponse>('/api/web/users/me', {
-        firstName: data.firstName,
-        lastName: data.lastName,
-      })
       
       return this.transformUserResponse(response.data)
     } catch (error) {

@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useGlobalSession } from '@/composables/useSession'
-import { authApi } from '@/services/authApiClient'
 import { useUserStore } from '@/stores/user'
 
 // Lazy-loaded pages
@@ -227,18 +226,13 @@ router.beforeEach(async (to, _from, next) => {
       }
     }
 
-    // If authenticated, ensure user profile freshness before proceeding
+    // If authenticated, ensure fresh user (with 30s TTL) before proceeding
     if (session.isAuthenticated.value) {
       try {
-        const freshUser = await authApi.ensureFreshUser()
-        // Sync refreshed user from auth storage into the store/session
-        if (freshUser) {
-          const userStore = useUserStore()
-          // Replace current user to trigger reactivity across app
-          userStore.updateUserData(freshUser)
-        }
+        const userStore = useUserStore()
+        await userStore.ensureFreshCurrentUser()
         session.syncWithUserStore()
-      } catch (e) {
+      } catch (_e) {
         // non-fatal; proceed with navigation
       }
     }
@@ -276,9 +270,8 @@ function handleNavigation(to: any, next: any, session: any) {
     }
 
     // Redirect specialist to home page if they are trying to access a specialist denied pages
-    if ((!['ServiceInfo', 'Login', 'ResetPassword'].includes(to.name)) && !session?.currentUser?.value?.generalConsentAccepted) {
+    if (!session?.currentUser?.value?.generalConsentAccepted && (!['ServiceInfo', 'Login', 'ResetPassword'].includes(to.name))) {
       console.log('🚫 Terms not accepted, redirecting - ')
-      console.log(JSON.stringify(session.currentUser, null, 2))
       next({ name: 'ServiceInfo' })
       return
     }

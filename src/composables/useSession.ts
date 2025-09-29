@@ -49,19 +49,16 @@ export function useSession() {
 
       console.log('🔄 Initializing session...')
 
-      // Try to restore session from localStorage
-      const hasStoredAuth = userStore.initializeAuth()
+      // Restore auth from stored token and fetch fresh user from API
+      const hasStoredAuth = await userStore.initializeAuth()
       
       if (hasStoredAuth) {
         // Validate the stored token by making a test request
         const isValid = await validateStoredToken()
         
         if (isValid) {
-          // Get the current user from authApi
-          const storedUser = authApi.getCurrentUser()
-          if (storedUser) {
-            sessionState.value.currentUser = storedUser
-          }
+          // Current user already refreshed in store; sync it
+          sessionState.value.currentUser = userStore.currentUser
           
           sessionState.value.isAuthenticated = true
           sessionState.value.isInitialized = true
@@ -70,9 +67,9 @@ export function useSession() {
           syncWithUserStore()
           
           // Activate user's preferred theme
-          activateUserTheme(storedUser)
+          activateUserTheme(userStore.currentUser)
           
-          console.log('✅ Session restored successfully')
+          console.log('✅ Session restored successfully with fresh user from API')
           
           // Start token validation
           startTokenValidation()

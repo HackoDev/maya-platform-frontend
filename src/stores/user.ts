@@ -44,6 +44,9 @@ export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // TTL cache for current user (30 seconds)
+  const USER_TTL_MS = 30 * 1000
+  const currentUserSyncedAtMs = ref<number | null>(null)
   
   // Initialize the user service
   const userService = new UserService()
@@ -296,15 +299,15 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // Initialize with stored authentication data
-  const initializeAuth = () => {
+  // Initialize with stored token and fetch fresh current user via API
+  const initializeAuth = async () => {
     try {
       const hasStoredToken = authApi.initialize()
       if (hasStoredToken) {
-        const storedUser = authApi.getCurrentUser()
-        if (storedUser) {
-          currentUser.value = storedUser
-        }
+        // Always fetch fresh profile from backend to avoid stale cached user
+        const freshUser = await userService.getCurrentUser()
+        currentUser.value = freshUser
+        currentUserSyncedAtMs.value = Date.now()
       }
       return hasStoredToken
     } catch (err) {
@@ -318,6 +321,7 @@ export const useUserStore = defineStore('user', () => {
     if (authUser && currentUser.value) {
       // Update local user data with auth data
       currentUser.value = authUser
+      currentUserSyncedAtMs.value = Date.now()
     }
   }
 
@@ -327,6 +331,31 @@ export const useUserStore = defineStore('user', () => {
       const updatedUser = { ...currentUser.value, ...userData }
       currentUser.value = updatedUser
       authApi.updateUserData(updatedUser)
+      currentUserSyncedAtMs.value = Date.now()
+    }
+  }
+
+  // Ensure currentUser is fresh according to TTL; fetch from API if stale
+  const ensureFreshCurrentUser = async (): Promise<User | null> => {
+    try {
+      const now = Date.now()
+      if (
+        currentUser.value &&
+        currentUserSyncedAtMs.value &&
+        now - currentUserSyncedAtMs.value < USER_TTL_MS
+      ) {
+        return currentUser.value
+      }
+      // Fetch from API
+      const fresh = await userService.getCurrentUser()
+      currentUser.value = fresh
+      currentUserSyncedAtMs.value = Date.now()
+      // Also sync to authApi storage for consistency across the app
+      authApi.updateUserData(fresh)
+      return fresh
+    } catch (err) {
+      // On error, keep existing user to avoid breaking navigation
+      return currentUser.value
     }
   }
 
@@ -359,5 +388,6 @@ export const useUserStore = defineStore('user', () => {
     initializeAuth,
     syncUserData,
     updateUserData,
+    ensureFreshCurrentUser,
   }
 })
