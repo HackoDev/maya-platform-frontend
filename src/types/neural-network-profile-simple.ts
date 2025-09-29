@@ -21,6 +21,7 @@ export interface NeuralNetworkProfile {
     telegram?: string
     whatsapp?: string
     isOpenToOffers?: boolean
+    generalConsentAccepted?: boolean
   }
   
   // Основные данные профиля

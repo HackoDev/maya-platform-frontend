@@ -276,9 +276,9 @@ function handleNavigation(to: any, next: any, session: any) {
     }
 
     // Redirect specialist to home page if they are trying to access a specialist denied pages
-    if (to.fullPath !== '/service-info' && session.currentUser.value?.termsAccepted === false) {
+    if ((!['ServiceInfo', 'Login', 'ResetPassword'].includes(to.name)) && !session?.currentUser?.value?.generalConsentAccepted) {
       console.log('🚫 Terms not accepted, redirecting - ')
-      console.log(to)
+      console.log(JSON.stringify(session.currentUser, null, 2))
       next({ name: 'ServiceInfo' })
       return
     }

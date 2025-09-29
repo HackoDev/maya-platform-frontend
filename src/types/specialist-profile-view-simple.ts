@@ -13,6 +13,7 @@ export interface SpecialistProfileViewData {
     avatarUrl?: string
     status: 'available' | 'busy' | 'unavailable'
     isOpenToOffers?: boolean
+    generalConsentAccepted?: boolean
     lastActive: string
   }
 

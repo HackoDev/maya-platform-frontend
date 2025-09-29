@@ -13,7 +13,7 @@ export interface ConsentPayload {
   subject: ConsentSubject
   personalData: PersonalData
   consents: {
-    termsAccepted: boolean
+    generalConsentAccepted: boolean
     privacyAccepted: boolean
     marketingAccepted?: boolean
   }

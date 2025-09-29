@@ -302,6 +302,7 @@ export class PortfoliosApiClient extends AuthApiClient {
         telegram: apiData.user.telegram,
         whatsapp: apiData.user.whatsapp,
         isOpenToOffers: apiData.user.isOpenToOffers,
+        generalConsentAccepted: apiData.user.generalConsentAccepted,
       },
       specializations: apiData.specializations,
       customSpecializations: apiData.customSpecializations,

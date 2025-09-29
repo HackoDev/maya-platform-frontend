@@ -29,6 +29,7 @@ export const useSpecialistProfileViewStore = defineStore('specialistProfileView'
         avatarUrl: apiProfile.user?.avatar, // Используем аватар из данных пользователя
         status: 'available',
         isOpenToOffers: apiProfile.user?.isOpenToOffers ?? false,
+        generalConsentAccepted: apiProfile.user?.generalConsentAccepted ?? false,
         lastActive: apiProfile.updatedAt || apiProfile.createdAt,
       },
       profileData: apiProfile,

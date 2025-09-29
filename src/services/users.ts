@@ -21,7 +21,7 @@ export interface UserMeResponse {
   telegram: string | null
   uiTheme: string | null
   isOpenToOffers?: boolean
-  termsAccepted?: boolean
+  generalConsentAccepted?: boolean
   portfolioStatus?: 'published' | 'draft' | 'archived' | null
   lastLoginAt: string
   createdAt: string
@@ -378,7 +378,7 @@ export class UsersApiService extends BaseApiClient {
       userType: apiUser.userType,
       isActive: apiUser.isActive,
       isOpenToOffers: apiUser.isOpenToOffers ?? false,
-      generalConsentAccepted: apiUser.termsAccepted ?? false,
+      generalConsentAccepted: apiUser.generalConsentAccepted ?? false,
       portfolioStatus: apiUser.portfolioStatus,
       uiTheme: apiUser.uiTheme,
       phone: apiUser.phone,
