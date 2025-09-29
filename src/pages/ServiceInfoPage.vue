@@ -91,7 +91,7 @@ async function submitGeneralConsent() {
         <div class="flex flex-col sm:flex-row sm:items-center gap-3">
           <ControlledToggle
             :model-value="consentAccepted"
-            :disabled="consentAccepted"
+            :disabled="session.currentUser.value?.generalConsentAccepted"
             @toggle-requested="consentAccepted = $event"
             label="Согласен на обработку персональных данных"
           />
