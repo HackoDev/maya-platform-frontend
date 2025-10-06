@@ -91,6 +91,7 @@ export interface PortfolioSearchFilters {
   offset?: number
   search?: string
   status?: string
+  skills?: string[]
 }
 
 // Attachment interfaces

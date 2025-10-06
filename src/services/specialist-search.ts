@@ -46,6 +46,7 @@ export class SpecialistSearchService {
         limit,
         offset,
         search: filters.query,
+        skills: filters.skills,
         status: filters.status,
       }
 

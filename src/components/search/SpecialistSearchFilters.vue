@@ -25,7 +25,7 @@
       </div>
 
       <!-- Skills Selection -->
-      <div>
+      <!-- <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Навыки и специализации
         </label>
@@ -35,7 +35,7 @@
           placeholder="Выберите необходимые навыки..."
           :max-selections="5"
         />
-      </div>
+      </div> -->
 
       <!-- Status Filter (Admin Only) -->
       <div v-if="isAdmin" data-testid="status-filter" class="border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-6">
