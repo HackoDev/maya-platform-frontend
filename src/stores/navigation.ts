@@ -65,6 +65,15 @@ export const useNavigationStore = defineStore(
         userType: 'admin'
       },
       {
+        id: 'invitations',
+        label: 'Приглашения',
+        route: '/invitations',
+        icon: 'user-plus',
+        requiresAuth: true,
+        visible: true,
+        userType: 'admin'
+      },
+      {
         id: 'support',
         label: 'Поддержка',
         route: '/support',

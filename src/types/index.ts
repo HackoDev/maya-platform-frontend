@@ -1,4 +1,5 @@
 // Global type definitions
+import type { Ref } from 'vue'
 
 export interface User {
   id: number
@@ -85,9 +86,9 @@ export interface TopNavbarProps {
 
 // Store interfaces
 export interface NavigationStoreState {
-  isMobileMenuOpen: boolean
-  activeRoute: string
-  navigationItems: NavigationItem[]
+  isMobileMenuOpen: Ref<boolean>
+  activeRoute: Ref<string>
+  navigationItems: Ref<NavigationItem[]>
 }
 
 export interface NavigationStoreActions {
@@ -95,6 +96,7 @@ export interface NavigationStoreActions {
   closeMobileMenu(): void
   setActiveRoute(route: string): void
   getVisibleNavigationItems(): NavigationItem[]
+  updateActiveRoute(): void
 }
 
 // Export support types

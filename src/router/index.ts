@@ -18,6 +18,8 @@ const SpecialistProfileViewSimplePage = () => import('@/pages/SpecialistProfileV
 const MyVacanciesPage = () => import('@/pages/MyVacanciesPage.vue')
 const AllVacanciesPage = () => import('@/pages/AllVacanciesPage.vue')
 const VacancyDetailPage = () => import('@/pages/VacancyDetailPage.vue')
+const AllInvitationsPage = () => import('@/pages/AllInvitationsPage.vue')
+const InviteRegistrationPage = () => import('@/pages/InviteRegistrationPage.vue')
 const ServiceInfoPage = () => import('@/pages/ServiceInfoPage.vue')
 
 const routes: RouteRecordRaw[] = [
@@ -133,6 +135,18 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/invitations',
+    name: 'AllInvitations',
+    component: AllInvitationsPage,
+    meta: {
+      title: 'Приглашения в систему',
+      requiresAuth: true,
+      clientDenied: true,
+      specialistDenied: true,
+      fallbackRedirect: 'Home'
+    },
+  },
+  {
     path: '/search/specialists',
     name: 'SearchSpecialists',
     component: SearchSpecialistsPage,
@@ -155,7 +169,6 @@ const routes: RouteRecordRaw[] = [
       fallbackRedirect: 'NeuralNetworkProfile'
     },
   },
-  
   {
     path: '/support',
     name: 'Support',
@@ -173,6 +186,17 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Support Ticket',
       requiresAuth: true,
+    },
+  },
+  {
+    path: '/invite/:id',
+    name: 'InviteRegistration',
+    component: InviteRegistrationPage,
+    props: true,
+    meta: {
+      title: 'Регистрация по приглашению',
+      requiresAuth: false,
+      hideForAuth: true,
     },
   },
   {
@@ -226,8 +250,8 @@ router.beforeEach(async (to, _from, next) => {
       }
     }
 
-    // If authenticated, ensure fresh user (with 30s TTL) before proceeding
-    if (session.isAuthenticated.value) {
+    // If authenticated and route requires auth, ensure fresh user (with 30s TTL) before proceeding
+    if (session.isAuthenticated.value && to.meta.requiresAuth) {
       try {
         const userStore = useUserStore()
         await userStore.ensureFreshCurrentUser()
@@ -270,7 +294,7 @@ function handleNavigation(to: any, next: any, session: any) {
     }
 
     // Redirect specialist to home page if they are trying to access a specialist denied pages
-    if (!session?.currentUser?.value?.generalConsentAccepted && (!['ServiceInfo', 'Login', 'ResetPassword'].includes(to.name))) {
+    if (!session?.currentUser?.value?.generalConsentAccepted && (!['ServiceInfo', 'Login', 'ResetPassword', 'InviteRegistration'].includes(to.name))) {
       console.log('🚫 Terms not accepted, redirecting - ')
       next({ name: 'ServiceInfo' })
       return
