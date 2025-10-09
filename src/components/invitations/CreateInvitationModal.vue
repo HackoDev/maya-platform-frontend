@@ -86,7 +86,7 @@
               <!-- Count -->
               <div>
                 <label for="count" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Количество приглашений *
+                  Сколько сгенерировать приглашений *
                 </label>
                 <input
                   id="count"
