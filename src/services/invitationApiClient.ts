@@ -54,19 +54,26 @@ export class InvitationApiClient extends AuthApiClient {
       createdAt: apiInvitation.createdTimestamp,
       updatedAt: apiInvitation.updatedTimestamp,
       isOneTime: apiInvitation.isOneTime,
+      isExpired: apiInvitation.isExpired,
     }
   }
 
-  /**
-   * Convert frontend invitation to API format
-   */
-  private convertInvitationToApiFormat(invitation: Partial<Invitation>): CreateInvitationRequest | UpdateInvitationRequest {
+  /** Build payload for create */
+  private buildCreatePayload(invitation: Partial<Invitation>): CreateInvitationRequest {
     return {
       userType: invitation.userType || 'client',
       expiresAfter: invitation.expiresAfter,
       count: invitation.count,
       isOneTime: invitation.isOneTime,
     }
+  }
+
+  /** Build payload for update */
+  private buildUpdatePayload(invitation: Partial<Invitation>): UpdateInvitationRequest {
+    const payload: UpdateInvitationRequest = {}
+    if (typeof invitation.isActive === 'boolean') payload.isActive = invitation.isActive
+    if (typeof invitation.expiresAt === 'string') payload.expiresAt = invitation.expiresAt
+    return payload
   }
 
   /**
@@ -79,6 +86,7 @@ export class InvitationApiClient extends AuthApiClient {
     if (filters?.offset !== undefined) params.offset = filters.offset
     if (filters?.userType) params.userType = filters.userType
     if (filters?.isActive !== undefined) params.isActive = filters.isActive
+    if (filters?.id) params.id = filters.id
 
     const response = await this.authenticatedRequest<ApiInvitationListResponse>('GET', '/api/web/invitations', params)
     
@@ -113,7 +121,7 @@ export class InvitationApiClient extends AuthApiClient {
    * Create new invitation
    */
   async createInvitation(invitationData: Partial<Invitation>): Promise<Invitation> {
-    const apiData = this.convertInvitationToApiFormat(invitationData) as CreateInvitationRequest
+    const apiData = this.buildCreatePayload(invitationData)
     
     const response = await this.authenticatedRequest<ApiInvitation>('POST', '/api/web/invitations', apiData, {
       headers: {
@@ -128,7 +136,7 @@ export class InvitationApiClient extends AuthApiClient {
    * Update invitation
    */
   async updateInvitation(id: string, invitationData: Partial<Invitation>): Promise<Invitation> {
-    const apiData = this.convertInvitationToApiFormat(invitationData) as UpdateInvitationRequest
+    const apiData = this.buildUpdatePayload(invitationData)
     
     const response = await this.authenticatedRequest<ApiInvitation>('PATCH', `/api/web/invitations/${id}`, apiData, {
       headers: {

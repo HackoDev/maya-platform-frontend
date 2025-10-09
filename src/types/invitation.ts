@@ -13,6 +13,7 @@ export interface ApiInvitation {
   createdTimestamp: string
   updatedTimestamp: string
   isOneTime?: boolean
+  isExpired?: boolean
 }
 
 export interface ApiInvitationListResponse {
@@ -32,6 +33,7 @@ export interface Invitation {
   count?: number
   isOneTime?: boolean
   expiresAfter?: number
+  isExpired?: boolean
 }
 
 export interface InvitationSearchFilters {
@@ -39,6 +41,7 @@ export interface InvitationSearchFilters {
   offset?: number
   userType?: 'client' | 'specialist'
   isActive?: boolean
+  id?: string
 }
 
 export interface InvitationPaginationResponse {

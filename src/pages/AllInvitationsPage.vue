@@ -26,6 +26,7 @@
       <!-- Search Filters -->
       <InvitationSearchFilters
         :loading="invitationStore.loading"
+        :initial-filters="initialFilters"
         @search="handleSearch"
       />
 
@@ -56,6 +57,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useInvitationStore } from '@/stores/invitation'
 import { 
   UserPlusIcon
@@ -65,16 +67,56 @@ import InvitationSearchResults from '@/components/invitations/InvitationSearchRe
 import CreateInvitationModal from '@/components/invitations/CreateInvitationModal.vue'
 import type { InvitationSearchFilters as InvitationSearchFiltersType, CreateInvitationRequest } from '@/types/invitation'
 
+// Router
+const route = useRoute()
+const router = useRouter()
+
 // Stores
 const invitationStore = useInvitationStore()
 
 // Modal state
 const showCreateModal = ref(false)
 
+// Derived initial filters from URL
+const initialFilters = ref<InvitationSearchFiltersType>({
+  limit: 10,
+  offset: 0,
+  userType: undefined,
+  isActive: undefined,
+})
+
+function parseQueryToFilters(q: Record<string, any>): InvitationSearchFiltersType {
+  const filters: InvitationSearchFiltersType = {}
+  if (q.userType === 'client' || q.userType === 'specialist') {
+    filters.userType = q.userType
+  }
+  if (q.isActive !== undefined) {
+    if (q.isActive === 'true' || q.isActive === true) filters.isActive = true
+    else if (q.isActive === 'false' || q.isActive === false) filters.isActive = false
+  }
+  if (typeof q.id === 'string' && q.id.trim().length > 0) {
+    filters.id = q.id
+  }
+  return filters
+}
+
+function filtersToQuery(filters?: InvitationSearchFiltersType) {
+  const query: Record<string, any> = {}
+  if (!filters) return query
+  if (filters.userType) query.userType = filters.userType
+  if (filters.isActive !== undefined) query.isActive = String(filters.isActive)
+  if (filters.id) query.id = filters.id
+  return query
+}
+
 // Methods
 const handleSearch = async (filters: InvitationSearchFiltersType): Promise<void> => {
   try {
-    await invitationStore.searchInvitations(filters)
+    // Update URL query to make the search shareable
+    const query = filtersToQuery({ ...filters, offset: 0 })
+    await router.replace({ query })
+
+    await invitationStore.searchInvitations({ ...filters, offset: 0 })
   } catch (error) {
     console.error('Search failed:', error)
   }
@@ -123,7 +165,22 @@ const handleCreateInvitationSubmit = async (data: CreateInvitationRequest) => {
 
 // Initialize
 onMounted(async () => {
-  // Load initial invitations
-  await invitationStore.searchInvitations()
+  // Parse filters from URL and run initial search
+  const fromQuery = parseQueryToFilters(route.query as Record<string, any>)
+  initialFilters.value = {
+    limit: fromQuery.limit ?? 10,
+    offset: 0,
+    userType: fromQuery.userType,
+    isActive: fromQuery.isActive,
+    id: fromQuery.id,
+  }
+
+  // Ensure URL reflects normalized filters for shareability
+  const normalizedQuery = filtersToQuery(initialFilters.value)
+  if (JSON.stringify(normalizedQuery) !== JSON.stringify(route.query)) {
+    await router.replace({ query: normalizedQuery })
+  }
+
+  await invitationStore.searchInvitations(initialFilters.value)
 })
 </script>

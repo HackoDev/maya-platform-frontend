@@ -2,8 +2,22 @@
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
     <div class="space-y-4">
       <!-- Search Filters Row -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Search Input -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Invitation ID Search -->
+        <div>
+          <label for="invitationId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            ID приглашения
+          </label>
+          <input
+            id="invitationId"
+            v-model="localFilters.id"
+            type="text"
+            placeholder="Введите invitation_id"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+
+        <!-- User Type Filter -->
         <div>
           <label for="userType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Тип пользователя
@@ -53,19 +67,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, watchEffect } from 'vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import type { InvitationSearchFilters } from '@/types/invitation'
 
 interface Props {
   loading?: boolean
+  initialFilters?: InvitationSearchFilters
 }
 
 interface Emits {
   (e: 'search', filters: InvitationSearchFilters): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
@@ -75,6 +90,20 @@ const localFilters = ref<InvitationSearchFilters>({
   offset: 0,
   userType: undefined,
   isActive: undefined,
+  id: undefined,
+})
+
+// Hydrate from initialFilters when provided
+watchEffect(() => {
+  if (props.initialFilters) {
+    localFilters.value = {
+      limit: props.initialFilters.limit ?? 10,
+      offset: props.initialFilters.offset ?? 0,
+      userType: props.initialFilters.userType,
+      isActive: props.initialFilters.isActive,
+      id: props.initialFilters.id,
+    }
+  }
 })
 
 // Watch for changes and emit search

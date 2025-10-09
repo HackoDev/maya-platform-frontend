@@ -64,10 +64,11 @@
       <!-- Combined Dates -->
       <div class="space-y-1">
         <div class="text-xs text-gray-500 dark:text-gray-400">
-          Истекает:
+          {{ invitation.isExpired ? 'Уже истекло:' : 'Истекает:' }}
         </div>
-        <div class="text-sm text-gray-900 dark:text-white">
-          {{ formatDate(invitation.expiresAt) }}
+        <div class="text-sm flex items-center space-x-2"
+             :class="invitation.isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-300'">
+          <span>{{ formatDate(invitation.expiresAt) }}</span>
         </div>
         <div class="text-xs text-gray-500 dark:text-gray-400">
           Создано:
