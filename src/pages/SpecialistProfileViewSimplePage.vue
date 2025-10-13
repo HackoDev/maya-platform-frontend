@@ -100,6 +100,7 @@
                 <PortfolioSection
                   :portfolio="profileStore.displayPortfolio"
                   :specialist-name="profileStore.currentProfile.basicInfo.displayName"
+                  @show-content="openPortfolioContent"
                 />
               </div>
 
@@ -268,6 +269,15 @@
         </button>
       </div>
     </div>
+
+    <!-- Content Modal -->
+    <BaseModal :show="isContentModalOpen" :title="contentModalTitle" size="3xl" @close="closeContentModal">
+      <template #default>
+        <div class="prose max-w-none dark:prose-invert whitespace-pre-wrap">
+          {{ contentModalText }}
+        </div>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -289,6 +299,7 @@ import ExperienceSection from '@/components/profile/ExperienceSection.vue'
 import ServicesSection from '@/components/profile/ServicesSection.vue'
 import TestimonialsSection from '@/components/profile/TestimonialsSection.vue'
 import ContactSection from '@/components/profile/ContactSection.vue'
+import BaseModal from '@/components/ui/BaseModal.vue'
 
 interface Props {
   specialistId?: string
@@ -422,6 +433,21 @@ onMounted(async () => {
 onUnmounted(() => {
   profileStore.clearProfile()
 })
+
+// Portfolio content modal
+const isContentModalOpen = ref(false)
+const contentModalTitle = ref('')
+const contentModalText = ref('')
+
+const openPortfolioContent = (payload: { id: string; title: string; content: string }) => {
+  contentModalTitle.value = payload.title
+  contentModalText.value = payload.content
+  isContentModalOpen.value = true
+}
+
+const closeContentModal = () => {
+  isContentModalOpen.value = false
+}
 </script>
 
 <style scoped>
