@@ -45,8 +45,7 @@
             <form @submit.prevent="submitPersonalInfo" class="space-y-4 sm:space-y-6">
               <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-start w-full">
                 <!-- Avatar Upload - Left Side -->
-                <div v-if="userStore.currentUser?.userType !== 'admin'"
-                     class="flex flex-col items-center space-y-4 sm:space-y-6 md:w-96 flex-shrink-0">
+                <div class="flex flex-col items-center space-y-4 sm:space-y-6 md:w-96 flex-shrink-0">
                   <div
                     class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden border-4 border-gray-300 dark:border-gray-600 shadow-lg transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-500"
                   >

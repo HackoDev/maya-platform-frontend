@@ -208,19 +208,15 @@ export class UsersApiService extends BaseApiClient {
   async updatePersonalInfo(data: PersonalInfoUpdate): Promise<User> {
     try {
       this.ensureAuthenticated()
-      
       // If avatar is provided, upload it separately using dedicated endpoint
       if (data.avatar) {
-        // First update personal info (text data)
-        await this.patch<UserMeResponse>('/api/web/users/me', {
-          firstName: data.firstName,
-          lastName: data.lastName,
-        })
-
-        const avatarResponse = await this.updateAvatar(data.avatar)
-        // Return the updated user data from avatar response (which should include the new avatar)
-        return avatarResponse
+        await this.updateAvatar(data.avatar)
       }
+
+      const response = await this.patch<UserMeResponse>('/api/web/users/me', {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      })
       
       return this.transformUserResponse(response.data)
     } catch (error) {
