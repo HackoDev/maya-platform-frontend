@@ -158,7 +158,11 @@ export function useSession() {
       return false
     } catch (error: any) {
       console.error('❌ Login failed:', error)
-      sessionState.value.error = error.message || 'Login failed'
+      if (error?.data?.error_description.includes('Invalid credentials given')) {
+        sessionState.value.error = 'Неверный email или пароль'
+        return false
+      }
+      sessionState.value.error = error.data?.error_description || 'Login failed'
       return false
     } finally {
       sessionState.value.isLoading = false

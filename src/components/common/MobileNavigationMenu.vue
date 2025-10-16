@@ -51,9 +51,14 @@
           v-if="user.userType === 'specialist'"
           class="text-left"
         >
-          <span class="text-xs font-medium px-2 py-1 rounded-full" :class="portfolioStatusButton.classes">
+          <button
+            @click="goToSpecialistQuestionnaire"
+            class="text-xs font-medium px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+            :class="portfolioStatusButton.classes"
+            title="Перейти к анкете специалиста"
+          >
             {{ portfolioStatusButton.text }}
-          </span>
+          </button>
         </div>
 
         <!-- Admin Status -->
@@ -196,6 +201,11 @@ const handleLogout = async () => {
 
 const handleCreateVacancy = () => {
   emit('create-vacancy')
+  emit('close')
+}
+
+const goToSpecialistQuestionnaire = () => {
+  router.push('/profile/neural-network')
   emit('close')
 }
 </script>

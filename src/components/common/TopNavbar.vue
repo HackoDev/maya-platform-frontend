@@ -82,8 +82,9 @@
           </template>
         </div>
 
-        <!-- Mobile Menu Button -->
+        <!-- Mobile Menu Button (only for authenticated users) -->
         <button
+          v-if="session.isAuthenticated.value"
           class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           :aria-expanded="navigationStore.isMobileMenuOpen"
           @click="navigationStore.toggleMobileMenu"
@@ -94,8 +95,9 @@
       </div>
     </div>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile Menu (only for authenticated users) -->
     <MobileNavigationMenu
+      v-if="session.isAuthenticated.value"
       :is-open="navigationStore.isMobileMenuOpen"
       :navigation-items="visibleNavigationItems"
       :user="session.currentUser.value"
